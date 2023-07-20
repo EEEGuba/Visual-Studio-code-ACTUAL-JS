@@ -1,0 +1,8 @@
+#content,#map {
+    float: left;
+    border: 2px solid black;
+  }
+#content {
+  background: rgb(80,77,77);
+background: linear-gradient(0deg, rgba(80,77,77,1) 0%, rgba(255,255,255,1) 50%, rgba(80,77,77,1) 100%);
+}

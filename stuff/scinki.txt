@@ -1,0 +1,10 @@
+  function calculate(x, y, z, time) {
+    if (time < 300) {
+      let groundacceleration = -x * time * time
+      let vroom = y * time
+      launch(vroom, 100 - groundacceleration, 5, 5)
+      setTimeout(function () {
+        calculate(x, y, z, ++time)
+      }, 50)
+    }
+  }

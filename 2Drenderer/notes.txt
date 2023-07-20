@@ -1,0 +1,23 @@
+            if (isForward) {if (direction>)
+
+                playerpos[0] += 5 * Math.sin(direction);
+                if ((2 - playerpos[0]) <= 0) { playerpos[1] += Math.sqrt(Math.abs(2 - playerpos[0])) }
+                else { playerpos[1] += -Math.sqrt(2 - playerpos[0]) }
+            }
+            else {
+                playerpos[0] -= 4 * Math.sin(direction);
+
+                if ((2 - playerpos[0]) <= 0) { playerpos[1] -= -Math.sqrt(Math.abs(2 - playerpos[0])) }
+                else { playerpos[1] -= Math.sqrt(2 - playerpos[0]) }
+            }
+            B R U H 
+
+
+
+
+            function refresh() {
+    console.log("ref")
+    setTimeout(function () {
+        refresh()
+    }, refreshrate)
+}
