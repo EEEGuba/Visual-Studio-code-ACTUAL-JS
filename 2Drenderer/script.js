@@ -404,11 +404,16 @@ function returnmapdata(x, y) {
 
 }
 function returnbool(array) {
-
     if (array.x == checkx && array.y == checky) {
         return true
     }
+    return false;
 }
+/**
+ * Converts angle to radians
+ * @param {*} angle 
+ * @returns Angle in radians
+ */
 function toRadians(angle) {
     return angle * (Math.PI / 180);
 }
