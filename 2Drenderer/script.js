@@ -5,6 +5,7 @@ const refreshrate = 100 //arbitrary
 const renderaccuracy = 1 //bigger number faster, less accurate
 const turnsensitivity = 6 //degrees turning on click of a or d
 const steplength = 2 //how far you go after w or s
+const renderdistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 
 //end of settings
 
@@ -263,18 +264,25 @@ function displacement(isForward) {
     playerpos[0] += playerx
     playerpos[1] += playery
 }
+let lastCollidedBlock=[0,0]
+let isUnconnected = false
 function interpreter(distance, angle, islastline) {
+    const a = ~~(distance * Math.sin(toRadians((direction - angle))))
+    const fisheyeCorrection = ~~(Math.sqrt((distance*distance)-(a*a)))
     const sidespace = Math.abs(250 / fov) * (direction - angle)
-    const length = 200 - distance
-    const col = 255 - distance * 3
+    const length = 200-fisheyeCorrection
+    const col = 255 - distance
     const color = `rgb(0,0,${col})`
-    drawvector(125 - sidespace, 200 - length, 125 - sidespace, length, color, islastline)
-    lastvector = [125 - sidespace, 200 - length, 125 - sidespace, length]
+    if(!distance){isUnconnected=true}else{isUnconnected = false}
+    drawvector(125 - sidespace, 200 - length, 125 - sidespace, 50+length, color, islastline)
+    lastvector = [125 - sidespace, 200 - length, 125 - sidespace, 50+length]
+    lastCollidedBlock[0]=checkcolx
+    lastCollidedBlock[1]=checkcoly
 }
 function wallsightloop(i) {
     let lookx = 0
     let looky = 0
-    for (let j = 1; j < 100; j += renderaccuracy) {
+    for (let j = 1; j < renderdistance; j += renderaccuracy) {
 
         let angle = i
         switch (angle) {
@@ -316,6 +324,7 @@ function wallsightloop(i) {
             return j;
         }
     } function mapcollision(x, y) {
+
         checkcolx = x / 10
         checkcoly = y / 10
         if (mapdata.some(returncollision)) {
@@ -325,8 +334,8 @@ function wallsightloop(i) {
     }
 }
 function wallsight() {
-    const firstcondition = direction - fov / 2
-    const secondcondition = direction + fov / 2
+    const firstcondition = direction - fov/ 2
+    const secondcondition = direction + (fov+1) / 2
     for (let i = firstcondition; i < secondcondition; i++) {
         if (i==secondcondition||i== firstcondition) 
         {
@@ -382,14 +391,23 @@ function movement(x) {
     }ctx.clearRect(0, 0, 250, 250)
     wallsight()
 }
+function compare2(x1,y1,x2,y2){
+    if (x1+1>=x2 && x1-1<=x2 && y1+1>=y2&& y1-1<=y2){isUnconnected=false}
+    else{isUnconnected=true}
+}
 function drawvector(beginx, beginy, endx, endy, color, islastline) {
+    compare2(~~lastCollidedBlock[0],~~lastCollidedBlock[1],~~checkcolx,~~checkcoly)
     ctx.fillStyle = color
     ctx.beginPath();
     ctx.moveTo(beginx, beginy);
     ctx.lineTo(endx, endy);
-    if (!islastline) {
-        ctx.lineTo(lastvector[2], lastvector[3])
-        ctx.lineTo(lastvector[0], lastvector[1])
+    if (isUnconnected&&!islastline){
+        ctx.lineTo(beginx-7,endy)
+        ctx.lineTo(beginx-7,beginy)
+    }
+    if (!islastline&&!isUnconnected) {
+        ctx.lineTo(--lastvector[2], lastvector[3])
+        ctx.lineTo(--lastvector[0], lastvector[1])
     }
     ctx.closePath();
     ctx.fill();
