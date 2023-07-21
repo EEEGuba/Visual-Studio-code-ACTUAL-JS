@@ -328,7 +328,7 @@ function wallsight() {
     const firstcondition = direction - fov / 2
     const secondcondition = direction + fov / 2
     for (let i = firstcondition; i < secondcondition; i++) {
-        if (i<= secondcondition||i> firstcondition) 
+        if (i==secondcondition||i== firstcondition) 
         {
             interpreter(wallsightloop(i), i, true)
         }
@@ -388,12 +388,11 @@ function drawvector(beginx, beginy, endx, endy, color, islastline) {
     ctx.moveTo(beginx, beginy);
     ctx.lineTo(endx, endy);
     if (!islastline) {
-        console.log("im working")
         ctx.lineTo(lastvector[2], lastvector[3])
         ctx.lineTo(lastvector[0], lastvector[1])
     }
     ctx.closePath();
-    ctx.stroke();
+    ctx.fill();
 }
 function returnmapdata(x, y) {
     checkx = y
