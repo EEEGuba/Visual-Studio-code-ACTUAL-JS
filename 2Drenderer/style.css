@@ -3,6 +3,7 @@
     border: 2px solid black;
   }
 #content {
-  background: rgb(80,77,77);
-background: linear-gradient(0deg, rgba(80,77,77,1) 0%, rgba(255,255,255,1) 50%, rgba(80,77,77,1) 100%);
-}
+    background-image: 
+      linear-gradient(180deg, #001aff -30% -30%, 21%, #fff 25% 25%, #0ff 35% 35%, #f80 60%, #f3b600 80%, #efba00 100%)
+    ;
+  }

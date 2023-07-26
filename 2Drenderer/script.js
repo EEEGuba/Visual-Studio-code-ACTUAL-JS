@@ -1,10 +1,10 @@
 //settings
 
-const fov = 40 //this isnt degrees, its arbitrary
+const fov =40 //this isnt degrees, its arbitrary
 const refreshrate = 100 //arbitrary
 const renderaccuracy = 1 //bigger number faster, less accurate
 const turnsensitivity = 6 //degrees turning on click of a or d
-const steplength = 2 //how far you go after w or s
+const steplength = 1 //how far you go after w or s
 const renderdistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 
 //end of settings
@@ -267,17 +267,22 @@ function displacement(isForward) {
 let lastCollidedBlock=[0,0]
 let isUnconnected = false
 function interpreter(distance, angle, islastline) {
-    const a = ~~(distance * Math.sin(toRadians((direction - angle))))
+    const a = (distance * Math.sin(toRadians((direction - angle))))
     const fisheyeCorrection = ~~(Math.sqrt((distance*distance)-(a*a)))
-    const sidespace = Math.abs(250 / fov) * (direction - angle)
+    const sidespace = ~~(Math.abs(250 / fov) * (direction - angle))
     const length = 200-fisheyeCorrection
-    const col = 255 - distance
-    const color = `rgb(0,0,${col})`
+    const col = 255 - distance*2
+    const color = `rgb(0,${col},0)`
     if(!distance){isUnconnected=true}else{isUnconnected = false}
+    if (200 - length<50+length){
     drawvector(125 - sidespace, 200 - length, 125 - sidespace, 50+length, color, islastline)
     lastvector = [125 - sidespace, 200 - length, 125 - sidespace, 50+length]
     lastCollidedBlock[0]=checkcolx
     lastCollidedBlock[1]=checkcoly
+    }
+    if (direction-angle == 5){
+    console.log ( distance,length)
+    }
 }
 function wallsightloop(i) {
     let lookx = 0
@@ -402,17 +407,18 @@ function drawvector(beginx, beginy, endx, endy, color, islastline) {
     ctx.moveTo(beginx, beginy);
     ctx.lineTo(endx, endy);
     if (isUnconnected&&!islastline){
-        ctx.lineTo(beginx-7,endy)
-        ctx.lineTo(beginx-7,beginy)
+        ctx.lineTo(beginx-280/fov,endy)
+        ctx.lineTo(beginx-280/fov,beginy)
     }
     if (!islastline&&!isUnconnected) {
         ctx.lineTo(--lastvector[2], lastvector[3])
         ctx.lineTo(--lastvector[0], lastvector[1])
     }
-    ctx.closePath();
+  ctx.closePath();
     ctx.fill();
 }
 function returnmapdata(x, y) {
+
     checkx = y
     checky = x
     if (mapdata.some(returnbool)) {

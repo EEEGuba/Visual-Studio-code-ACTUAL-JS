@@ -21,3 +21,21 @@
         refresh()
     }, refreshrate)
 }
+
+~~(5.3-(4.8*fisheyeCorrection)**0.4)*-10
+
+
+    a = ~~(distance * Math.sin(toRadians((dir - angle))))
+    y = 200-Math.sqrt((x*x)-(x * Math.sin(5))*(x * Math.sin(5)))
+
+
+    y = 200-Math.sqrt((c*c)-(distance * Math.sin(c)*distance * Math.sin(c)))
+
+        if (distance<36||distance>163){
+        length = ~~(200-fisheyeCorrection)
+    }
+    else{
+    length = ~~(300*(20/fisheyeCorrection))
+    }
+
+        const length = 300*(-6.6*(1/((-0.2*fisheyeCorrection)-8.3)-40))
