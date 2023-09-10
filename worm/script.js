@@ -45,7 +45,7 @@ function draw(y, x, color) {
   ctx.strokeStyle = "black";
   ctx.fillStyle = color;
   ctx.fillRect(y * 10, 250 - x * 10, 10, 10);
-  ctx.strokeRect((y * 10) - 1, (250 - x * 10) - 1, 10, 10);
+  ctx.strokeRect((y * 10)-1, (250 - x * 10)-1, 10, 10);
 }
 
 function keyLogger() {
@@ -119,10 +119,12 @@ function refresh() {
     } else {
       gamestarted = false;
       console.log("przegrales/as :c");
+      failsequence()
     }
   } else {
     gamestarted = false;
     console.log("przegrales/as :c");
+    failsequence()
   }
 }
 
@@ -135,6 +137,36 @@ function fruit() {
 function insertAndShift(data, len) {
   let cutOut = data.splice(-len); // cut <len> elements from the end
   data.splice(0, 0, ...cutOut)// insert it at the beggining of the array
+}
+function failsequence(){
+  let rowNumber=-1
+  setTimeout(function () {
+    rowNumber++
+    screenrolldown()
+  }, 2*refreshRate)
+  function screenrolldown(){
+    ctx.fillStyle = "rgb(102, 51, 0)"
+    ctx.fillRect(0,rowNumber* 10, 250, 10);
+    if (rowNumber<25&&!gamestarted){setTimeout(function () {
+      rowNumber++
+      screenrolldown()
+    }, 50)}
+  }
+  let blinkcheck = true
+  {setTimeout(function () {
+    losetext()
+  }, 1000)}
+  function losetext(){
+    ctx.font = "30px sans-serif"
+    ctx.textAlign = "center";
+    if(!gamestarted){
+    if (blinkcheck){blinkcheck=false;ctx.fillStyle="red";ctx.fillText("You lose :c",120,100)}
+    else {blinkcheck=true;ctx.fillStyle="blue";ctx.fillText("You lose :c",120,100)}
+    {setTimeout(function () {
+      losetext()
+    }, 500)}}
+  }
+
 }
 //  if (positiony == fruity && positionx == fruitx) {
 //    addScore();
