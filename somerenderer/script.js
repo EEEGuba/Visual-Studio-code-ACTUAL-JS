@@ -1,6 +1,7 @@
 //settings
-const movementspeed = 1
-const turnsensitivity = 1
+const movementSpeed = 1
+const turnSensitivity = 1
+const renderDistance = 100
 
 //end of settings
 
@@ -24,22 +25,22 @@ function keyLogger() {
 function turning(key) {
     switch (key) {
         case "u":
-            playerrot.pitch += turnsensitivity
+            playerrot.pitch += turnSensitivity
             break;
         case "h":
-            playerrot.yaw -= turnsensitivity
+            playerrot.yaw -= turnSensitivity
             break;
         case "j":
-            playerrot.pitch -= turnsensitivity
+            playerrot.pitch -= turnSensitivity
             break;
         case "k":
-            playerrot.yaw += turnsensitivity
+            playerrot.yaw += turnSensitivity
             break;
         case "y":
-            playerrot.roll -= turnsensitivity
+            playerrot.roll -= turnSensitivity
             break;
         case "i":
-            playerrot.roll += turnsensitivity
+            playerrot.roll += turnSensitivity
             break;
     }
     if (playerrot.pitch >= 360) { playerrot.pitch -= 360 }
@@ -52,7 +53,7 @@ function turning(key) {
 }
 function movement(key) {
     if (key == "w") {
-        const result = calculateGridDisplacement()
+        const result = calculateGridDisplacement(movementSpeed)
         console.log(result)
         playerpos = result
 
@@ -84,8 +85,23 @@ function addPoint() {
     pointlist.push({ order: pointlist.length + 1, x: a, y: b, z: c })
 }
 
+function visionPyramid(){
+    const visionPyramidHeight = calculateGridDisplacement(movementSpeed)
 
-function calculateGridDisplacement() {
+    const visionPyramidHeightX = visionPyramidHeight.x
+    const visionPyramidHeightY = visionPyramidHeight.y
+    const visionPyramidHeightZ = visionPyramidHeight.z
+
+    const visionPyramidApexX = playerpos.x
+    const visionPyramidApexY = playerpos.y
+    const visionPyramidApexZ = playerpos.z
+
+
+
+}
+
+
+function calculateGridDisplacement(shiftValue) {
     // Initial position
     const x0 = playerpos.x;
     const y0 = playerpos.y;
@@ -124,9 +140,9 @@ function calculateGridDisplacement() {
 
     // Calculate displacement vector
     const displacementVector = [
-        forwardVector[0] * movementspeed,
-        forwardVector[1] * movementspeed,
-        forwardVector[2] * movementspeed
+        forwardVector[0] * shiftValue,
+        forwardVector[1] * shiftValue,
+        forwardVector[2] * shiftValue
     ];
     //newPlayerPos
     const newPlayerPos = {
