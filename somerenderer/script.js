@@ -1,5 +1,5 @@
 //settings
-const movementSpeed = 1
+const movementSpeed = 10
 const turnSensitivity = 1
 const renderDistance = 100
 
@@ -12,9 +12,9 @@ const ctx = canvas.getContext("2d");
 
 let pointlist = [{ order: 1, x: 0, y: 0, z: 0 }]
 let playerpos = { order: 0, x: 0, y: 0, z: 0 }
-let playerrot = { pitch: 0, yaw: 0, roll: 0 }
+let playerrot = { pitch: 0, yaw: 0 }
 
-for (i=1;i<21;i++){
+for (i = 1; i < 21; i++) {
     addPoint()
 }
 
@@ -37,18 +37,11 @@ function turning(key) {
             playerrot.yaw += turnSensitivity
             break;
         case "y":
-            playerrot.roll -= turnSensitivity
-            break;
-        case "i":
-            playerrot.roll += turnSensitivity
-            break;
     }
-    if (playerrot.pitch >= 360) { playerrot.pitch -= 360 }
-    else if (playerrot.pitch < 0) { playerrot.pitch += 359 }
+    if (playerrot.pitch >= 180) { playerrot.pitch = 180 }
+    else if (playerrot.pitch <= 0) { playerrot.pitch = 0 }
     if (playerrot.yaw > 359) { playerrot.yaw -= 360 }
     else if (playerrot.yaw < 0) { playerrot.yaw += 359 }
-    if (playerrot.roll >= 360) { playerrot.roll -= 360 }
-    else if (playerrot.roll < 0) { playerrot.roll += 359 }
     console.log(playerrot)
 }
 function movement(key) {
@@ -60,7 +53,7 @@ function movement(key) {
     }
 }
 function commandcenter(key) {
-    if (key == "u" || key == "h" || key == "j" || key == "k" || key == "y" || key == "i") {
+    if (key == "u" || key == "h" || key == "j" || key == "k") {
         turning(key)
     }
     else if (key == "w" || key == "a" || key == "s" || key == "d") {
@@ -85,7 +78,7 @@ function addPoint() {
     pointlist.push({ order: pointlist.length + 1, x: a, y: b, z: c })
 }
 
-function visionPyramid(){
+/*function visionPyramid(){
     const visionPyramidHeight = calculateGridDisplacement(movementSpeed)
 
     const visionPyramidHeightX = visionPyramidHeight.x
@@ -99,59 +92,32 @@ function visionPyramid(){
 
 
 }
-
+*/
 
 function calculateGridDisplacement(shiftValue) {
-    // Initial position
-    const x0 = playerpos.x;
-    const y0 = playerpos.y;
-    const z0 = playerpos.z;
 
-    // Rotation angles (in radians)
-    const roll = toRadians(playerrot.roll); // Example roll angle (30 degrees in radians)
-    const pitch = toRadians(playerrot.pitch); // Example pitch angle (45 degrees in radians)
-    const yaw = toRadians(playerrot.yaw); // Example yaw angle (60 degrees in radians)
+    /*
+x=r sin ϕ cos θ
+y=r sin ϕ sin θ
+z=r cos ϕ
+    */
+    const phiAzimuth = toRadians(playerrot.yaw)
+    const thetaPolarAngle = toRadians(playerrot.pitch)
+    const r = shiftValue
+    const playerx = playerpos.x
+    const playery = playerpos.y
+    const playerz = playerpos.z
 
-    // Calculate rotation matrix
-    const rotationMatrix = [
-        [
-            Math.cos(yaw) * Math.cos(pitch),
-            -Math.sin(yaw) * Math.cos(roll) + Math.cos(yaw) * Math.sin(pitch) * Math.sin(roll),
-            Math.sin(yaw) * Math.sin(roll) + Math.cos(yaw) * Math.sin(pitch) * Math.cos(roll)
-        ],
-        [
-            Math.sin(yaw) * Math.cos(pitch),
-            Math.cos(yaw) * Math.cos(roll) + Math.sin(yaw) * Math.sin(pitch) * Math.sin(roll),
-            -Math.cos(yaw) * Math.sin(roll) + Math.sin(yaw) * Math.sin(pitch) * Math.cos(roll)
-        ],
-        [
-            -Math.sin(pitch),
-            Math.cos(pitch) * Math.sin(roll),
-            Math.cos(pitch) * Math.cos(roll)
-        ]
-    ];
+const newPlayerPos = {
+    order:  0,
+    x:      (r*Math.sin(phiAzimuth)*Math.cos(thetaPolarAngle)).toFixed(5),
+    y:      (r*Math.sin(phiAzimuth)*Math.sin(thetaPolarAngle)).toFixed(5),
+    z:      (r*Math.cos(phiAzimuth)).toFixed(5)
+}
 
-    // Forward vector
-    const forwardVector = [
-        rotationMatrix[0][0], // x-component
-        rotationMatrix[0][1], // y-component
-        rotationMatrix[0][2]  // z-component
-    ];
-
-    // Calculate displacement vector
-    const displacementVector = [
-        forwardVector[0] * shiftValue,
-        forwardVector[1] * shiftValue,
-        forwardVector[2] * shiftValue
-    ];
-    //newPlayerPos
-    const newPlayerPos = {
-        order: 0,
-        x: x0 + displacementVector[0],
-        y: y0 + displacementVector[1],
-        z: z0 + displacementVector[2]
-    }
     return (newPlayerPos);
+
+
 }
 
 /**
