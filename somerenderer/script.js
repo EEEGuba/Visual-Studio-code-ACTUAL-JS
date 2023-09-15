@@ -1,8 +1,8 @@
 //settings
-const movementSpeed     = 10
-const turnSensitivity   = 6
-const renderDistance    = 100
-const fov               = 50
+const movementSpeed = 10
+const turnSensitivity = 6
+const renderDistance = 100
+const fov = 50
 
 //end of settings
 
@@ -49,7 +49,7 @@ function turning(key) {
 }
 function movement(key) {
     if (key == "w") {
-        const result = calculateGridDisplacement(movementSpeed,playerpos,playerrot)
+        const result = calculateGridDisplacement(movementSpeed, playerpos, playerrot)
         playerpos = result
         console.log(result)
 
@@ -81,19 +81,22 @@ function addPoint() {
     pointlist.push({ order: pointlist.length + 1, x: a, y: b, z: c })
 }
 
-function visionPyramid(){
+function visionPyramid() {
+    //polar angle and azimuth are flipped incorrectly
+
+    //the spherical coordinates shift the pyramid base based on polar angle as azimuth has more or less weight in the position
 
     const pitch = playerrot.pitch
     const yaw = playerrot.yaw
-    const visionPyramidPoint1 = calculateGridDisplacement(renderDistance,playerpos,{pitch:pitch+(fov/2), yaw:yaw-(fov/2)})
-    const visionPyramidPoint2 = calculateGridDisplacement(renderDistance,playerpos,{pitch:pitch+(fov/2), yaw:yaw+(fov/2)})
-    const visionPyramidPoint3 = calculateGridDisplacement(renderDistance,playerpos,{pitch:pitch-(fov/2), yaw:yaw-(fov/2)})
-    const visionPyramidPoint4 = calculateGridDisplacement(renderDistance,playerpos,{pitch:pitch-(fov/2), yaw:yaw+(fov/2)})
+    const visionPyramidPoint1 = calculateGridDisplacement(renderDistance, playerpos, { pitch: pitch + (fov / 2), yaw: yaw - (fov / 2) })
+    const visionPyramidPoint2 = calculateGridDisplacement(renderDistance, playerpos, { pitch: pitch + (fov / 2), yaw: yaw + (fov / 2) })
+    const visionPyramidPoint3 = calculateGridDisplacement(renderDistance, playerpos, { pitch: pitch - (fov / 2), yaw: yaw - (fov / 2) })
+    const visionPyramidPoint4 = calculateGridDisplacement(renderDistance, playerpos, { pitch: pitch - (fov / 2), yaw: yaw + (fov / 2) })
 
-    const visionPyramidPointApex = [playerpos.x,playerpos.y,playerpos.z]
+    const visionPyramidPointApex = [playerpos.x, playerpos.y, playerpos.z]
 
-
-console.log (visionPyramidPoint1,visionPyramidPoint2,visionPyramidPoint3,visionPyramidPoint4)
+    console.log(fov, (fov / 2))
+    console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
 }
 
 function calculateGridDisplacement(shiftValue, position, rotation) {
@@ -110,11 +113,11 @@ z=r cos ϕ
     const playery = position.y
     const playerz = position.z
 
-const newPosition = {
-    x:      playerx+Number((r*Math.sin(phiAzimuth)*Math.cos(thetaPolarAngle)).toFixed(5)),
-    y:      playery+Number((r*Math.sin(phiAzimuth)*Math.sin(thetaPolarAngle)).toFixed(5)),
-    z:      playerz+Number((r*Math.cos(phiAzimuth)).toFixed(5))
-};
+    const newPosition = {
+        x: playerx + Number((r * Math.sin(phiAzimuth) * Math.cos(thetaPolarAngle)).toFixed(5)),
+        y: playery + Number((r * Math.sin(phiAzimuth) * Math.sin(thetaPolarAngle)).toFixed(5)),
+        z: playerz + Number((r * Math.cos(phiAzimuth)).toFixed(5))
+    };
 
     return (newPosition);
 
