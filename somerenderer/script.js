@@ -86,6 +86,9 @@ function visionPyramid() {
 
     //the spherical coordinates shift the pyramid base based on polar angle as azimuth has more or less weight in the position
 
+
+    /*calc right angle for the pyramid side, how to determine angle?? 
+    */
     const pitch = playerrot.pitch
     const yaw = playerrot.yaw
     const visionPyramidPoint1 = calculateGridDisplacement(renderDistance, playerpos, { pitch: pitch + (fov / 2), yaw: yaw - (fov / 2) })
@@ -97,6 +100,7 @@ function visionPyramid() {
 
     console.log(fov, (fov / 2))
     console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
+
 }
 
 function calculateGridDisplacement(shiftValue, position, rotation) {
