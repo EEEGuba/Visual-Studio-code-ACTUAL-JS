@@ -87,7 +87,13 @@ function visionPyramid() {
     //the spherical coordinates shift the pyramid base based on polar angle as azimuth has more or less weight in the position
 
 
-    /*calc right angle for the pyramid side, how to determine angle?? 
+    /*calc right angle for the pyramid side, how to determine angle??
+     forwardvector length = h 
+     side length = forwardvector(cos(fov/2))
+     basevectorlength = Math.sqrt(sidelength*sidelength + forwardvector*forwardvector)
+     baselength = Math.sqrt(2)*basevectorlength
+
+     base of vector calculated, how to calc angles...spherical on forwardvector end???
     */
     const pitch = playerrot.pitch
     const yaw = playerrot.yaw
