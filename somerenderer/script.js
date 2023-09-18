@@ -13,7 +13,7 @@ const ctx = canvas.getContext("2d");
 
 let pointlist = [{ order: 1, x: 0, y: 0, z: 0 }]
 let playerpos = { order: 0, x: 0, y: 0, z: 0 }
-let playerrot = { pitch: 0, yaw: 0 }
+let playerrot = { pitch: 90, yaw: 0 }
 
 for (i = 1; i < 21; i++) {
     addPoint()
@@ -27,16 +27,16 @@ function keyLogger() {
 
 function turning(key) {
     switch (key) {
-        case "u":
+        case "j":
             playerrot.pitch += turnSensitivity
             break;
-        case "h":
+        case "k":
             playerrot.yaw -= turnSensitivity
             break;
-        case "j":
+        case "u":
             playerrot.pitch -= turnSensitivity
             break;
-        case "k":
+        case "h":
             playerrot.yaw += turnSensitivity
             break;
         case "y":
@@ -81,30 +81,21 @@ function addPoint() {
     pointlist.push({ order: pointlist.length + 1, x: a, y: b, z: c })
 }
 
-function visionPyramid() {
-    //polar angle and azimuth are flipped incorrectly
+function generateVisionPyramid() {
 
-    //the spherical coordinates shift the pyramid base based on polar angle as azimuth has more or less weight in the position
-
-
-    /*calc right angle for the pyramid side, how to determine angle??
-     forwardvector length = h 
-     side length = forwardvector(cos(fov/2))
-     basevectorlength = Math.sqrt(sidelength*sidelength + forwardvector*forwardvector)
-     baselength = Math.sqrt(2)*basevectorlength
-
-     base of vector calculated, how to calc angles...spherical on forwardvector end???
-    */
     const pitch = playerrot.pitch
     const yaw = playerrot.yaw
-    const visionPyramidPoint1 = calculateGridDisplacement(renderDistance, playerpos, { pitch: pitch + (fov / 2), yaw: yaw - (fov / 2) })
-    const visionPyramidPoint2 = calculateGridDisplacement(renderDistance, playerpos, { pitch: pitch + (fov / 2), yaw: yaw + (fov / 2) })
-    const visionPyramidPoint3 = calculateGridDisplacement(renderDistance, playerpos, { pitch: pitch - (fov / 2), yaw: yaw - (fov / 2) })
-    const visionPyramidPoint4 = calculateGridDisplacement(renderDistance, playerpos, { pitch: pitch - (fov / 2), yaw: yaw + (fov / 2) })
+    
+    //vision pyramid height vector = pyramid height
+    //calculate side vectors perpendicular to the pyramid height, no z axis, since no rotation of sight
+    
+    //vectorlength 
+    
+    
+
+
 
     const visionPyramidPointApex = [playerpos.x, playerpos.y, playerpos.z]
-
-    console.log(fov, (fov / 2))
     console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
 
 }
@@ -116,8 +107,8 @@ x=r sin ϕ cos θ
 y=r sin ϕ sin θ
 z=r cos ϕ
     */
-    const phiAzimuth = toRadians(rotation.yaw)
-    const thetaPolarAngle = toRadians(rotation.pitch)
+    const phiAzimuth = toRadians(rotation.pitch)
+    const thetaPolarAngle = toRadians(rotation.yaw)
     const r = shiftValue
     const playerx = position.x
     const playery = position.y
