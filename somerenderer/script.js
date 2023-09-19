@@ -83,14 +83,21 @@ function addPoint() {
 
 function generateVisionPyramid() {
 
+    const fovangle = toRadians(fov/2)
+
     const pitch = playerrot.pitch
     const yaw = playerrot.yaw
+    const heightvectordistance = renderDistance
+    const heightvector = calculateGridDisplacement(heightvectordistance,playerpos,playerrot)
     
     //vision pyramid height vector = pyramid height
     //calculate side vectors perpendicular to the pyramid height, no z axis, since no rotation of sight
     
-    //vectorlength 
-    
+    const sideheight = heightvectordistance/Math.cos(fovangle)
+    const sidevectorlength = Math.sqrt((sideheight*sideheight)-(heightvectordistance*heightvectordistance))
+
+    //figuring out coords for sidevectors, z is flat, since no rotation
+
     
 
 
