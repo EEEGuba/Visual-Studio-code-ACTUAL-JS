@@ -89,7 +89,7 @@ function generateVisionPyramid() {
     const yaw = playerrot.yaw
     const heightvectordistance = renderDistance
     const heightvector = calculateGridDisplacement(heightvectordistance,playerpos,playerrot)
-    
+
     //vision pyramid height vector = pyramid height
     //calculate side vectors perpendicular to the pyramid height, no z axis, since no rotation of sight
     
@@ -97,15 +97,30 @@ function generateVisionPyramid() {
     const sidevectorlength = Math.sqrt((sideheight*sideheight)-(heightvectordistance*heightvectordistance))
 
     //figuring out coords for sidevectors, z is flat, since no rotation
+    const playerx = playerpos.x
+    const playery= playerpos.y
+    const heightvectorx = heightvector.x
+    const heightvectory = heightvector.y
+    /*need to do sightvector-playerpos to find angle, then +90 and -90 degrees*/
+    const heightvectorangle = (Math.atan((heightvectorx-playerx)/(heightvectory-playery)) * 180) / Math.PI;
+    let rightbasevectorangle = heightvectorangle + 90
+    let leftbasevectorangle = heightvectorangle - 90
+        if (rightbasevectorangle > 359) { rightbasevectorangle -= 360 }
+        if (leftbasevectorangle < 0) {leftbasevectorangle += 359 }
+const rightbasevectorxy = calculateSideVectors(rightbasevectorangle, sidevectorlength)
+const leftbasevectorxy =  calculateSideVectors(leftbasevectorangle, sidevectorlength)
 
-    
-
-
+const rightbasevector = {x: rightbasevectorxy.x+heightvectorx, y: rightbasevectorxy.y+heightvectory, z:heightvector.z}
+const leftbasevector =  {x: leftbasevectorxy.x+heightvectorx, y: leftbasevectorxy.y+heightvectory, z:heightvector.z}
+console.log(heightvector)
+console.log(rightbasevector, leftbasevector)
 
     const visionPyramidPointApex = [playerpos.x, playerpos.y, playerpos.z]
-    console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
+//    console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
 
 }
+
+
 
 function calculateGridDisplacement(shiftValue, position, rotation) {
 
