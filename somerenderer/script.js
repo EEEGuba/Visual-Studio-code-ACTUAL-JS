@@ -120,7 +120,43 @@ console.log(rightbasevector, leftbasevector)
 
 }
 
-
+function calculateSideVectors(angle,length){
+    let x = 0
+    let y = 0
+    switch (angle) {
+        case 0:
+            y += length
+            break;
+        case 90:
+            x += length
+            break;
+        case 180:
+            y -= length
+            break;
+        case 270:
+            x -= length
+        default:
+            if (angle > 0 && angle < 90) {
+                    x = length * Math.sin(toRadians(angle));
+                    y = Math.sqrt(length * length - x * x) 
+            }
+            else if (angle > 90 && angle < 180) {
+                angle = 180 - angle
+                    x = length * Math.sin(toRadians(angle));
+                    y = -Math.sqrt(length * length - x * x)
+            }
+            else if (angle > 180 && angle < 270) {
+                angle = angle - 180
+                    x = -length * Math.sin(toRadians(angle));
+                    y = -Math.sqrt(length * length - x * x)  
+            }
+            else {
+                angle = 360 - angle
+                    x = -length * Math.sin(toRadians(angle));
+                    y = Math.sqrt(length * length - x * x)
+}}
+return {x:x,y:y}
+}
 
 function calculateGridDisplacement(shiftValue, position, rotation) {
 
