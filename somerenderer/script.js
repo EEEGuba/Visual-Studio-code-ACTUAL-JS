@@ -12,7 +12,7 @@ canvas.height = 500;
 const ctx = canvas.getContext("2d");
 
 let pointlist = [{ order: 1, x: 0, y: 0, z: 0 }]
-let playerpos = { order: 0, x: 0, y: 0, z: 0 }
+let playerpos = { x: 0, y: 0, z: 0 }
 let playerrot = { pitch: 90, yaw: 0 }
 
 for (i = 1; i < 21; i++) {
@@ -83,44 +83,51 @@ function addPoint() {
 
 function generateVisionPyramid() {
 
-    const fovangle = toRadians(fov/2)
+    const fovangle = toRadians(fov / 2)
 
     const pitch = playerrot.pitch
     const yaw = playerrot.yaw
     const heightvectordistance = renderDistance
-    const heightvector = calculateGridDisplacement(heightvectordistance,playerpos,playerrot)
+    const heightvector = calculateGridDisplacement(heightvectordistance, playerpos, playerrot)
+    //convert to an absolute vector 
+    const heightVectorFromZero = { x: heightvector.x - playerpos.x, y: heightvector.y - playerpos.y, z: heightvector.z - playerpos.z }
 
     //vision pyramid height vector = pyramid height
     //calculate side vectors perpendicular to the pyramid height, no z axis, since no rotation of sight
-    
-    const sideheight = heightvectordistance/Math.cos(fovangle)
-    const sidevectorlength = Math.sqrt((sideheight*sideheight)-(heightvectordistance*heightvectordistance))
+
+    const sideheight = heightvectordistance / Math.cos(fovangle)
+    const sidevectorlength = Math.sqrt((sideheight * sideheight) - (heightvectordistance * heightvectordistance))
 
     //figuring out coords for sidevectors, z is flat, since no rotation
-    const playerx = playerpos.x
-    const playery= playerpos.y
-    const heightvectorx = heightvector.x
-    const heightvectory = heightvector.y
+    const heightvectorx = heightVectorFromZero.x
+    const heightvectory = heightVectorFromZero.y
     /*need to do sightvector-playerpos to find angle, then +90 and -90 degrees*/
-    const heightvectorangle = (Math.atan((heightvectorx-playerx)/(heightvectory-playery)) * 180) / Math.PI;
+    const heightvectorangle = (Math.atan((heightVectorFromZero.x) / (heightVectorFromZero.y)) * 180) / Math.PI;
+    console.log(heightvectorangle)
     let rightbasevectorangle = heightvectorangle + 90
     let leftbasevectorangle = heightvectorangle - 90
-        if (rightbasevectorangle > 359) { rightbasevectorangle -= 360 }
-        if (leftbasevectorangle < 0) {leftbasevectorangle += 359 }
-const rightbasevectorxy = calculateSideVectors(rightbasevectorangle, sidevectorlength)
-const leftbasevectorxy =  calculateSideVectors(leftbasevectorangle, sidevectorlength)
+    if (rightbasevectorangle > 359) { rightbasevectorangle -= 360 }
+    if (leftbasevectorangle < 0) { leftbasevectorangle += 359 }
+    const rightbasevectorxy = calculateSideVectors(rightbasevectorangle, sidevectorlength)
+    const leftbasevectorxy = calculateSideVectors(leftbasevectorangle, sidevectorlength)
+    const rightbasevector = { x: rightbasevectorxy.x + heightvectorx, y: rightbasevectorxy.y + heightvectory, z: heightvector.z }
+    const leftbasevector = { x: leftbasevectorxy.x + heightvectorx, y: leftbasevectorxy.y + heightvectory, z: heightvector.z }
+    //calculate sidevector as beeing from <0 0 0> 
+    const rightBaseVectorFromZero = { x: rightbasevector.x - heightvector.x, y: rightbasevector.y - heightvector.y, z: rightbasevector.z - heightvector.z }
+    //now vector cross product from height and side vector
+    const upBaseVectorCrossProduct = calculateVectorCrossProduct(heightVectorFromZero, rightBaseVectorFromZero)
+    const downBaseVectorCrossProduct = calculateVectorCrossProduct(rightBaseVectorFromZero, heightVectorFromZero)
 
-const rightbasevector = {x: rightbasevectorxy.x+heightvectorx, y: rightbasevectorxy.y+heightvectory, z:heightvector.z}
-const leftbasevector =  {x: leftbasevectorxy.x+heightvectorx, y: leftbasevectorxy.y+heightvectory, z:heightvector.z}
-console.log(heightvector)
-console.log(rightbasevector, leftbasevector)
 
     const visionPyramidPointApex = [playerpos.x, playerpos.y, playerpos.z]
-//    console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
+    //    console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
 
 }
-
-function calculateSideVectors(angle,length){
+//input of 2 vectors gives cross product 
+function calculateVectorCrossProduct(vectorA, vectorB) {
+    return ({ x: vectorA.y * vectorB.z - vectorA.z * vectorB.y, y: vectorA.z * vectorB.x - vectorA.x * vectorB.z, z: vectorA.x * vectorB.y - vectorA.y * vectorB.x })
+}//first tryyy
+function calculateSideVectors(angle, length) {
     let x = 0
     let y = 0
     switch (angle) {
@@ -137,25 +144,26 @@ function calculateSideVectors(angle,length){
             x -= length
         default:
             if (angle > 0 && angle < 90) {
-                    x = length * Math.sin(toRadians(angle));
-                    y = Math.sqrt(length * length - x * x) 
+                x = length * Math.sin(toRadians(angle));
+                y = Math.sqrt(length * length - x * x)
             }
             else if (angle > 90 && angle < 180) {
                 angle = 180 - angle
-                    x = length * Math.sin(toRadians(angle));
-                    y = -Math.sqrt(length * length - x * x)
+                x = length * Math.sin(toRadians(angle));
+                y = -Math.sqrt(length * length - x * x)
             }
             else if (angle > 180 && angle < 270) {
                 angle = angle - 180
-                    x = -length * Math.sin(toRadians(angle));
-                    y = -Math.sqrt(length * length - x * x)  
+                x = -length * Math.sin(toRadians(angle));
+                y = -Math.sqrt(length * length - x * x)
             }
             else {
                 angle = 360 - angle
-                    x = -length * Math.sin(toRadians(angle));
-                    y = Math.sqrt(length * length - x * x)
-}}
-return {x:x,y:y}
+                x = -length * Math.sin(toRadians(angle));
+                y = Math.sqrt(length * length - x * x)
+            }
+    }
+    return { x: x, y: y }
 }
 
 function calculateGridDisplacement(shiftValue, position, rotation) {
