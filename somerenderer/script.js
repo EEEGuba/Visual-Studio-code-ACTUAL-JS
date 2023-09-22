@@ -83,7 +83,7 @@ function addPoint() {
 
 function generateVisionPyramid() {
 
-    const fovangle = toRadians(fov / 2)
+    const fovAngle = toRadians(fov / 2)
 
     const pitch = playerrot.pitch
     const yaw = playerrot.yaw
@@ -95,30 +95,33 @@ function generateVisionPyramid() {
     //vision pyramid height vector = pyramid height
     //calculate side vectors perpendicular to the pyramid height, no z axis, since no rotation of sight
 
-    const sideheight = heightvectordistance / Math.cos(fovangle)
+    const sideheight = heightvectordistance / Math.cos(fovAngle)
     const sidevectorlength = Math.sqrt((sideheight * sideheight) - (heightvectordistance * heightvectordistance))
 
     //figuring out coords for sidevectors, z is flat, since no rotation
     const heightvectorx = heightVectorFromZero.x
     const heightvectory = heightVectorFromZero.y
-    /*need to do sightvector-playerpos to find angle, then +90 and -90 degrees*/
-    const heightvectorangle = (Math.atan((heightVectorFromZero.x) / (heightVectorFromZero.y)) * 180) / Math.PI;
-    console.log(heightvectorangle)
-    let rightbasevectorangle = heightvectorangle + 90
-    let leftbasevectorangle = heightvectorangle - 90
-    if (rightbasevectorangle > 359) { rightbasevectorangle -= 360 }
-    if (leftbasevectorangle < 0) { leftbasevectorangle += 359 }
-    const rightbasevectorxy = calculateSideVectors(rightbasevectorangle, sidevectorlength)
-    const leftbasevectorxy = calculateSideVectors(leftbasevectorangle, sidevectorlength)
-    const rightbasevector = { x: rightbasevectorxy.x + heightvectorx, y: rightbasevectorxy.y + heightvectory, z: heightvector.z }
-    const leftbasevector = { x: leftbasevectorxy.x + heightvectorx, y: leftbasevectorxy.y + heightvectory, z: heightvector.z }
+    /*need to do sightvector-playerpos to find Angle, then +90 and -90 degrees*/
+    const heightvectorAngle = (Math.atan((heightVectorFromZero.x) / (heightVectorFromZero.y)) * 180) / Math.PI;
+    let rightBaseVectorAngle = heightvectorAngle + 90
+    let leftBaseVectorAngle = heightvectorAngle - 90
+    if (rightBaseVectorAngle > 359) { rightBaseVectorAngle -= 360 }
+    if (leftBaseVectorAngle < 0) { leftBaseVectorAngle += 359 }
+    const rightBaseVectorxy = calculateSideVectors(rightBaseVectorAngle, sidevectorlength)
+    const leftBaseVectorxy = calculateSideVectors(leftBaseVectorAngle, sidevectorlength)
+    const rightBaseVector = { x: rightBaseVectorxy.x + heightvectorx, y: rightBaseVectorxy.y + heightvectory, z: heightvector.z }
+    const leftBaseVector = { x: leftBaseVectorxy.x + heightvectorx, y: leftBaseVectorxy.y + heightvectory, z: heightvector.z }
     //calculate sidevector as beeing from <0 0 0> 
-    const rightBaseVectorFromZero = { x: rightbasevector.x - heightvector.x, y: rightbasevector.y - heightvector.y, z: rightbasevector.z - heightvector.z }
+    const rightBaseVectorFromZero = { x: rightBaseVector.x - heightvector.x, y: rightBaseVector.y - heightvector.y, z: rightBaseVector.z - heightvector.z }
     //now vector cross product from height and side vector
     const upBaseVectorCrossProduct = calculateVectorCrossProduct(heightVectorFromZero, rightBaseVectorFromZero)
     const downBaseVectorCrossProduct = calculateVectorCrossProduct(rightBaseVectorFromZero, heightVectorFromZero)
 
-
+console.log("left",leftBaseVector)
+console.log("right",rightBaseVector)
+console.log("up", upBaseVectorCrossProduct)
+console.log("down", downBaseVectorCrossProduct)
+console.log(playerpos)
     const visionPyramidPointApex = [playerpos.x, playerpos.y, playerpos.z]
     //    console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
 
