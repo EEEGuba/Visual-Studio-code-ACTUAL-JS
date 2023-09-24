@@ -90,7 +90,7 @@ function generateVisionPyramid() {
     const heightVectordistance = renderDistance
     const heightVector = calculateGridDisplacement(heightVectordistance, playerpos, playerrot)
     //convert to an absolute vector 
-    const heightVectorFromZero = subtractVectors(heightVector,playerpos)
+    const heightVectorFromZero = subtractVectors(heightVector, playerpos)
 
     //vision pyramid height vector = pyramid height
     //calculate side vectors perpendicular to the pyramid height, no z axis, since no rotation of sight
@@ -111,39 +111,39 @@ function generateVisionPyramid() {
     const rightBaseVector = { x: rightBaseVectorxy.x + heightVector.x, y: rightBaseVectorxy.y + heightVector.y, z: heightVector.z }
     const leftBaseVector = { x: leftBaseVectorxy.x + heightVector.x, y: leftBaseVectorxy.y + heightVector.y, z: heightVector.z }
     //calculate sidevector as beeing from <0 0 0> 
-    const rightBaseVectorFromZero = subtractVectors(rightBaseVector,heightVector)
+    const rightBaseVectorFromZero = subtractVectors(rightBaseVector, heightVector)
     const leftBaseVectorFromZero = subtractVectors(leftBaseVector, heightVector)
     //now vector cross product from height and side vector
     const upBaseVectorCrossProduct = calculateVectorCrossProduct(heightVectorFromZero, rightBaseVectorFromZero)
     const downBaseVectorCrossProduct = calculateVectorCrossProduct(rightBaseVectorFromZero, heightVectorFromZero)
-    const upBaseVectorCrossProductFromZero = subtractVectors(upBaseVectorCrossProduct,heightVector)
-    const downBaseVectorCrossProductFromZero = subtractVectors(downBaseVectorCrossProduct,heightVector)
-    const upUnitVector = Math.sqrt(upBaseVectorCrossProductFromZero.x*upBaseVectorCrossProductFromZero.x + upBaseVectorCrossProductFromZero.y*upBaseVectorCrossProductFromZero.y + upBaseVectorCrossProductFromZero.z*upBaseVectorCrossProductFromZero.z)
-    const downUnitVector = Math.sqrt(downBaseVectorCrossProductFromZero.x*downBaseVectorCrossProductFromZero.x + downBaseVectorCrossProductFromZero.y*downBaseVectorCrossProductFromZero.y + downBaseVectorCrossProductFromZero.z*downBaseVectorCrossProductFromZero.z)
-    const upBaseVectorMultiplier = sidevectorlength/upUnitVector
-    const downBaseVectorMultiplier = sidevectorlength/downUnitVector
-    const upBaseVectorFromZero = {x:upBaseVectorMultiplier*upBaseVectorCrossProductFromZero.x ,y:upBaseVectorMultiplier*upBaseVectorCrossProductFromZero.y ,z:upBaseVectorMultiplier*upBaseVectorCrossProductFromZero.z }
-    const downBaseVectorFromZero ={x:downBaseVectorMultiplier*downBaseVectorCrossProductFromZero.x ,y:downBaseVectorMultiplier*downBaseVectorCrossProductFromZero.y ,z:downBaseVectorMultiplier*downBaseVectorCrossProductFromZero.z }
-    const upBaseVector = addVectors(upBaseVectorFromZero,heightVector)
-    const downBaseVector =addVectors(downBaseVectorFromZero,heightVector)
-    const visionPyramidPoint1 = addVectors(heightVector,addVectors(leftBaseVectorFromZero, upBaseVectorFromZero))
-    const visionPyramidPoint2 = addVectors(heightVector,addVectors(rightBaseVectorFromZero, upBaseVectorFromZero))
-    const visionPyramidPoint3 = addVectors(heightVector,addVectors(leftBaseVectorFromZero, downBaseVectorFromZero))
-    const visionPyramidPoint4 = addVectors(heightVector,addVectors(rightBaseVectorFromZero, downBaseVectorFromZero))
-console.log("left",leftBaseVector)
-console.log("right",rightBaseVector)
-console.log("up", upBaseVector)
-console.log("down", downBaseVector)
-console.log("middle", heightVector)
-   
-console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
+    const upBaseVectorCrossProductFromZero = subtractVectors(upBaseVectorCrossProduct, heightVector)
+    const downBaseVectorCrossProductFromZero = subtractVectors(downBaseVectorCrossProduct, heightVector)
+    const upUnitVector = Math.sqrt(upBaseVectorCrossProductFromZero.x * upBaseVectorCrossProductFromZero.x + upBaseVectorCrossProductFromZero.y * upBaseVectorCrossProductFromZero.y + upBaseVectorCrossProductFromZero.z * upBaseVectorCrossProductFromZero.z)
+    const downUnitVector = Math.sqrt(downBaseVectorCrossProductFromZero.x * downBaseVectorCrossProductFromZero.x + downBaseVectorCrossProductFromZero.y * downBaseVectorCrossProductFromZero.y + downBaseVectorCrossProductFromZero.z * downBaseVectorCrossProductFromZero.z)
+    const upBaseVectorMultiplier = sidevectorlength / upUnitVector
+    const downBaseVectorMultiplier = sidevectorlength / downUnitVector
+    const upBaseVectorFromZero = { x: upBaseVectorMultiplier * upBaseVectorCrossProductFromZero.x, y: upBaseVectorMultiplier * upBaseVectorCrossProductFromZero.y, z: upBaseVectorMultiplier * upBaseVectorCrossProductFromZero.z }
+    const downBaseVectorFromZero = { x: downBaseVectorMultiplier * downBaseVectorCrossProductFromZero.x, y: downBaseVectorMultiplier * downBaseVectorCrossProductFromZero.y, z: downBaseVectorMultiplier * downBaseVectorCrossProductFromZero.z }
+    const upBaseVector = addVectors(upBaseVectorFromZero, heightVector)
+    const downBaseVector = addVectors(downBaseVectorFromZero, heightVector)
+    const visionPyramidPoint1 = addVectors(heightVector, addVectors(leftBaseVectorFromZero, upBaseVectorFromZero))
+    const visionPyramidPoint2 = addVectors(heightVector, addVectors(rightBaseVectorFromZero, upBaseVectorFromZero))
+    const visionPyramidPoint3 = addVectors(heightVector, addVectors(leftBaseVectorFromZero, downBaseVectorFromZero))
+    const visionPyramidPoint4 = addVectors(heightVector, addVectors(rightBaseVectorFromZero, downBaseVectorFromZero))
+    console.log("left", leftBaseVector)
+    console.log("right", rightBaseVector)
+    console.log("up", upBaseVector)
+    console.log("down", downBaseVector)
+    console.log("middle", heightVector)
 
+    console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
+//it works, i could probably make it better, but this works great :D
 }
-function addVectors(vectorA,vectorB){
-    return {x:vectorA.x+vectorB.x, y:vectorA.y+vectorB.y, z:vectorA.z+vectorB.z}
+function addVectors(vectorA, vectorB) {
+    return { x: vectorA.x + vectorB.x, y: vectorA.y + vectorB.y, z: vectorA.z + vectorB.z }
 }
-function subtractVectors(vectorA,vectorB){
-    return {x:vectorA.x-vectorB.x, y:vectorA.y-vectorB.y, z:vectorA.z-vectorB.z}
+function subtractVectors(vectorA, vectorB) {
+    return { x: vectorA.x - vectorB.x, y: vectorA.y - vectorB.y, z: vectorA.z - vectorB.z }
 }
 //input of 2 vectors gives cross product 
 function calculateVectorCrossProduct(vectorA, vectorB) {
