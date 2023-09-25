@@ -139,6 +139,8 @@ function generateVisionPyramid() {
     console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
 //it works, i could probably make it better, but this works great :D
 }
+//https://stackoverflow.com/questions/1966587/given-3-points-how-do-i-calculate-the-normal-vector
+//need a func to make a normal from 3 vectors 
 function addVectors(vectorA, vectorB) {
     return { x: vectorA.x + vectorB.x, y: vectorA.y + vectorB.y, z: vectorA.z + vectorB.z }
 }
