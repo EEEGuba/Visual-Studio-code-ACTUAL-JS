@@ -141,6 +141,19 @@ function generateVisionPyramid() {
 }
 //https://stackoverflow.com/questions/1966587/given-3-points-how-do-i-calculate-the-normal-vector
 //need a func to make a normal from 3 vectors 
+function calculatePlaneNormalVector(vectorA,vectorB,vectorC){
+    //Create three vectors (A,B,C) from the origin to the three points (P1, P2, P3) respectively.
+//Using vector subtraction, compute the vectors U = A - B and W = A - C
+//Compute the vector cross product, V = U x W
+//Compute the unit vector of V,
+const vectorU = subtractVectors(vectorA,vectorB)
+const vectorW = subtractVectors(vectorA,vectorC)
+const vectorCrossProduct = calculateVectorCrossProduct(vectorU,vectorW)
+const vectorLength = Math.sqrt(vectorCrossProduct.x * vectorCrossProduct.x + vectorCrossProduct.y * vectorCrossProduct.y + vectorCrossProduct.z * vectorCrossProduct.z)
+return({x: vectorCrossProduct.x/vectorLength ,y: vectorCrossProduct.y/vectorLength ,z: vectorCrossProduct.z/vectorLength })
+
+
+}
 function addVectors(vectorA, vectorB) {
     return { x: vectorA.x + vectorB.x, y: vectorA.y + vectorB.y, z: vectorA.z + vectorB.z }
 }
