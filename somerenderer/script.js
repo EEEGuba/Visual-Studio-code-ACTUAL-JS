@@ -165,6 +165,9 @@ function subtractVectors(vectorA, vectorB) {
 function calculateVectorCrossProduct(vectorA, vectorB) {
     return ({ x: vectorA.y * vectorB.z - vectorA.z * vectorB.y, y: vectorA.z * vectorB.x - vectorA.x * vectorB.z, z: vectorA.x * vectorB.y - vectorA.y * vectorB.x })
 }//first tryyy
+function calculateVectorDotProduct(vectorA,vectorB){
+    return(vectorA.x*vectorB.x+vectorA.y*vectorB.y+vectorA.z*vectorB.z)
+}
 function calculateSideVectors(angle, length) {
     let x = 0
     let y = 0
