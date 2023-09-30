@@ -150,10 +150,11 @@ const vectorU = subtractVectors(vectorA,vectorB)
 const vectorW = subtractVectors(vectorA,vectorC)
 const vectorCrossProduct = calculateVectorCrossProduct(vectorU,vectorW)
 const vectorLength = Math.sqrt(vectorCrossProduct.x * vectorCrossProduct.x + vectorCrossProduct.y * vectorCrossProduct.y + vectorCrossProduct.z * vectorCrossProduct.z)
-console.log(vectorLength)
-console.log({x: (vectorCrossProduct.x)/vectorLength ,y: (vectorCrossProduct.y)/vectorLength ,z: (vectorCrossProduct.z)/vectorLength })
+return({x: (vectorCrossProduct.x)/vectorLength ,y: (vectorCrossProduct.y)/vectorLength ,z: (vectorCrossProduct.z)/vectorLength })
 
 //this was also first try, funny how 1,2,3,4,5,6,7,8,9 values give a nan lol
+//^^^^
+//that makes a line, now it makes sense
 }
 function addVectors(vectorA, vectorB) {
     return { x: vectorA.x + vectorB.x, y: vectorA.y + vectorB.y, z: vectorA.z + vectorB.z }
@@ -169,8 +170,8 @@ function calculateVectorDotProduct(vectorA,vectorB){
     return(vectorA.x*vectorB.x+vectorA.y*vectorB.y+vectorA.z*vectorB.z)
 }
 function calculateSideVectors(angle, length) {
-    let x = 0
-    let y = 0
+    let x = undefined
+    let y = undefined
     switch (angle) {
         case 0:
             y += length
