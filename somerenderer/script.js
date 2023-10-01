@@ -169,6 +169,11 @@ function calculateVectorCrossProduct(vectorA, vectorB) {
 function calculateVectorDotProduct(vectorA,vectorB){
     return(vectorA.x*vectorB.x+vectorA.y*vectorB.y+vectorA.z*vectorB.z)
 }
+function giveAngleDifference(point){
+    const calcPoint=subtractVectors(point,playerpos)
+    const pointFromZero={order:point.order, x:calcPoint.x,y:calcPoint.y,z:calcPoint.z}
+    //WIP
+}
 function calculateSideVectors(angle, length) {
     let x = undefined
     let y = undefined
