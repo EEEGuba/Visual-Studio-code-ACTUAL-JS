@@ -137,24 +137,24 @@ function generateVisionPyramid() {
     console.log("middle", heightVector)
 
     console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
-//it works, i could probably make it better, but this works great :D
+    //it works, i could probably make it better, but this works great :D
 }
 //https://stackoverflow.com/questions/1966587/given-3-points-how-do-i-calculate-the-normal-vector
 //need a func to make a normal from 3 vectors 
-function calculatePlaneNormalVector(vectorA,vectorB,vectorC){
+function calculatePlaneNormalVector(vectorA, vectorB, vectorC) {
     //Create three vectors (A,B,C) from the origin to the three points (P1, P2, P3) respectively.
-//Using vector subtraction, compute the vectors U = A - B and W = A - C
-//Compute the vector cross product, V = U x W
-//Compute the unit vector of V,
-const vectorU = subtractVectors(vectorA,vectorB)
-const vectorW = subtractVectors(vectorA,vectorC)
-const vectorCrossProduct = calculateVectorCrossProduct(vectorU,vectorW)
-const vectorLength = Math.sqrt(vectorCrossProduct.x * vectorCrossProduct.x + vectorCrossProduct.y * vectorCrossProduct.y + vectorCrossProduct.z * vectorCrossProduct.z)
-return({x: (vectorCrossProduct.x)/vectorLength ,y: (vectorCrossProduct.y)/vectorLength ,z: (vectorCrossProduct.z)/vectorLength })
+    //Using vector subtraction, compute the vectors U = A - B and W = A - C
+    //Compute the vector cross product, V = U x W
+    //Compute the unit vector of V,
+    const vectorU = subtractVectors(vectorA, vectorB)
+    const vectorW = subtractVectors(vectorA, vectorC)
+    const vectorCrossProduct = calculateVectorCrossProduct(vectorU, vectorW)
+    const vectorLength = Math.sqrt(vectorCrossProduct.x * vectorCrossProduct.x + vectorCrossProduct.y * vectorCrossProduct.y + vectorCrossProduct.z * vectorCrossProduct.z)
+    return ({ x: (vectorCrossProduct.x) / vectorLength, y: (vectorCrossProduct.y) / vectorLength, z: (vectorCrossProduct.z) / vectorLength })
 
-//this was also first try, funny how 1,2,3,4,5,6,7,8,9 values give a nan lol
-//^^^^
-//that makes a line, now it makes sense
+    //this was also first try, funny how 1,2,3,4,5,6,7,8,9 values give a nan lol
+    //^^^^
+    //that makes a line, now it makes sense
 }
 function addVectors(vectorA, vectorB) {
     return { x: vectorA.x + vectorB.x, y: vectorA.y + vectorB.y, z: vectorA.z + vectorB.z }
@@ -166,12 +166,12 @@ function subtractVectors(vectorA, vectorB) {
 function calculateVectorCrossProduct(vectorA, vectorB) {
     return ({ x: vectorA.y * vectorB.z - vectorA.z * vectorB.y, y: vectorA.z * vectorB.x - vectorA.x * vectorB.z, z: vectorA.x * vectorB.y - vectorA.y * vectorB.x })
 }//first tryyy
-function calculateVectorDotProduct(vectorA,vectorB){
-    return(vectorA.x*vectorB.x+vectorA.y*vectorB.y+vectorA.z*vectorB.z)
+function calculateVectorDotProduct(vectorA, vectorB) {
+    return (vectorA.x * vectorB.x + vectorA.y * vectorB.y + vectorA.z * vectorB.z)
 }
-function giveAngleDifference(point){
-    const calcPoint=subtractVectors(point,playerpos)
-    const pointFromZero={order:point.order, x:calcPoint.x,y:calcPoint.y,z:calcPoint.z}
+function giveAngleDifference(point) {
+    const calcPoint = subtractVectors(point, playerpos)
+    const pointFromZero = { order: point.order, x: calcPoint.x, y: calcPoint.y, z: calcPoint.z }
     //WIP
 }
 function calculateSideVectors(angle, length) {
