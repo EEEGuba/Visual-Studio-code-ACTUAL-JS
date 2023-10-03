@@ -172,8 +172,8 @@ function calculateVectorDotProduct(vectorA, vectorB) {
 function giveAngleDifference(point) {
     const calcPoint = subtractVectors(point, playerpos)
     const pointFromZero = { order: point.order, x: calcPoint.x, y: calcPoint.y, z: calcPoint.z }
-    const pointTheta = Math.atan2((Math.sqrt(point.x*point.x+point.y*point.y))/point.z) 
-    
+    const pointTheta = Math.atan2((Math.sqrt(point.x * point.x + point.y * point.y)) / point.z)
+
     //WIP
 }
 function calculateSideVectors(angle, length) {
