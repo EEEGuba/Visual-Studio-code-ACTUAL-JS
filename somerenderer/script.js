@@ -175,10 +175,11 @@ function giveAngleDifference(point) {
     const pointTheta = toDegrees(Math.atan2((Math.sqrt(point.x * point.x + point.y * point.y)),point.z))
     const pointPhi = toDegrees(Math.atan2(point.y,point.x))
 console.log(pointTheta,pointPhi)
+console.log(playerrot.yaw,playerrot.pitch)
     //WIP
 }
-function findVectorLength(){
-    //WIP
+function findVectorLengthFromZero(point){
+    return (Math.sqrt(point.x*point.x+point.y*point.y+point.z*point.z))
 }
 function calculateSideVectors(angle, length) {
     let x = undefined
