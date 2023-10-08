@@ -101,15 +101,19 @@ function generateVisionPyramid() {
     //figuring out coords for sidevectors, z is flat, since no rotation
 
     /*need to do sightvector-playerpos to find Angle, then +90 and -90 degrees*/
-    const heightVectorAngle = (Math.atan((heightVectorFromZero.x) / (heightVectorFromZero.y)) * 180) / Math.PI;
+    const heightVectorAngle = (Math.atan2((heightVectorFromZero.x),(heightVectorFromZero.y)) * 180) / Math.PI;
+    
     let rightBaseVectorAngle = heightVectorAngle + 90
     let leftBaseVectorAngle = heightVectorAngle - 90
     if (rightBaseVectorAngle > 359) { rightBaseVectorAngle -= 360 }
     if (leftBaseVectorAngle < 0) { leftBaseVectorAngle += 359 }
+    console.log()
     const rightBaseVectorxy = calculateSideVectors(rightBaseVectorAngle, sidevectorlength)
     const leftBaseVectorxy = calculateSideVectors(leftBaseVectorAngle, sidevectorlength)
+    console.log(leftBaseVectorxy)
     const rightBaseVector = { x: rightBaseVectorxy.x + heightVector.x, y: rightBaseVectorxy.y + heightVector.y, z: heightVector.z }
     const leftBaseVector = { x: leftBaseVectorxy.x + heightVector.x, y: leftBaseVectorxy.y + heightVector.y, z: heightVector.z }
+    console.log(leftBaseVector)
     //calculate sidevector as beeing from <0 0 0> 
     const rightBaseVectorFromZero = subtractVectors(rightBaseVector, heightVector)
     const leftBaseVectorFromZero = subtractVectors(leftBaseVector, heightVector)
@@ -176,14 +180,17 @@ function giveAngleDifference(point) {
     const pointPhi = toDegrees(Math.atan2(point.y,point.x))
 console.log(pointTheta,pointPhi)
 console.log(playerrot.yaw,playerrot.pitch)
+    const vectorAngleDifference = {pitch:pointTheta-playerrot.pitch, yaw:pointPhi-playerrot.yaw}
+    console.log(vectorAngleDifference)
+
     //WIP
 }
 function findVectorLengthFromZero(point){
     return (Math.sqrt(point.x*point.x+point.y*point.y+point.z*point.z))
 }
 function calculateSideVectors(angle, length) {
-    let x = undefined
-    let y = undefined
+    let x = 0
+    let y = 0
     switch (angle) {
         case 0:
             y += length
