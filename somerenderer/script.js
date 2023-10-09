@@ -174,12 +174,9 @@ function calculateVectorDotProduct(vectorA, vectorB) {
     return (vectorA.x * vectorB.x + vectorA.y * vectorB.y + vectorA.z * vectorB.z)
 }
 function giveAngleDifference(point) {
-    const calcPoint = subtractVectors(point, playerpos)
-    const pointFromZero = { order: point.order, x: calcPoint.x, y: calcPoint.y, z: calcPoint.z }
-    const pointTheta = toDegrees(Math.atan2((Math.sqrt(point.x * point.x + point.y * point.y)),point.z))
-    const pointPhi = toDegrees(Math.atan2(point.y,point.x))
-console.log(pointTheta,pointPhi)
-console.log(playerrot.yaw,playerrot.pitch)
+    const pointFromZero = subtractVectors(point, playerpos)
+    const pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)),pointFromZero.z))
+    const pointPhi = toDegrees(Math.atan2(pointFromZero.y,pointFromZero.x))
     const vectorAngleDifference = {pitch:pointTheta-playerrot.pitch, yaw:pointPhi-playerrot.yaw}
     console.log(vectorAngleDifference)
 
