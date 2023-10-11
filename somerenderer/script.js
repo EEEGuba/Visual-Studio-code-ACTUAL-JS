@@ -101,8 +101,8 @@ function generateVisionPyramid() {
     //figuring out coords for sidevectors, z is flat, since no rotation
 
     /*need to do sightvector-playerpos to find Angle, then +90 and -90 degrees*/
-    const heightVectorAngle = (Math.atan2((heightVectorFromZero.x),(heightVectorFromZero.y)) * 180) / Math.PI;
-    
+    const heightVectorAngle = (Math.atan2((heightVectorFromZero.x), (heightVectorFromZero.y)) * 180) / Math.PI;
+
     let rightBaseVectorAngle = heightVectorAngle + 90
     let leftBaseVectorAngle = heightVectorAngle - 90
     if (rightBaseVectorAngle > 359) { rightBaseVectorAngle -= 360 }
@@ -175,15 +175,15 @@ function calculateVectorDotProduct(vectorA, vectorB) {
 }
 function giveAngleDifference(point) {
     const pointFromZero = subtractVectors(point, playerpos)
-    const pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)),pointFromZero.z))
-    const pointPhi = toDegrees(Math.atan2(pointFromZero.y,pointFromZero.x))
-    const vectorAngleDifference = {pitch:pointTheta-playerrot.pitch, yaw:pointPhi-playerrot.yaw}
+    const pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)), pointFromZero.z))
+    const pointPhi = toDegrees(Math.atan2(pointFromZero.y, pointFromZero.x))
+    const vectorAngleDifference = { pitch: pointTheta - playerrot.pitch, yaw: pointPhi - playerrot.yaw }
     console.log(vectorAngleDifference)
 
     //WIP
 }
-function findVectorLengthFromZero(point){
-    return (Math.sqrt(point.x*point.x+point.y*point.y+point.z*point.z))
+function findVectorLengthFromZero(point) {
+    return (Math.sqrt(point.x * point.x + point.y * point.y + point.z * point.z))
 }
 function calculateSideVectors(angle, length) {
     let x = 0
@@ -257,6 +257,6 @@ z=r cos ϕ
 function toRadians(angle) {
     return angle * (Math.PI / 180);
 }
-function toDegrees(angle){   
+function toDegrees(angle) {
     return angle * (180 / Math.PI)
 }
