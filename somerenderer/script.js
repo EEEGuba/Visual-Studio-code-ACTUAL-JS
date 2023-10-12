@@ -181,6 +181,7 @@ function giveAngleDifference(point) {
     console.log(vectorAngleDifference)
 
     //WIP
+    //i think its done??
 }
 function findVectorLengthFromZero(point) {
     return (Math.sqrt(point.x * point.x + point.y * point.y + point.z * point.z))
