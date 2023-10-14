@@ -14,6 +14,10 @@ const ctx = canvas.getContext("2d");
 let pointlist = [{ order: 1, x: 0, y: 0, z: 0 }]
 let playerpos = { x: 0, y: 0, z: 0 }
 let playerrot = { pitch: 90, yaw: 0 }
+let visionPyramidPoint1 = 0
+let visionPyramidPoint2 = 0
+let visionPyramidPoint3 = 0
+let visionPyramidPoint4 = 0
 
 for (i = 1; i < 21; i++) {
     addPoint()
@@ -130,10 +134,10 @@ function generateVisionPyramid() {
     const downBaseVectorFromZero = { x: downBaseVectorMultiplier * downBaseVectorCrossProductFromZero.x, y: downBaseVectorMultiplier * downBaseVectorCrossProductFromZero.y, z: downBaseVectorMultiplier * downBaseVectorCrossProductFromZero.z }
     const upBaseVector = addVectors(upBaseVectorFromZero, heightVector)
     const downBaseVector = addVectors(downBaseVectorFromZero, heightVector)
-    const visionPyramidPoint1 = addVectors(heightVector, addVectors(leftBaseVectorFromZero, upBaseVectorFromZero))
-    const visionPyramidPoint2 = addVectors(heightVector, addVectors(rightBaseVectorFromZero, upBaseVectorFromZero))
-    const visionPyramidPoint3 = addVectors(heightVector, addVectors(leftBaseVectorFromZero, downBaseVectorFromZero))
-    const visionPyramidPoint4 = addVectors(heightVector, addVectors(rightBaseVectorFromZero, downBaseVectorFromZero))
+    visionPyramidPoint1 = addVectors(heightVector, addVectors(leftBaseVectorFromZero, upBaseVectorFromZero))
+    visionPyramidPoint2 = addVectors(heightVector, addVectors(rightBaseVectorFromZero, upBaseVectorFromZero))
+    visionPyramidPoint3 = addVectors(heightVector, addVectors(leftBaseVectorFromZero, downBaseVectorFromZero))
+    visionPyramidPoint4 = addVectors(heightVector, addVectors(rightBaseVectorFromZero, downBaseVectorFromZero))
     console.log("left", leftBaseVector)
     console.log("right", rightBaseVector)
     console.log("up", upBaseVector)
