@@ -164,8 +164,12 @@ function calculatePlaneNormalVector(vectorA, vectorB, vectorC) {
     //^^^^
     //that makes a line, now it makes sense
 }
+function calculateD(point1,point2,point3,normal){
+    return (Math.max(normal.x*point1.x+normal.y*point1.y+normal.z*point1.z,normal.x*point2.x+normal.y*point2.y+normal.z*point2.z,normal.x*point3.x+normal.y*point3.y+normal.z*point3.z))
+
+}
 function isPointInPyramid(point){
-    
+
 }
 function addVectors(vectorA, vectorB) {
     return { x: vectorA.x + vectorB.x, y: vectorA.y + vectorB.y, z: vectorA.z + vectorB.z }
