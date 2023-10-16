@@ -11,7 +11,7 @@ canvas.width = 500;
 canvas.height = 500;
 const ctx = canvas.getContext("2d");
 
-let pointlist = [{ order: 1, x: 0, y: 0, z: 0 }]
+let pointlist = [{ order: 1, x: 2, y: 0, z: 0 }]
 let playerpos = { x: 0, y: 0, z: 0 }
 let playerrot = { pitch: 90, yaw: 0 }
 let visionPyramidPoint1 = 0
@@ -145,6 +145,8 @@ function generateVisionPyramid() {
     console.log("middle", heightVector)
 
     console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
+   console.log(calculatePlaneNormalVector(playerpos, visionPyramidPoint1,visionPyramidPoint2))
+   console.log(calculatePlaneNormalVector(playerpos, visionPyramidPoint2, visionPyramidPoint1))
     //it works, i could probably make it better, but this works great :D
 }
 //https://stackoverflow.com/questions/1966587/given-3-points-how-do-i-calculate-the-normal-vector
@@ -158,7 +160,7 @@ function calculatePlaneNormalVector(vectorA, vectorB, vectorC) {
     const vectorW = subtractVectors(vectorA, vectorC)
     const vectorCrossProduct = calculateVectorCrossProduct(vectorU, vectorW)
     const vectorLength = Math.sqrt(vectorCrossProduct.x * vectorCrossProduct.x + vectorCrossProduct.y * vectorCrossProduct.y + vectorCrossProduct.z * vectorCrossProduct.z)
-    return ({ x: (vectorCrossProduct.x) / vectorLength, y: (vectorCrossProduct.y) / vectorLength, z: (vectorCrossProduct.z) / vectorLength })
+    return ({ x: vectorA.x+(vectorCrossProduct.x) / vectorLength, y: vectorA.y+(vectorCrossProduct.y) / vectorLength, z: vectorA.z +(vectorCrossProduct.z) / vectorLength })
 
     //this was also first try, funny how 1,2,3,4,5,6,7,8,9 values give a nan lol
     //^^^^
@@ -169,6 +171,9 @@ function calculateD(point1,point2,point3,normal){
 }
 function isPointInPyramid(point){
 
+}
+function calculateDistanceFromPoint(pointA,pointB){
+    return Math.sqrt((pointB.x-pointA.x)*(pointB.x-pointA.x)+(pointB.y-pointA.y)*(pointB.y-pointA.y)+(pointB.z-pointA.z)*(pointB.z-pointA.z))
 }
 function addVectors(vectorA, vectorB) {
     return { x: vectorA.x + vectorB.x, y: vectorA.y + vectorB.y, z: vectorA.z + vectorB.z }
