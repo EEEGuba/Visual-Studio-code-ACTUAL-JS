@@ -1,7 +1,7 @@
 //settings
-const movementSpeed = 10
+const movementSpeed = 1
 const turnSensitivity = 6
-const renderDistance = 100
+const renderDistance = 10
 const fov = 50
 
 //end of settings
@@ -28,20 +28,20 @@ function keyLogger() {
 }
 
 //findVisionAngle
-
+theBigCheck()
 function turning(key) {
     switch (key) {
         case "j":
             playerrot.pitch += turnSensitivity
             break;
         case "k":
-            playerrot.yaw -= turnSensitivity
+            playerrot.yaw += turnSensitivity
             break;
         case "u":
             playerrot.pitch -= turnSensitivity
             break;
         case "h":
-            playerrot.yaw += turnSensitivity
+            playerrot.yaw -= turnSensitivity
             break;
         case "y":
     }
@@ -49,14 +49,15 @@ function turning(key) {
     else if (playerrot.pitch <= 0) { playerrot.pitch = 0 }
     if (playerrot.yaw > 359) { playerrot.yaw -= 360 }
     else if (playerrot.yaw < 0) { playerrot.yaw += 359 }
-    console.log(playerrot)
+
 }
 function movement(key) {
     if (key == "w") {
         const result = calculateGridDisplacement(movementSpeed, playerpos, playerrot)
-        playerpos = result
-        console.log(result)
-
+        playerpos = result}
+    if (key == "s") {
+            const result = calculateGridDisplacement(-movementSpeed, playerpos, playerrot)
+            playerpos = result
     }
 }
 function commandcenter(key) {
@@ -66,6 +67,7 @@ function commandcenter(key) {
     else if (key == "w" || key == "a" || key == "s" || key == "d") {
         movement(key)
     }
+    theBigCheck()
 }
 function drawvector(beginx, beginy, endx, endy, color) {
     ctx.fillStyle = color
@@ -169,8 +171,30 @@ function calculatePlaneNormalVector(vectorA, vectorB, vectorC) {
 function calculateD(point1,point2,point3,normal){
     return (Math.max(calculateVectorDotProduct(normal,point1),calculateVectorDotProduct(normal,point2),calculateVectorDotProduct(normal,point3)))
 }
+///ITS ALIIIIIIVEEE
+function theBigCheck(){
+    ctx.fillStyle = "white"
+    ctx.fillRect(0, 0, 500,500);
+    ctx.fillStyle = "red"
+    pointlist.forEach(element => {
+        if(isPointInPyramid(element)){
+            const angle = giveAngleDifference(element)
+            const up = angle.pitch*250/(fov/2)+250
+            const side = angle.yaw*250/(fov/2)+250
+            ctx.fillRect(side, up, 4,4)
+        }      
+    });    
+}
 function isPointInPyramid(point){
-
+    const angleDifference = giveAngleDifference(point)
+ if (calculateDistanceFromPoint(point,playerpos)<renderDistance){
+    if (angleDifference.pitch >= -(fov/2)&&angleDifference.pitch <=(fov/2)){
+        if (angleDifference.yaw >= -(fov/2)&&angleDifference.yaw<=(fov/2)){
+            return(true)
+        }
+    }
+ }
+ return(false)
 }
 function calculateDistanceFromPoint(pointA,pointB){
     return Math.sqrt((pointB.x-pointA.x)*(pointB.x-pointA.x)+(pointB.y-pointA.y)*(pointB.y-pointA.y)+(pointB.z-pointA.z)*(pointB.z-pointA.z))
@@ -193,7 +217,7 @@ function giveAngleDifference(point) {
     const pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)), pointFromZero.z))
     const pointPhi = toDegrees(Math.atan2(pointFromZero.y, pointFromZero.x))
     const vectorAngleDifference = { pitch: pointTheta - playerrot.pitch, yaw: pointPhi - playerrot.yaw }
-    console.log(vectorAngleDifference)
+    return(vectorAngleDifference)
 
     //WIP
     //i think its done??
