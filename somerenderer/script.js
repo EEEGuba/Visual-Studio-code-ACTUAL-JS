@@ -19,9 +19,9 @@ let visionPyramidPoint2 = 0
 let visionPyramidPoint3 = 0
 let visionPyramidPoint4 = 0
 
-for (i = 1; i < 21; i++) {
-    addPoint()
-}
+//for (i = 1; i < 21; i++) {
+//    addPoint()
+//}
 
 function keyLogger() {
     commandcenter(event.key)
@@ -79,8 +79,6 @@ function drawvector(beginx, beginy, endx, endy, color) {
 }
 
 function addPoint() {
-    console.log(pointlist.length)
-    console.log(pointlist[pointlist.length - 1])
     const a = Math.floor(Math.random() * 10);
     const b = Math.floor(Math.random() * 10);
     const c = Math.floor(Math.random() * 10);
@@ -177,6 +175,7 @@ function theBigCheck(){
     ctx.fillRect(0, 0, 500,500);
     ctx.fillStyle = "red"
     pointlist.forEach(element => {
+        console.log(element, giveAngleDifference(element))
         if(isPointInPyramid(element)){
             const angle = giveAngleDifference(element)
             const up = angle.pitch*250/(fov/2)+250
@@ -217,6 +216,7 @@ function giveAngleDifference(point) {
     const pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)), pointFromZero.z))
     const pointPhi = toDegrees(Math.atan2(pointFromZero.y, pointFromZero.x))
     const vectorAngleDifference = { pitch: pointTheta - playerrot.pitch, yaw: pointPhi - playerrot.yaw }
+    console.log(pointTheta,pointPhi)
     return(vectorAngleDifference)
 
     //WIP
