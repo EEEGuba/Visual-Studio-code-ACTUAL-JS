@@ -213,9 +213,10 @@ function calculateVectorDotProduct(vectorA, vectorB) {
 }
 function giveAngleDifference(point) {
     const pointFromZero = subtractVectors(point, playerpos)
-    const pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)), pointFromZero.z))
-    const pointPhi = toDegrees(Math.atan2(pointFromZero.y, pointFromZero.x))
-    const vectorAngleDifference = { pitch: pointTheta - playerrot.pitch, yaw: pointPhi - playerrot.yaw }
+    let pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)), pointFromZero.z))
+    let pointPhi = toDegrees(Math.atan2(pointFromZero.y, pointFromZero.x)) - playerrot.yaw
+    if (pointPhi<-180){pointPhi+=360}
+    const vectorAngleDifference = { pitch: pointTheta - playerrot.pitch, yaw: pointPhi }
     console.log(pointTheta,pointPhi)
     return(vectorAngleDifference)
 
@@ -267,7 +268,7 @@ function calculateSideVectors(angle, length) {
 function calculateGridDisplacement(shiftValue, position, rotation) {
 
     /*
-x=r sin ϕ cos θ
+x=r sin ϕ cos θ 
 y=r sin ϕ sin θ
 z=r cos ϕ
     */
