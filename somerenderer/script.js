@@ -11,7 +11,8 @@ canvas.width = 500;
 canvas.height = 500;
 const ctx = canvas.getContext("2d");
 
-let pointlist = [{ order: 1, x: 2, y: 0, z: 0 }]
+let pointlist = [{ order: 1, x: 2, y: 0, z: 0 },{order:2,x:2,y:0,z:2}]
+let linelist = [{p1:1,p2:2,color:"blue"}]
 let playerpos = { x: 0, y: 0, z: 0 }
 let playerrot = { pitch: 90, yaw: 0 }
 let visionPyramidPoint1 = 0
@@ -169,18 +170,37 @@ function calculatePlaneNormalVector(vectorA, vectorB, vectorC) {
 function calculateD(point1,point2,point3,normal){
     return (Math.max(calculateVectorDotProduct(normal,point1),calculateVectorDotProduct(normal,point2),calculateVectorDotProduct(normal,point3)))
 }
+console.log(returnPointByOrder(1),"orderpointtest")
+function returnPointByOrder(orderInFunction) {
+    return pointlist.find(obj => obj.order === orderInFunction);
+  }
 ///ITS ALIIIIIIVEEE
 function theBigCheck(){
     ctx.fillStyle = "white"
     ctx.fillRect(0, 0, 500,500);
     ctx.fillStyle = "red"
-    pointlist.forEach(element => {
-        console.log(element, giveAngleDifference(element))
-        if(isPointInPyramid(element)){
-            const angle = giveAngleDifference(element)
+    pointlist.forEach(point => {
+        
+
+        if(isPointInPyramid(point)){
+            const angle = giveAngleDifference(point)
             const up = angle.pitch*250/(fov/2)+250
             const side = angle.yaw*250/(fov/2)+250
             ctx.fillRect(side, up, 4,4)
+   /*         linelist.forEach(line => {
+                if (point.order=line.p1){            
+                    const angle = giveAngleDifference(pointlist.find(obj => {
+                        obj.order === line.p2
+                      })
+                      )
+
+                    const up = angle.pitch*250/(fov/2)+250
+                    const side = angle.yaw*250/(fov/2)+250}
+                if (point.order=line.p2){            
+                    const angle = giveAngleDifference(line.p1)
+                    const up = angle.pitch*250/(fov/2)+250
+                    const side = angle.yaw*250/(fov/2)+250}
+            });*/
         }      
     });    
 }
