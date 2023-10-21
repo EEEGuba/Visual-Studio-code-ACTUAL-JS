@@ -24,3 +24,7 @@
 
     console.log(fov, (fov / 2))
     console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
+
+
+
+    
