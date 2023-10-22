@@ -12,7 +12,7 @@ canvas.height = 500;
 const ctx = canvas.getContext("2d");
 
 let pointlist = [{ order: 1, x: 2, y: 0, z: 0 },{order:2,x:2,y:0,z:2}]
-let linelist = [{p1:1,p2:2,color:"blue"}]
+let linelist = [{p1:1,p2:2,color:"blue", usedThisFrame:false}]
 let playerpos = { x: 0, y: 0, z: 0 }
 let playerrot = { pitch: 90, yaw: 0 }
 let visionPyramidPoint1 = 0
@@ -173,36 +173,28 @@ function calculateD(point1,point2,point3,normal){
 console.log(returnPointByOrder(1),"orderpointtest")
 function returnPointByOrder(orderInFunction) {
     return pointlist.find(obj => obj.order === orderInFunction);
-  }
+}
+function returnLineByPoint(point, isp1) {
+    if(isp1){
+        return linelist.find(obj => obj.p1 === point);
+    }
+    return linelist.find(obj => obj.p2 === point);
+}
 ///ITS ALIIIIIIVEEE
 function theBigCheck(){
     ctx.fillStyle = "white"
     ctx.fillRect(0, 0, 500,500);
     ctx.fillStyle = "red"
     pointlist.forEach(point => {
-        
-
         if(isPointInPyramid(point)){
             const angle = giveAngleDifference(point)
             const up = angle.pitch*250/(fov/2)+250
             const side = angle.yaw*250/(fov/2)+250
             ctx.fillRect(side, up, 4,4)
-   /*         linelist.forEach(line => {
-                if (point.order=line.p1){            
-                    const angle = giveAngleDifference(pointlist.find(obj => {
-                        obj.order === line.p2
-                      })
-                      )
+            };
 
-                    const up = angle.pitch*250/(fov/2)+250
-                    const side = angle.yaw*250/(fov/2)+250}
-                if (point.order=line.p2){            
-                    const angle = giveAngleDifference(line.p1)
-                    const up = angle.pitch*250/(fov/2)+250
-                    const side = angle.yaw*250/(fov/2)+250}
-            });*/
-        }      
-    });    
+        } 
+    linelist.forEach(line => {line.usedThisFrame=false} )) 
 }
 function isPointInPyramid(point){
     const angleDifference = giveAngleDifference(point)
