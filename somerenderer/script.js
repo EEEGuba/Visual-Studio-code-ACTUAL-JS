@@ -1,6 +1,6 @@
 //settings
 const movementSpeed = 1
-const turnSensitivity = 6
+const turnSensitivity = 18
 const renderDistance = 10
 const fov = 50
 
@@ -11,8 +11,8 @@ canvas.width = 500;
 canvas.height = 500;
 const ctx = canvas.getContext("2d");
 
-let pointlist = [{ order: 1, x: 2, y: 0, z: 0 },{order:2,x:2,y:0,z:2}]
-let linelist = [{p1:1,p2:2,color:"blue", usedThisFrame:false}]
+let pointlist = [{ order: 1, x: 2, y: 0, z: 0 },{order:2,x:2,y:0,z:2},{order:3,x:4,y:0,z:2},{order:4,x:4,y:0,z:0},{ order: 5, x: 2, y: 2, z: 0 },{order:6,x:2,y:2,z:2},{order:7,x:4,y:2,z:2},{order:8,x:4,y:2,z:0},]
+let linelist = [{p1:1,p2:2,color:"blue", usedThisFrame:false},{p1:3,p2:2,color:"blue", usedThisFrame:false},{p1:3,p2:4,color:"blue", usedThisFrame:false},{p1:4,p2:1,color:"blue", usedThisFrame:false},{p1:5,p2:6,color:"blue", usedThisFrame:false},{p1:6,p2:7,color:"blue", usedThisFrame:false},{p1:7,p2:8,color:"blue", usedThisFrame:false},{p1:1,p2:5,color:"blue", usedThisFrame:false},{p1:2,p2:6,color:"blue", usedThisFrame:false},{p1:3,p2:7,color:"blue", usedThisFrame:false},{p1:4,p2:8,color:"blue", usedThisFrame:false},{p1:8,p2:5,color:"blue", usedThisFrame:false}]
 let playerpos = { x: 0, y: 0, z: 0 }
 let playerrot = { pitch: 90, yaw: 0 }
 let visionPyramidPoint1 = 0
@@ -60,6 +60,12 @@ function movement(key) {
             const result = calculateGridDisplacement(-movementSpeed, playerpos, playerrot)
             playerpos = result
     }
+    if (key == "a") {
+        const result = calculateSideVectors(playerrot.yaw,movementSpeed)
+        
+        playerpos = {x:playerpos.x+result.x,y:playerpos.y+result.y,z:playerpos.z}
+        console.log(playerrot.yaw,playerpos)
+}
 }
 function commandcenter(key) {
     if (key == "u" || key == "h" || key == "j" || key == "k") {
@@ -73,10 +79,17 @@ function commandcenter(key) {
 function drawvector(beginx, beginy, endx, endy, color) {
     ctx.fillStyle = color
     ctx.beginPath();
-    ctx.moveTo(beginx, beginy);
-    ctx.lineTo(endx, endy);
+    /*ctx.moveTo(beginx+3,beginy+3);
+    ctx.lineTo(beginx-3,beginy-3)
+    ctx.lineTo(endx-3, endy-3);
+    ctx.lineTo(endx+3,endy+3)
     ctx.closePath();
-    ctx.stroke();
+    ctx.fill();
+    */
+   ctx.moveTo(beginx,beginy)
+   ctx.lineTo(endx,endy)
+   ctx.closePath()
+   ctx.stroke()
 }
 
 function addPoint() {
@@ -170,7 +183,6 @@ function calculatePlaneNormalVector(vectorA, vectorB, vectorC) {
 function calculateD(point1,point2,point3,normal){
     return (Math.max(calculateVectorDotProduct(normal,point1),calculateVectorDotProduct(normal,point2),calculateVectorDotProduct(normal,point3)))
 }
-console.log(returnPointByOrder(1),"orderpointtest")
 function returnPointByOrder(orderInFunction) {
     return pointlist.find(obj => obj.order === orderInFunction);
 }
@@ -190,11 +202,26 @@ function theBigCheck(){
             const angle = giveAngleDifference(point)
             const up = angle.pitch*250/(fov/2)+250
             const side = angle.yaw*250/(fov/2)+250
-            ctx.fillRect(side, up, 4,4)
-            };
-
-        } 
-    linelist.forEach(line => {line.usedThisFrame=false} )) 
+            ctx.fillRect(side, up, 2,2)
+            linelist.forEach(line => {
+            if(point.order === line.p1&&!line.usedThisFrame){
+                const p2angle = giveAngleDifference(returnPointByOrder(line.p2))
+                const p2up = p2angle.pitch*250/(fov/2)+250
+                const p2side = p2angle.yaw*250/(fov/2)+250
+                drawvector(side,up,p2side,p2up,line.color)
+                line.usedThisFrame=true
+            }
+            if(point.order === line.p2&&!line.usedThisFrame){
+                const p1angle = giveAngleDifference(returnPointByOrder(line.p1))
+                const p1up = p1angle.pitch*250/(fov/2)+250
+                const p1side = p1angle.yaw*250/(fov/2)+250
+                drawvector(side,up,p1side,p1up,line.color)
+                line.usedThisFrame=true
+            }
+            })
+        
+        }})
+    linelist.forEach(line => {line.usedThisFrame=false})
 }
 function isPointInPyramid(point){
     const angleDifference = giveAngleDifference(point)
