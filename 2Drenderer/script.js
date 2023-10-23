@@ -340,6 +340,23 @@ function wallsightloop(i) {
 
     }
 }
+function drawvector(beginx, beginy, endx, endy, color, islastline) {
+    compare2(~~lastCollidedBlock[0],~~lastCollidedBlock[1],~~checkcolx,~~checkcoly)
+    ctx.fillStyle = color
+    ctx.beginPath();
+    ctx.moveTo(beginx, beginy);
+    ctx.lineTo(endx, endy);
+    if (isUnconnected&&!islastline){
+        ctx.lineTo(beginx-280/fov,endy)
+        ctx.lineTo(beginx-280/fov,beginy)
+    }
+    if (!islastline&&!isUnconnected) {
+        ctx.lineTo(--lastvector[2], lastvector[3])
+        ctx.lineTo(--lastvector[0], lastvector[1])
+    }
+  ctx.closePath();
+    ctx.fill();
+}
 function wallsight() {
     const firstcondition = direction - fov/ 2
     const secondcondition = direction + (fov+1) / 2
