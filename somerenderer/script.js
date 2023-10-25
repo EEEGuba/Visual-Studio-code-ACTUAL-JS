@@ -1,7 +1,7 @@
 //settings
 const movementSpeed = 1
 const turnSensitivity = 18
-const renderDistance = 10
+const renderDistance = 50
 const fov = 50
 
 //end of settings
@@ -21,13 +21,26 @@ let visionPyramidPoint3 = 0
 let visionPyramidPoint4 = 0
 
 //for (i = 1; i < 21; i++) {
-//    addPoint()
+//    addPoint(Math.floor(Math.random() * 10),Math.floor(Math.random() * 10),Math.floor(Math.random() * 10))
 //}
-
+/*
+for(i=-10; i<10; i++){
+    for(j=-10; j<10; j++){
+        for(k=-10; k<10; k++){
+            addPoint(i,j,k)
+        }
+    }
+}*/
+addPoint(10,10,10)
+addPoint(10,10,-10)
+addPoint(10,-10,-10)
+addPoint(10,-10,10)
 function keyLogger() {
     commandcenter(event.key)
 }
+function replacePlayerPos(){
 
+}
 //findVisionAngle
 theBigCheck()
 function turning(key) {
@@ -60,6 +73,8 @@ function movement(key) {
             const result = calculateGridDisplacement(-movementSpeed, playerpos, playerrot)
             playerpos = result
     }
+    if (key == "f") {playerpos.z -= movementSpeed }
+    if (key == "r") {playerpos.z += movementSpeed }
     if (key == "a") {
         const result = calculateSideVectors(playerrot.yaw,movementSpeed)
         
@@ -71,7 +86,7 @@ function commandcenter(key) {
     if (key == "u" || key == "h" || key == "j" || key == "k") {
         turning(key)
     }
-    else if (key == "w" || key == "a" || key == "s" || key == "d") {
+    else if (key == "w" || key == "a" || key == "s" || key == "d"||key == "r"||key == "f") {
         movement(key)
     }
     theBigCheck()
@@ -92,10 +107,10 @@ function drawvector(beginx, beginy, endx, endy, color) {
    ctx.stroke()
 }
 
-function addPoint() {
-    const a = Math.floor(Math.random() * 10);
-    const b = Math.floor(Math.random() * 10);
-    const c = Math.floor(Math.random() * 10);
+function addPoint(x,y,z) {
+    const a = x;
+    const b = y;
+    const c = z;
     pointlist.push({ order: pointlist.length + 1, x: a, y: b, z: c })
 }
 
@@ -256,7 +271,6 @@ function giveAngleDifference(point) {
     let pointPhi = toDegrees(Math.atan2(pointFromZero.y, pointFromZero.x)) - playerrot.yaw
     if (pointPhi<-180){pointPhi+=360}
     const vectorAngleDifference = { pitch: pointTheta - playerrot.pitch, yaw: pointPhi }
-    console.log(pointTheta,pointPhi)
     return(vectorAngleDifference)
 
     //WIP
