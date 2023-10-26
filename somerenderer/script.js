@@ -2,7 +2,7 @@
 const movementSpeed = 1
 const turnSensitivity = 18
 const renderDistance = 50
-const fov = 50
+const fov = 100
 
 //end of settings
 
@@ -134,7 +134,7 @@ function generateVisionPyramid() {
     //figuring out coords for sidevectors, z is flat, since no rotation
 
     /*need to do sightvector-playerpos to find Angle, then +90 and -90 degrees*/
-    const heightVectorAngle = (Math.atan2((heightVectorFromZero.x), (heightVectorFromZero.y)) * 180) / Math.PI;
+    const heightVectorAngle = toDegrees(Math.atan2((heightVectorFromZero.x), (heightVectorFromZero.y)));
 
     let rightBaseVectorAngle = heightVectorAngle + 90
     let leftBaseVectorAngle = heightVectorAngle - 90
@@ -275,6 +275,7 @@ function giveAngleDifference(point) {
 
     //WIP
     //i think its done??
+    //its wrong, god dammit
 }
 function findVectorLengthFromZero(point) {
     return (Math.sqrt(point.x * point.x + point.y * point.y + point.z * point.z))
