@@ -11,8 +11,8 @@ canvas.width = 500;
 canvas.height = 500;
 const ctx = canvas.getContext("2d");
 
-let pointlist = [{ order: 1, x: 2, y: 0, z: 0 },{order:2,x:2,y:0,z:2},{order:3,x:4,y:0,z:2},{order:4,x:4,y:0,z:0},{ order: 5, x: 2, y: 2, z: 0 },{order:6,x:2,y:2,z:2},{order:7,x:4,y:2,z:2},{order:8,x:4,y:2,z:0},]
-let linelist = [{p1:1,p2:2,color:"blue", usedThisFrame:false},{p1:3,p2:2,color:"blue", usedThisFrame:false},{p1:3,p2:4,color:"blue", usedThisFrame:false},{p1:4,p2:1,color:"blue", usedThisFrame:false},{p1:5,p2:6,color:"blue", usedThisFrame:false},{p1:6,p2:7,color:"blue", usedThisFrame:false},{p1:7,p2:8,color:"blue", usedThisFrame:false},{p1:1,p2:5,color:"blue", usedThisFrame:false},{p1:2,p2:6,color:"blue", usedThisFrame:false},{p1:3,p2:7,color:"blue", usedThisFrame:false},{p1:4,p2:8,color:"blue", usedThisFrame:false},{p1:8,p2:5,color:"blue", usedThisFrame:false}]
+let pointlist = [{ order: 1, x: 2, y: 0, z: 0 }, { order: 2, x: 2, y: 0, z: 2 }, { order: 3, x: 4, y: 0, z: 2 }, { order: 4, x: 4, y: 0, z: 0 }, { order: 5, x: 2, y: 2, z: 0 }, { order: 6, x: 2, y: 2, z: 2 }, { order: 7, x: 4, y: 2, z: 2 }, { order: 8, x: 4, y: 2, z: 0 },]
+let linelist = [{ p1: 1, p2: 2, color: "blue", usedThisFrame: false }, { p1: 3, p2: 2, color: "blue", usedThisFrame: false }, { p1: 3, p2: 4, color: "blue", usedThisFrame: false }, { p1: 4, p2: 1, color: "blue", usedThisFrame: false }, { p1: 5, p2: 6, color: "blue", usedThisFrame: false }, { p1: 6, p2: 7, color: "blue", usedThisFrame: false }, { p1: 7, p2: 8, color: "blue", usedThisFrame: false }, { p1: 1, p2: 5, color: "blue", usedThisFrame: false }, { p1: 2, p2: 6, color: "blue", usedThisFrame: false }, { p1: 3, p2: 7, color: "blue", usedThisFrame: false }, { p1: 4, p2: 8, color: "blue", usedThisFrame: false }, { p1: 8, p2: 5, color: "blue", usedThisFrame: false }]
 let playerpos = { x: 0, y: 0, z: 0 }
 let playerrot = { pitch: 90, yaw: 0 }
 let visionPyramidPoint1 = 0
@@ -31,14 +31,14 @@ for(i=-10; i<10; i++){
         }
     }
 }*/
-addPoint(10,10,10)
-addPoint(10,10,-10)
-addPoint(10,-10,-10)
-addPoint(10,-10,10)
+addPoint(10, 10, 10)
+addPoint(10, 10, -10)
+addPoint(10, -10, -10)
+addPoint(10, -10, 10)
 function keyLogger() {
     commandcenter(event.key)
 }
-function replacePlayerPos(){
+function replacePlayerPos() {
 
 }
 //findVisionAngle
@@ -68,25 +68,26 @@ function turning(key) {
 function movement(key) {
     if (key == "w") {
         const result = calculateGridDisplacement(movementSpeed, playerpos, playerrot)
-        playerpos = result}
-    if (key == "s") {
-            const result = calculateGridDisplacement(-movementSpeed, playerpos, playerrot)
-            playerpos = result
+        playerpos = result
     }
-    if (key == "f") {playerpos.z -= movementSpeed }
-    if (key == "r") {playerpos.z += movementSpeed }
+    if (key == "s") {
+        const result = calculateGridDisplacement(-movementSpeed, playerpos, playerrot)
+        playerpos = result
+    }
+    if (key == "f") { playerpos.z -= movementSpeed }
+    if (key == "r") { playerpos.z += movementSpeed }
     if (key == "a") {
-        const result = calculateSideVectors(playerrot.yaw,movementSpeed)
-        
-        playerpos = {x:playerpos.x+result.x,y:playerpos.y+result.y,z:playerpos.z}
-        console.log(playerrot.yaw,playerpos)
-}
+        const result = calculateSideVectors(playerrot.yaw, movementSpeed)
+
+        playerpos = { x: playerpos.x + result.x, y: playerpos.y + result.y, z: playerpos.z }
+        console.log(playerrot.yaw, playerpos)
+    }
 }
 function commandcenter(key) {
     if (key == "u" || key == "h" || key == "j" || key == "k") {
         turning(key)
     }
-    else if (key == "w" || key == "a" || key == "s" || key == "d"||key == "r"||key == "f") {
+    else if (key == "w" || key == "a" || key == "s" || key == "d" || key == "r" || key == "f") {
         movement(key)
     }
     theBigCheck()
@@ -101,13 +102,13 @@ function drawvector(beginx, beginy, endx, endy, color) {
     ctx.closePath();
     ctx.fill();
     */
-   ctx.moveTo(beginx,beginy)
-   ctx.lineTo(endx,endy)
-   ctx.closePath()
-   ctx.stroke()
+    ctx.moveTo(beginx, beginy)
+    ctx.lineTo(endx, endy)
+    ctx.closePath()
+    ctx.stroke()
 }
 
-function addPoint(x,y,z) {
+function addPoint(x, y, z) {
     const a = x;
     const b = y;
     const c = z;
@@ -174,8 +175,8 @@ function generateVisionPyramid() {
     console.log("middle", heightVector)
 
     console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
-   console.log(calculatePlaneNormalVector(playerpos, visionPyramidPoint1,visionPyramidPoint2))
-   console.log(calculatePlaneNormalVector(playerpos, visionPyramidPoint2, visionPyramidPoint1))
+    console.log(calculatePlaneNormalVector(playerpos, visionPyramidPoint1, visionPyramidPoint2))
+    console.log(calculatePlaneNormalVector(playerpos, visionPyramidPoint2, visionPyramidPoint1))
     //it works, i could probably make it better, but this works great :D
 }
 //https://stackoverflow.com/questions/1966587/given-3-points-how-do-i-calculate-the-normal-vector
@@ -189,68 +190,69 @@ function calculatePlaneNormalVector(vectorA, vectorB, vectorC) {
     const vectorW = subtractVectors(vectorA, vectorC)
     const vectorCrossProduct = calculateVectorCrossProduct(vectorU, vectorW)
     const vectorLength = Math.sqrt(vectorCrossProduct.x * vectorCrossProduct.x + vectorCrossProduct.y * vectorCrossProduct.y + vectorCrossProduct.z * vectorCrossProduct.z)
-    return ({ x: vectorA.x+(vectorCrossProduct.x) / vectorLength, y: vectorA.y+(vectorCrossProduct.y) / vectorLength, z: vectorA.z +(vectorCrossProduct.z) / vectorLength })
+    return ({ x: vectorA.x + (vectorCrossProduct.x) / vectorLength, y: vectorA.y + (vectorCrossProduct.y) / vectorLength, z: vectorA.z + (vectorCrossProduct.z) / vectorLength })
 
     //this was also first try, funny how 1,2,3,4,5,6,7,8,9 values give a nan lol
     //^^^^
     //that makes a line, now it makes sense
 }
-function calculateD(point1,point2,point3,normal){
-    return (Math.max(calculateVectorDotProduct(normal,point1),calculateVectorDotProduct(normal,point2),calculateVectorDotProduct(normal,point3)))
+function calculateD(point1, point2, point3, normal) {
+    return (Math.max(calculateVectorDotProduct(normal, point1), calculateVectorDotProduct(normal, point2), calculateVectorDotProduct(normal, point3)))
 }
 function returnPointByOrder(orderInFunction) {
     return pointlist.find(obj => obj.order === orderInFunction);
 }
 function returnLineByPoint(point, isp1) {
-    if(isp1){
+    if (isp1) {
         return linelist.find(obj => obj.p1 === point);
     }
     return linelist.find(obj => obj.p2 === point);
 }
 ///ITS ALIIIIIIVEEE
-function theBigCheck(){
+function theBigCheck() {
     ctx.fillStyle = "white"
-    ctx.fillRect(0, 0, 500,500);
+    ctx.fillRect(0, 0, 500, 500);
     ctx.fillStyle = "red"
     pointlist.forEach(point => {
-        if(isPointInPyramid(point)){
+        if (isPointInPyramid(point)) {
             const angle = giveAngleDifference(point)
-            const up = angle.pitch*250/(fov/2)+250
-            const side = angle.yaw*250/(fov/2)+250
-            ctx.fillRect(side, up, 2,2)
+            const up = angle.pitch * 250 / (fov / 2) + 250
+            const side = angle.yaw * 250 / (fov / 2) + 250
+            ctx.fillRect(side, up, 2, 2)
             linelist.forEach(line => {
-            if(point.order === line.p1&&!line.usedThisFrame){
-                const p2angle = giveAngleDifference(returnPointByOrder(line.p2))
-                const p2up = p2angle.pitch*250/(fov/2)+250
-                const p2side = p2angle.yaw*250/(fov/2)+250
-                drawvector(side,up,p2side,p2up,line.color)
-                line.usedThisFrame=true
-            }
-            if(point.order === line.p2&&!line.usedThisFrame){
-                const p1angle = giveAngleDifference(returnPointByOrder(line.p1))
-                const p1up = p1angle.pitch*250/(fov/2)+250
-                const p1side = p1angle.yaw*250/(fov/2)+250
-                drawvector(side,up,p1side,p1up,line.color)
-                line.usedThisFrame=true
-            }
+                if (point.order === line.p1 && !line.usedThisFrame) {
+                    const p2angle = giveAngleDifference(returnPointByOrder(line.p2))
+                    const p2up = p2angle.pitch * 250 / (fov / 2) + 250
+                    const p2side = p2angle.yaw * 250 / (fov / 2) + 250
+                    drawvector(side, up, p2side, p2up, line.color)
+                    line.usedThisFrame = true
+                }
+                if (point.order === line.p2 && !line.usedThisFrame) {
+                    const p1angle = giveAngleDifference(returnPointByOrder(line.p1))
+                    const p1up = p1angle.pitch * 250 / (fov / 2) + 250
+                    const p1side = p1angle.yaw * 250 / (fov / 2) + 250
+                    drawvector(side, up, p1side, p1up, line.color)
+                    line.usedThisFrame = true
+                }
             })
-        
-        }})
-    linelist.forEach(line => {line.usedThisFrame=false})
+
+        }
+    })
+    linelist.forEach(line => { line.usedThisFrame = false })
 }
-function isPointInPyramid(point){
+function isPointInPyramid(point) {
     const angleDifference = giveAngleDifference(point)
- if (calculateDistanceFromPoint(point,playerpos)<renderDistance){
-    if (angleDifference.pitch >= -(fov/2)&&angleDifference.pitch <=(fov/2)){
-        if (angleDifference.yaw >= -(fov/2)&&angleDifference.yaw<=(fov/2)){
-            return(true)
+    if (calculateDistanceFromPoint(point, playerpos) < renderDistance) {
+        if (angleDifference.pitch >= -(fov / 2) && angleDifference.pitch <= (fov / 2)) {
+            if (angleDifference.yaw >= -(fov / 2) && angleDifference.yaw <= (fov / 2)) {
+                return (true)
+            }
         }
     }
- }
- return(false)
+    return (false)
 }
-function calculateDistanceFromPoint(pointA,pointB){
-    return Math.sqrt((pointB.x-pointA.x)*(pointB.x-pointA.x)+(pointB.y-pointA.y)*(pointB.y-pointA.y)+(pointB.z-pointA.z)*(pointB.z-pointA.z))
+function calculateDistanceFromPoint(pointA, pointB) {
+    return Math.sqrt((pointB.x - pointA.x) * (pointB.x - pointA.x) + (pointB.y - pointA.y) * (pointB.y - pointA.y) + (pointB.z - pointA.z) * (pointB.z - pointA.z))
 }
 function addVectors(vectorA, vectorB) {
     return { x: vectorA.x + vectorB.x, y: vectorA.y + vectorB.y, z: vectorA.z + vectorB.z }
@@ -269,9 +271,9 @@ function giveAngleDifference(point) {
     const pointFromZero = subtractVectors(point, playerpos)
     let pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)), pointFromZero.z))
     let pointPhi = toDegrees(Math.atan2(pointFromZero.y, pointFromZero.x)) - playerrot.yaw
-    if (pointPhi<-180){pointPhi+=360}
+    if (pointPhi < -180) { pointPhi += 360 }
     const vectorAngleDifference = { pitch: pointTheta - playerrot.pitch, yaw: pointPhi }
-    return(vectorAngleDifference)
+    return (vectorAngleDifference)
 
     //WIP
     //i think its done??
