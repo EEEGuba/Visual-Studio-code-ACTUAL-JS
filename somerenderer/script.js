@@ -3,6 +3,7 @@ const movementSpeed = 1
 const turnSensitivity = 18
 const renderDistance = 50
 const fov = 100
+const pointSize = 10
 
 //end of settings
 
@@ -218,7 +219,7 @@ function theBigCheck() {
             const angle = giveAngleDifference(point)
             const up = angle.pitch * 250 / (fov / 2) + 250
             const side = angle.yaw * 250 / (fov / 2) + 250
-            ctx.fillRect(side, up, 2, 2)
+            ctx.fillRect(side-(pointSize/2), up-(pointSize/2), pointSize, pointSize)
             linelist.forEach(line => {
                 if (point.order === line.p1 && !line.usedThisFrame) {
                     const p2angle = giveAngleDifference(returnPointByOrder(line.p2))
