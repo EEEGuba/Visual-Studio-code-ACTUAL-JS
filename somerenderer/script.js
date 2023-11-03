@@ -39,7 +39,7 @@ addPoint(10, -10, 10)
 function keyLogger() {
     commandcenter(event.key)
 }
-function replacePlayerPos() {
+function replaceplayerpos() {
 
 }
 //findVisionAngle
@@ -252,6 +252,10 @@ function isPointInPyramid(point) {
     }
     return (false)
 }
+function normalizeVector(vector) {
+    const length = Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+    return { x: vector.x / length, y: vector.y / length, z: vector.z / length };
+}
 function calculateDistanceFromPoint(pointA, pointB) {
     return Math.sqrt((pointB.x - pointA.x) * (pointB.x - pointA.x) + (pointB.y - pointA.y) * (pointB.y - pointA.y) + (pointB.z - pointA.z) * (pointB.z - pointA.z))
 }
@@ -358,3 +362,82 @@ function toRadians(angle) {
 function toDegrees(angle) {
     return angle * (180 / Math.PI)
 }
+
+// WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
+// WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
+// WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
+
+function multiplyMatrixVector(matrix, vector) {
+    const result = [];
+    for (let i = 0; i < matrix.length; i++) {
+        let sum = 0;
+        for (let j = 0; j < vector.length; j++) {
+            sum += matrix[i][j] * vector[j];
+        }
+        result.push(sum);
+    }
+    return result;
+}
+
+function lookAt(camerapos, lookAtPoint, upVector) {
+    const zAxis = normalizeVector(subtractVectors(lookAtPoint, camerapos));
+    const xAxis = normalizeVector(calculateVectorCrossProduct(upVector, zAxis));
+    const yAxis = calculateVectorCrossProduct(zAxis, xAxis);
+
+    return [
+        [xAxis.x, xAxis.y, xAxis.z, -calculateVectorDotProduct(xAxis, camerapos)],
+        [yAxis.x, yAxis.y, yAxis.z, -calculateVectorDotProduct(yAxis, camerapos)],
+        [zAxis.x, zAxis.y, zAxis.z, -calculateVectorDotProduct(zAxis, camerapos)],
+        [0, 0, 0, 1]
+    ];
+}
+
+function perspective(fov, aspectRatio, near, far) {
+    const f = 1 / Math.tan(fov / 2);
+    const depth = near - far;
+
+    return [
+        [f / aspectRatio, 0, 0, 0],
+        [0, f, 0, 0],
+        [0, 0, (far + near) / depth, 2 * far * near / depth],
+        [0, 0, -1, 0]
+    ];
+}
+
+function projectPoints(points3D, viewMatrix, projectionMatrix) {
+    const points2D = [];
+
+    for (const point3D of points3D) {
+        const point4D = [point3D.x, point3D.y, point3D.z, 1];
+        const viewPoint = multiplyMatrixVector(viewMatrix, point4D);
+        const projectedPoint = multiplyMatrixVector(projectionMatrix, viewPoint);
+
+        // Normalize by dividing by w
+        const normalizedPoint = {
+            x: projectedPoint[0] / projectedPoint[3],
+            y: projectedPoint[1] / projectedPoint[3],
+        };
+
+        // Map to screen coordinates if needed (e.g., 800x600 screen)
+        normalizedPoint.x = (normalizedPoint.x + 1) * 250; // Assuming screen width is 800
+        normalizedPoint.y = (-normalizedPoint.y + 1) * 250; // Assuming screen height is 600
+
+        points2D.push(normalizedPoint);
+    }
+
+    return points2D;
+}
+const points3D = [
+    { x: 1, y: 2, z: 3 },
+    { x: 4, y: 5, z: 6 },
+    // Add more 3D points as needed
+];
+
+const lookAtPoint = normalizeVector(heightVector)
+const upVector = {x:playerpos.x,y:playerpos.y, z:playerpos.z++};
+
+const viewMatrix = lookAt(playerpos, lookAtPoint, upVector);
+const projectionMatrix = perspective(Math.PI / 4, 800 / 600, 0.1, 1000);
+const points2D = projectPoints(points3D, viewMatrix, projectionMatrix);
+
+console.log(points2D);
