@@ -404,10 +404,10 @@ function perspective(fov, aspectRatio, near, far) {
     ];
 }
 
-function projectPoints(points3D, viewMatrix, projectionMatrix) {
+function projectPoints(pointlist, viewMatrix, projectionMatrix) {
     const points2D = [];
 
-    for (const point3D of points3D) {
+    for (const point3D of pointlist) {
         const point4D = [point3D.x, point3D.y, point3D.z, 1];
         const viewPoint = multiplyMatrixVector(viewMatrix, point4D);
         const projectedPoint = multiplyMatrixVector(projectionMatrix, viewPoint);
@@ -427,17 +427,8 @@ function projectPoints(points3D, viewMatrix, projectionMatrix) {
 
     return points2D;
 }
-const points3D = [
-    { x: 1, y: 2, z: 3 },
-    { x: 4, y: 5, z: 6 },
-    // Add more 3D points as needed
-];
-
-const lookAtPoint = normalizeVector(heightVector)
-const upVector = {x:playerpos.x,y:playerpos.y, z:playerpos.z++};
-
-const viewMatrix = lookAt(playerpos, lookAtPoint, upVector);
-const projectionMatrix = perspective(Math.PI / 4, 800 / 600, 0.1, 1000);
-const points2D = projectPoints(points3D, viewMatrix, projectionMatrix);
+const viewMatrix = lookAt(playerpos, normalizeVector(heightVector), {x:playerpos.x,y:playerpos.y, z:playerpos.z++});
+const projectionMatrix = perspective(fov, 500/500, 0.1, 1000);
+const points2D = projectPoints(pointlist, viewMatrix, projectionMatrix);
 
 console.log(points2D);
