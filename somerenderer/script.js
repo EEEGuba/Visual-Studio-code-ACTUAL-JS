@@ -2,7 +2,7 @@
 const movementSpeed = 1
 const turnSensitivity = 18
 const renderDistance = 50
-const fov = 100
+const fov = 90
 const pointSize = 10
 
 //end of settings
@@ -12,6 +12,7 @@ canvas.width = 500;
 canvas.height = 500;
 const ctx = canvas.getContext("2d");
 
+
 let pointlist = [{ order: 1, x: 2, y: 0, z: 0 }, { order: 2, x: 2, y: 0, z: 2 }, { order: 3, x: 4, y: 0, z: 2 }, { order: 4, x: 4, y: 0, z: 0 }, { order: 5, x: 2, y: 2, z: 0 }, { order: 6, x: 2, y: 2, z: 2 }, { order: 7, x: 4, y: 2, z: 2 }, { order: 8, x: 4, y: 2, z: 0 },]
 let linelist = [{ p1: 1, p2: 2, color: "blue", usedThisFrame: false }, { p1: 3, p2: 2, color: "blue", usedThisFrame: false }, { p1: 3, p2: 4, color: "blue", usedThisFrame: false }, { p1: 4, p2: 1, color: "blue", usedThisFrame: false }, { p1: 5, p2: 6, color: "blue", usedThisFrame: false }, { p1: 6, p2: 7, color: "blue", usedThisFrame: false }, { p1: 7, p2: 8, color: "blue", usedThisFrame: false }, { p1: 1, p2: 5, color: "blue", usedThisFrame: false }, { p1: 2, p2: 6, color: "blue", usedThisFrame: false }, { p1: 3, p2: 7, color: "blue", usedThisFrame: false }, { p1: 4, p2: 8, color: "blue", usedThisFrame: false }, { p1: 8, p2: 5, color: "blue", usedThisFrame: false }]
 let playerpos = { x: 0, y: 0, z: 0 }
@@ -20,7 +21,7 @@ let visionPyramidPoint1 = 0
 let visionPyramidPoint2 = 0
 let visionPyramidPoint3 = 0
 let visionPyramidPoint4 = 0
-
+let heightVector = calculateGridDisplacement(renderDistance, playerpos, playerrot)
 //for (i = 1; i < 21; i++) {
 //    addPoint(Math.floor(Math.random() * 10),Math.floor(Math.random() * 10),Math.floor(Math.random() * 10))
 //}
@@ -67,6 +68,7 @@ function turning(key) {
 
 }
 function movement(key) {
+    
     if (key == "w") {
         const result = calculateGridDisplacement(movementSpeed, playerpos, playerrot)
         playerpos = result
@@ -83,6 +85,7 @@ function movement(key) {
         playerpos = { x: playerpos.x + result.x, y: playerpos.y + result.y, z: playerpos.z }
         console.log(playerrot.yaw, playerpos)
     }
+    console.log(playerpos)
 }
 function commandcenter(key) {
     if (key == "u" || key == "h" || key == "j" || key == "k") {
@@ -123,7 +126,7 @@ function generateVisionPyramid() {
     const pitch = playerrot.pitch
     const yaw = playerrot.yaw
     const heightVectordistance = renderDistance
-    const heightVector = calculateGridDisplacement(heightVectordistance, playerpos, playerrot)
+    heightVector = calculateGridDisplacement(heightVectordistance, playerpos, playerrot)
     //convert to an absolute vector 
     const heightVectorFromZero = subtractVectors(heightVector, playerpos)
 
@@ -240,6 +243,15 @@ function theBigCheck() {
         }
     })
     linelist.forEach(line => { line.usedThisFrame = false })
+const viewMatrix = lookAt(playerpos , normalizeVector(heightVector), {x:playerpos.x,y:playerpos.y, z:playerpos.z+1});
+const projectionMatrix = perspective(fov, 500/500, 0.1, 1000);
+const points2D = projectPoints(pointlist, viewMatrix, projectionMatrix);
+ points2D.forEach(element => {
+    const side=element.x
+    const up = element.y
+    ctx.fillStyle = "green"
+    ctx.fillRect(side-(pointSize/2), up-(pointSize/2), pointSize, pointSize)
+ });
 }
 function isPointInPyramid(point) {
     const angleDifference = giveAngleDifference(point)
@@ -362,11 +374,6 @@ function toRadians(angle) {
 function toDegrees(angle) {
     return angle * (180 / Math.PI)
 }
-
-// WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
-// WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
-// WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
-
 function multiplyMatrixVector(matrix, vector) {
     const result = [];
     for (let i = 0; i < matrix.length; i++) {
@@ -378,12 +385,11 @@ function multiplyMatrixVector(matrix, vector) {
     }
     return result;
 }
-
 function lookAt(camerapos, lookAtPoint, upVector) {
     const zAxis = normalizeVector(subtractVectors(lookAtPoint, camerapos));
+
     const xAxis = normalizeVector(calculateVectorCrossProduct(upVector, zAxis));
     const yAxis = calculateVectorCrossProduct(zAxis, xAxis);
-
     return [
         [xAxis.x, xAxis.y, xAxis.z, -calculateVectorDotProduct(xAxis, camerapos)],
         [yAxis.x, yAxis.y, yAxis.z, -calculateVectorDotProduct(yAxis, camerapos)],
@@ -391,7 +397,6 @@ function lookAt(camerapos, lookAtPoint, upVector) {
         [0, 0, 0, 1]
     ];
 }
-
 function perspective(fov, aspectRatio, near, far) {
     const f = 1 / Math.tan(fov / 2);
     const depth = near - far;
@@ -403,8 +408,12 @@ function perspective(fov, aspectRatio, near, far) {
         [0, 0, -1, 0]
     ];
 }
+// WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
+// WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
+// WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
 
 function projectPoints(pointlist, viewMatrix, projectionMatrix) {
+
     const points2D = [];
 
     for (const point3D of pointlist) {
@@ -427,8 +436,3 @@ function projectPoints(pointlist, viewMatrix, projectionMatrix) {
 
     return points2D;
 }
-const viewMatrix = lookAt(playerpos, normalizeVector(heightVector), {x:playerpos.x,y:playerpos.y, z:playerpos.z++});
-const projectionMatrix = perspective(fov, 500/500, 0.1, 1000);
-const points2D = projectPoints(pointlist, viewMatrix, projectionMatrix);
-
-console.log(points2D);
