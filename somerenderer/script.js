@@ -3,7 +3,8 @@ const movementSpeed = 1
 const turnSensitivity = 18
 const renderDistance = 50
 const fov = 90
-const pointSize = 10
+const pointSize = 5
+
 
 //end of settings
 
@@ -83,9 +84,9 @@ function movement(key) {
         const result = calculateSideVectors(playerrot.yaw, movementSpeed)
 
         playerpos = { x: playerpos.x + result.x, y: playerpos.y + result.y, z: playerpos.z }
-        console.log(playerrot.yaw, playerpos)
+        //console.log(playerrot.yaw, playerpos)
     }
-    console.log(playerpos)
+    //console.log(playerpos)
 }
 function commandcenter(key) {
     if (key == "u" || key == "h" || key == "j" || key == "k") {
@@ -119,70 +120,7 @@ function addPoint(x, y, z) {
     pointlist.push({ order: pointlist.length + 1, x: a, y: b, z: c })
 }
 
-function generateVisionPyramid() {
 
-    const fovAngle = toRadians(fov / 2)
-
-    const pitch = playerrot.pitch
-    const yaw = playerrot.yaw
-    const heightVectordistance = renderDistance
-    heightVector = calculateGridDisplacement(heightVectordistance, playerpos, playerrot)
-    //convert to an absolute vector 
-    const heightVectorFromZero = subtractVectors(heightVector, playerpos)
-
-    //vision pyramid height vector = pyramid height
-    //calculate side vectors perpendicular to the pyramid height, no z axis, since no rotation of sight
-
-    const sideheight = heightVectordistance / Math.cos(fovAngle)
-    const sidevectorlength = Math.sqrt((sideheight * sideheight) - (heightVectordistance * heightVectordistance))
-
-    //figuring out coords for sidevectors, z is flat, since no rotation
-
-    /*need to do sightvector-playerpos to find Angle, then +90 and -90 degrees*/
-    const heightVectorAngle = toDegrees(Math.atan2((heightVectorFromZero.x), (heightVectorFromZero.y)));
-
-    let rightBaseVectorAngle = heightVectorAngle + 90
-    let leftBaseVectorAngle = heightVectorAngle - 90
-    if (rightBaseVectorAngle > 359) { rightBaseVectorAngle -= 360 }
-    if (leftBaseVectorAngle < 0) { leftBaseVectorAngle += 359 }
-    console.log()
-    const rightBaseVectorxy = calculateSideVectors(rightBaseVectorAngle, sidevectorlength)
-    const leftBaseVectorxy = calculateSideVectors(leftBaseVectorAngle, sidevectorlength)
-    console.log(leftBaseVectorxy)
-    const rightBaseVector = { x: rightBaseVectorxy.x + heightVector.x, y: rightBaseVectorxy.y + heightVector.y, z: heightVector.z }
-    const leftBaseVector = { x: leftBaseVectorxy.x + heightVector.x, y: leftBaseVectorxy.y + heightVector.y, z: heightVector.z }
-    console.log(leftBaseVector)
-    //calculate sidevector as beeing from <0 0 0> 
-    const rightBaseVectorFromZero = subtractVectors(rightBaseVector, heightVector)
-    const leftBaseVectorFromZero = subtractVectors(leftBaseVector, heightVector)
-    //now vector cross product from height and side vector
-    const upBaseVectorCrossProduct = calculateVectorCrossProduct(heightVectorFromZero, rightBaseVectorFromZero)
-    const downBaseVectorCrossProduct = calculateVectorCrossProduct(rightBaseVectorFromZero, heightVectorFromZero)
-    const upBaseVectorCrossProductFromZero = subtractVectors(upBaseVectorCrossProduct, heightVector)
-    const downBaseVectorCrossProductFromZero = subtractVectors(downBaseVectorCrossProduct, heightVector)
-    const upUnitVector = Math.sqrt(upBaseVectorCrossProductFromZero.x * upBaseVectorCrossProductFromZero.x + upBaseVectorCrossProductFromZero.y * upBaseVectorCrossProductFromZero.y + upBaseVectorCrossProductFromZero.z * upBaseVectorCrossProductFromZero.z)
-    const downUnitVector = Math.sqrt(downBaseVectorCrossProductFromZero.x * downBaseVectorCrossProductFromZero.x + downBaseVectorCrossProductFromZero.y * downBaseVectorCrossProductFromZero.y + downBaseVectorCrossProductFromZero.z * downBaseVectorCrossProductFromZero.z)
-    const upBaseVectorMultiplier = sidevectorlength / upUnitVector
-    const downBaseVectorMultiplier = sidevectorlength / downUnitVector
-    const upBaseVectorFromZero = { x: upBaseVectorMultiplier * upBaseVectorCrossProductFromZero.x, y: upBaseVectorMultiplier * upBaseVectorCrossProductFromZero.y, z: upBaseVectorMultiplier * upBaseVectorCrossProductFromZero.z }
-    const downBaseVectorFromZero = { x: downBaseVectorMultiplier * downBaseVectorCrossProductFromZero.x, y: downBaseVectorMultiplier * downBaseVectorCrossProductFromZero.y, z: downBaseVectorMultiplier * downBaseVectorCrossProductFromZero.z }
-    const upBaseVector = addVectors(upBaseVectorFromZero, heightVector)
-    const downBaseVector = addVectors(downBaseVectorFromZero, heightVector)
-    visionPyramidPoint1 = addVectors(heightVector, addVectors(leftBaseVectorFromZero, upBaseVectorFromZero))
-    visionPyramidPoint2 = addVectors(heightVector, addVectors(rightBaseVectorFromZero, upBaseVectorFromZero))
-    visionPyramidPoint3 = addVectors(heightVector, addVectors(leftBaseVectorFromZero, downBaseVectorFromZero))
-    visionPyramidPoint4 = addVectors(heightVector, addVectors(rightBaseVectorFromZero, downBaseVectorFromZero))
-    console.log("left", leftBaseVector)
-    console.log("right", rightBaseVector)
-    console.log("up", upBaseVector)
-    console.log("down", downBaseVector)
-    console.log("middle", heightVector)
-
-    console.log(visionPyramidPoint1, visionPyramidPoint2, visionPyramidPoint3, visionPyramidPoint4)
-    console.log(calculatePlaneNormalVector(playerpos, visionPyramidPoint1, visionPyramidPoint2))
-    console.log(calculatePlaneNormalVector(playerpos, visionPyramidPoint2, visionPyramidPoint1))
-    //it works, i could probably make it better, but this works great :D
-}
 //https://stackoverflow.com/questions/1966587/given-3-points-how-do-i-calculate-the-normal-vector
 //need a func to make a normal from 3 vectors 
 function calculatePlaneNormalVector(vectorA, vectorB, vectorC) {
@@ -205,6 +143,10 @@ function calculateD(point1, point2, point3, normal) {
 }
 function returnPointByOrder(orderInFunction) {
     return pointlist.find(obj => obj.order === orderInFunction);
+}
+//console.log(returnAngleBetween2DVectors(1,2,3,4))
+function returnAngleBetween2DVectors(x1,y1,x2,y2){
+    return(Math.atan2(x1*y2 - y1*x2, x1*x2 + y1*y2 ))
 }
 function returnLineByPoint(point, isp1) {
     if (isp1) {
@@ -243,7 +185,7 @@ function theBigCheck() {
         }
     })
     linelist.forEach(line => { line.usedThisFrame = false })
-const viewMatrix = lookAt(playerpos , normalizeVector(heightVector), {x:playerpos.x,y:playerpos.y, z:playerpos.z+1});
+/* const viewMatrix = lookAt(playerpos , normalizeVector(heightVector), {x:playerpos.x,y:playerpos.y, z:playerpos.z-1});
 const projectionMatrix = perspective(fov, 500/500, 0.1, 1000);
 const points2D = projectPoints(pointlist, viewMatrix, projectionMatrix);
  points2D.forEach(element => {
@@ -251,7 +193,7 @@ const points2D = projectPoints(pointlist, viewMatrix, projectionMatrix);
     const up = element.y
     ctx.fillStyle = "green"
     ctx.fillRect(side-(pointSize/2), up-(pointSize/2), pointSize, pointSize)
- });
+ });*/
 }
 function isPointInPyramid(point) {
     const angleDifference = giveAngleDifference(point)
@@ -286,10 +228,11 @@ function calculateVectorDotProduct(vectorA, vectorB) {
 }
 function giveAngleDifference(point) {
     const pointFromZero = subtractVectors(point, playerpos)
-    let pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)), pointFromZero.z))
+    let pointTheta = toDegrees(Math.atan2((Math.sqrt(pointFromZero.x * pointFromZero.x + pointFromZero.y * pointFromZero.y)), pointFromZero.z)) - playerrot.pitch
     let pointPhi = toDegrees(Math.atan2(pointFromZero.y, pointFromZero.x)) - playerrot.yaw
     if (pointPhi < -180) { pointPhi += 360 }
-    const vectorAngleDifference = { pitch: pointTheta - playerrot.pitch, yaw: pointPhi }
+    const vectorAngleDifference = { pitch: pointTheta, yaw: pointPhi }
+    //console.log(vectorAngleDifference)
     return (vectorAngleDifference)
 
     //WIP
