@@ -1,7 +1,7 @@
 const simulationSpeed = 25 //ms per tick
 const gravity = 0.7 //px per tick
 const airResistance = 0.01
-const bounceLoss = 0.8 //1 is no energy lost 0 is no bounce
+const bounceLoss = 0.9 //1 is no energy lost 0 is no bounce
 
 const canvas = document.getElementById("content");
 canvas.width = 500;
@@ -15,7 +15,8 @@ let testSquare = {
     positionx: 50,
     positiony: 50,
     size: 50,
-    color: "red"
+    color: "red",
+    wasInCollisionLastFrame:false
 }
 
 function clearFrame() {
@@ -28,37 +29,48 @@ function squareDrawLoop(object) {
     ctx.fillRect(object.positionx, object.positiony, object.size, object.size)
 }
 function mainUpdate() {
-    airResistanceAdder(testSquare)
-    gravityAdder(testSquare)
     physicsSimulation(testSquare)
     squareDrawLoop(testSquare)
     currentTick++
+    if(currentTick<800)
     setTimeout(mainUpdate, simulationSpeed)
 }
-function airResistanceAdder(object) {
+
+function physicsSimulation(object) {
+    //gravity
+    object.vector[1] += gravity
+   //collision
+    if(!object.wasInCollisionLastFrame){
+    if (object.positionx + object.size > canvas.width) {
+        object.vector[0] *= -bounceLoss
+        object.positionx = canvas.width-object.size
+    }
+    if(object.positionx < 0){
+        object.vector[0] *= -bounceLoss
+        object.positionx = 0
+    }
+    if (object.positiony + object.size > canvas.height) {
+        object.vector[1] *= -bounceLoss
+        object.positiony=canvas.height-object.size
+    }
+    object.wasInCollisionLastFrame=true
+}
+else{object.wasInCollisionLastFrame=false}
+    object.positionx += object.vector[0]
+    object.positiony += object.vector[1]
+    console.log(object.positionx + object.size, canvas.width, object.positiony + object.size, canvas.height)
+//air resistance
     if (object.vector[0] > 0) {
         object.vector[0] -= airResistance
     }
     else { object.vector[0] += airResistance }
+
     if (object.vector[1] > 0) {
         object.vector[1] -= airResistance
     }
     else { object.vector[1] += airResistance }
-}
-function gravityAdder(object) {
-    object.vector[1] += gravity
-}
-function physicsSimulation(object) {
-    if (object.positionx + object.size > canvas.width || object.positionx < 0) {
-        object.vector[0] *= -bounceLoss
-    }
-    if (object.positiony + object.size > canvas.height) {
-        object.vector[1] *= -bounceLoss
-    }
 
-    object.positionx += object.vector[0]
-    object.positiony += object.vector[1]
-    console.log(object.positionx + object.size, canvas.width, object.positiony + object.size, canvas.height)
+
 }
 mainUpdate()
 
