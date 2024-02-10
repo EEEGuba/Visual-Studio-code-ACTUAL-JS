@@ -40,7 +40,7 @@ function romanTicker(input) {
     }
 }
 
-/*function romanSwitchboard(input) {
+function romanSwitchboard(input) {
     let result = "";
 
     for (let i = 1000; i > 5; i /= 5) {
@@ -73,7 +73,7 @@ function romanNumeralMaker(input, max, min) {
     }
 
     return [input, result];
-};*/
+};
 
 
 
@@ -105,7 +105,8 @@ function inputFunction() {
     else if (input.includes('(')) {
         if (input.index) { }
         else {
-            failsTate(input)
+            failState(input)
+        
         }
     }
     else { document.getElementById("results-div").innerHTML = "Valid US number: " + input; }
