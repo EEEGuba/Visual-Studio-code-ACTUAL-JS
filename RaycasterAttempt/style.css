@@ -1,0 +1,10 @@
+#content,#map {
+    float: left;
+    border: 2px solid black;
+  }
+#content {
+    background-image: 
+      linear-gradient(180deg, #001aff -30% -30%, 21%, #fff 25% 25%, #0ff 35% 35%, #f80 60%, #f3b600 80%, #efba00 100%)
+    ;
+  }
+  
