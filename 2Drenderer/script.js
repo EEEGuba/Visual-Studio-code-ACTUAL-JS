@@ -9,12 +9,29 @@ const renderdistance = 200 //impacts how far away a wall has to be to not appear
 
 //end of settings
 
+
+
+
+
+// ~~DOESNT RETURN THE MATH.FLOOR FOR NEGATIVE
+
+// W H O O P S
+
+
+
+
+
+
+
+
+
 let checky = 0
 let checkx = 0
 let checkcoly = 0
 let checkcolx = 0
 let lastvector = [0, 0, 0, 0]
-/* map, add block here if you want*/ const mapdata = [{ x: 10, y: 10 }, {
+/* map, add block here if you want*/ 
+const mapdata = [{ x: 10, y: 10 }, {
     x: 5,
     y: 6
 }, {
