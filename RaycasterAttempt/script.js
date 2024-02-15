@@ -44,6 +44,7 @@ function keySwitchboard(event) {
     }
 }
 function drawMap() {
+    console.log(mapData)
     ctm.clearRect(0, 0, myMap.height, myMap.width)
     for (let i = 0; i <= (mapData.length)-1; i++) {
         console.log(mapData[0].length)
@@ -75,8 +76,8 @@ function returnLineFromVector(x0, y0, x1, y1, material) {
     let data = []
     cycleNumber = 1
     while (true) {
-        data.push(new MapPixel(x0, y0, cycleNumber, material))
         cycleNumber++
+        data.push(new MapPixel(x0, y0, cycleNumber, material))
         if (x0 === x1 && y0 === y1) { break }
         let a = 2 * dir
         if (a > -dy) {
@@ -91,15 +92,17 @@ function returnLineFromVector(x0, y0, x1, y1, material) {
     return (data)
 }
 
-function testLine() {
-    const drawData = returnLineFromVector(1, 1, 200, 200)
+function makeLine(startX,startY,endX,endY,material) {
+    const drawData = returnLineFromVector(startX, startY, endX, endY,material)
     mapData.push(drawData)
     for (let i = 0; i < drawData.length; i++) {
-        drawSquare(drawData[i].x, drawData[i].y, "blue", 1, ctm);
+        drawSquare(drawData[i].x, drawData[i].y, material, 1, ctm);
 
     }
 }
-testLine()
+makeLine(400,400,100,100,"blue")
+makeLine(100,100,400,100,"red")
+makeLine(400,100,400,400,"green")
 
 /*const cuboid1 = new Cuboid([0,0,0],2,2,2)
 objectList.push(cuboid1)
