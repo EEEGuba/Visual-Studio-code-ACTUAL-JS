@@ -65,13 +65,15 @@ function keySwitchboard(event) {
 
 }
 function testDraw() {
-    ctx.clearRect(0, 0, myCanvas.height, myCanvas.width)
+    ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
     const rayResult = rayCastingReturnWall(playerpos, playerpos.rotation, renderdistance)
-    if (rayResult == undefined) { return }
-    console.log("it went through")
+    if (rayResult == undefined) { return }  
     ctx.fillStyle = rayResult.material
-    const wallProportions = Math.round(myCanvas.height / rayResult.length)
-    ctx.fillRect(myCanvas.width / 2 - 5, myCanvas.height - wallProportions, 10, wallProportions)
+    const wallProportions = Math.round(myCanvas.height / rayResult.rayLength)
+    const currentRayPositionX = myCanvas.width / 2 - 5
+    ctx.fillRect(currentRayPositionX,(myCanvas.height/2) - wallProportions, 10, wallProportions)
+    console.log((myCanvas.height/2)-wallProportions,wallProportions)
+
 }
 function drawPlayerOnMap() {
     drawSquare(playerpos.x, playerpos.y, "magenta", 2, ctm)
@@ -88,13 +90,14 @@ function drawMap() {
     drawPlayerOnMap()
 }
 function rayCastingReturnWall(startingPoint, angle, length) {
+
     for (let k = 0; k < length; k++) {
-        const vectorDisplacement = calculateVectorDisplacement(angle, 1)
+        const vectorDisplacement = calculateVectorDisplacement(angle, k)
         const currentPoint = { x: Math.floor(startingPoint.x + vectorDisplacement.x), y: Math.floor(startingPoint.y + vectorDisplacement.y) }
         for (let i = 0; i <= (mapData.length) - 1; i++) {
             for (let j = 0; j <= (mapData[i].length) - 1; j++) {
                 const element = mapData[i][j];
-                if (j == 100) { console.log(element.x, currentPoint.x, element.y, currentPoint.y) }
+                //if (element.x == currentPoint.x) { console.log(currentPoint.x, currentPoint.y);console.log(mapData) }
                 if (element.x == currentPoint.x && element.y == currentPoint.y) {
                     return { x: element.x, y: element.y, cycleNumber: element.cycleNumber, material: element.material, rayLength: k }
                 }
