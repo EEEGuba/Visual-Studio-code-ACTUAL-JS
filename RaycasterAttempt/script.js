@@ -1,11 +1,12 @@
 //settings
 
-const fov = 30
+const fov = 50 //make it even, not odd
 const fps = 40
-const renderaccuracy = 50 //ammount of blocks per frame
-const turnsensitivity = 6 //degrees turning on click of a or d
-const steplength = 3 //how far you go after w or s
-const renderdistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
+const renderAccuracy = 100 //ammount of blocks per frame
+const turnSensitivity = 6 //degrees turning on click of a or d
+const stepLength = 2 //how far you go after w or s
+const renderDistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
+const raysPerDegree = 2 //how many rays will be sent per degree of fov
 
 
 //end of settings
@@ -26,60 +27,76 @@ document.addEventListener("keydown", (event) => {
 });
 
 function keySwitchboard(event) {
-    console.log(event.key)
+
     switch (event.key) {
         case "w":
-            console.log(playerpos)
-            const a = calculateVectorDisplacement(angleCorrector(playerpos.rotation), steplength)
-            playerpos.x += a.x
-            playerpos.y += a.y
-            drawPlayerOnMap()
-            testDraw()
+            tempMovement(0)
             break;
 
         case "a":
-
+            tempMovement(270)
             break;
         case "s":
-
+            tempMovement(180)
             break;
         case "d":
-
+            tempMovement(90)
             break;
         case "j":
-            playerpos.rotation -= turnsensitivity
+            playerpos.rotation -= turnSensitivity
             playerpos.rotation = angleCorrector(playerpos.rotation)
+            drawFrame()
             break;
         case "l":
-            playerpos.rotation += turnsensitivity
+            playerpos.rotation += turnSensitivity
             playerpos.rotation = angleCorrector(playerpos.rotation)
+            drawFrame()
             break;
         default:
             break;
     }
-    function angleCorrector(angle) {
-        if (angle > 359) { return (angle - 360) }
-        else if (angle < 0) { return (angle + 359) }
-        return (angle)
-    }
+function tempMovement(angle){
 
+    const a = calculateVectorDisplacement(angleCorrector(playerpos.rotation+angle), stepLength)
+    playerpos.x += a.x
+    playerpos.y += a.y
+    drawPlayerOnMap()
+    drawFrame()
 }
-function testDraw() {
+}
+function angleCorrector(angle) {
+    if (angle > 359) { return (angle - 360) }
+    else if (angle < 0) { return (angle + 359) }
+    return (angle)
+}
+
+function drawFrame() {
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
-    const rayResult = rayCastingReturnWall(playerpos, playerpos.rotation, renderdistance)
+    const wallProportionsX = Math.ceil(myCanvas.width/renderAccuracy)
+    const angleEnd = playerpos.rotation + fov/2
+    const angleDifference = fov/renderAccuracy
+    let currentAngle = playerpos.rotation - fov/2
+    let currentLine = renderAccuracy
+    while (currentAngle<angleEnd) {
+
+    
+    const rayResult = rayCastingReturnWall(playerpos,currentAngle, renderDistance)
     if (rayResult == undefined) { return }  
     ctx.fillStyle = rayResult.material
-    const wallProportions = Math.round(myCanvas.height / rayResult.rayLength)
-    const currentRayPositionX = myCanvas.width / 2 - 5
-    ctx.fillRect(currentRayPositionX,(myCanvas.height/2) - wallProportions, 10, wallProportions)
-    console.log((myCanvas.height/2)-wallProportions,wallProportions)
+    const distance = Math.cos(toRadians(playerpos.rotation-currentAngle))*(rayResult.rayLength)
+    const wallProportionsY = Math.round(myCanvas.height / distance)
+    const currentWallPositionX = myCanvas.width - currentLine*wallProportionsX
 
+    ctx.fillRect(currentWallPositionX-(wallProportionsX/2),(myCanvas.height/2) - wallProportionsY, wallProportionsX+1, wallProportionsY*2)
+    currentAngle+=angleDifference
+    currentLine--
+}
 }
 function drawPlayerOnMap() {
     drawSquare(playerpos.x, playerpos.y, "magenta", 2, ctm)
 }
 function drawMap() {
-    console.log(mapData)
+
     ctm.clearRect(0, 0, myMap.height, myMap.width)
     for (let i = 0; i <= (mapData.length) - 1; i++) {
         for (let j = 0; j <= (mapData[i].length) - 1; j++) {
@@ -91,13 +108,12 @@ function drawMap() {
 }
 function rayCastingReturnWall(startingPoint, angle, length) {
 
-    for (let k = 0; k < length; k++) {
+    for (let k = 0; k < length; k+=0.5) {
         const vectorDisplacement = calculateVectorDisplacement(angle, k)
         const currentPoint = { x: Math.floor(startingPoint.x + vectorDisplacement.x), y: Math.floor(startingPoint.y + vectorDisplacement.y) }
         for (let i = 0; i <= (mapData.length) - 1; i++) {
             for (let j = 0; j <= (mapData[i].length) - 1; j++) {
                 const element = mapData[i][j];
-                //if (element.x == currentPoint.x) { console.log(currentPoint.x, currentPoint.y);console.log(mapData) }
                 if (element.x == currentPoint.x && element.y == currentPoint.y) {
                     return { x: element.x, y: element.y, cycleNumber: element.cycleNumber, material: element.material, rayLength: k }
                 }
@@ -151,6 +167,7 @@ function makeLine(startX, startY, endX, endY, material) {
     }
 }
 makeLine(400, 400, 100, 100, "blue")
+//makeLine(400, 401, 100, 101, "blue")
 makeLine(100, 100, 400, 100, "red")
 makeLine(400, 100, 400, 400, "green")
 
