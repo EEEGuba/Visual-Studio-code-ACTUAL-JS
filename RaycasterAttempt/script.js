@@ -22,6 +22,7 @@ myMap.width = 500;
 const ctm = myMap.getContext("2d");
 const ctx = myCanvas.getContext("2d");
 const mapData = []
+const vectorMapData = []
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event);
 });
@@ -55,14 +56,14 @@ function keySwitchboard(event) {
         default:
             break;
     }
-function tempMovement(angle){
+    function tempMovement(angle) {
 
-    const a = calculateVectorDisplacement(angleCorrector(playerpos.rotation+angle), stepLength)
-    playerpos.x += a.x
-    playerpos.y += a.y
-    drawPlayerOnMap()
-    drawFrame()
-}
+        const a = calculateVectorDisplacement(angleCorrector(playerpos.rotation + angle), stepLength)
+        playerpos.x += a.x
+        playerpos.y += a.y
+        drawPlayerOnMap()
+        drawFrame()
+    }
 }
 function angleCorrector(angle) {
     if (angle > 359) { return (angle - 360) }
@@ -72,25 +73,26 @@ function angleCorrector(angle) {
 
 function drawFrame() {
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
-    const wallProportionsX = Math.ceil(myCanvas.width/renderAccuracy)
-    const angleEnd = playerpos.rotation + fov/2
-    const angleDifference = fov/renderAccuracy
-    let currentAngle = playerpos.rotation - fov/2
+    const wallProportionsX = Math.ceil(myCanvas.width / renderAccuracy)
+    const angleEnd = playerpos.rotation + fov / 2
+    const angleDifference = fov / renderAccuracy
+    let currentAngle = playerpos.rotation - fov / 2
     let currentLine = renderAccuracy
-    while (currentAngle<angleEnd) {
+    const rayResult = rayCastingReturnWall(playerpos, playerpos.rotation, renderDistance)
+ /*   while (currentAngle < angleEnd) {
 
-    
-    const rayResult = rayCastingReturnWall(playerpos,currentAngle, renderDistance)
-    if (rayResult == undefined) { return }  
-    ctx.fillStyle = rayResult.material
-    const distance = Math.cos(toRadians(playerpos.rotation-currentAngle))*(rayResult.rayLength)
-    const wallProportionsY = Math.round(myCanvas.height / distance)
-    const currentWallPositionX = myCanvas.width - currentLine*wallProportionsX
 
-    ctx.fillRect(currentWallPositionX-(wallProportionsX/2),(myCanvas.height/2) - wallProportionsY, wallProportionsX+1, wallProportionsY*2)
-    currentAngle+=angleDifference
-    currentLine--
-}
+        const rayResult = rayCastingReturnWall(playerpos, currentAngle, renderDistance)
+        if (rayResult == undefined) { return }
+        ctx.fillStyle = rayResult.material
+        const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.rayLength)
+        const wallProportionsY = Math.round(myCanvas.height / distance)
+        const currentWallPositionX = myCanvas.width - currentLine * wallProportionsX
+
+        ctx.fillRect(currentWallPositionX - (wallProportionsX / 2), (myCanvas.height / 2) - wallProportionsY, wallProportionsX + 1, wallProportionsY * 2)
+        currentAngle += angleDifference
+        currentLine--
+    }*/
 }
 function drawPlayerOnMap() {
     drawSquare(playerpos.x, playerpos.y, "magenta", 2, ctm)
@@ -106,16 +108,17 @@ function drawMap() {
     }
     drawPlayerOnMap()
 }
+/*
 function rayCastingReturnWall(startingPoint, angle, length) {
 
-    for (let k = 0; k < length; k+=0.5) {
+    for (let k = 0; k < length; k += 0.5) {
         const vectorDisplacement = calculateVectorDisplacement(angle, k)
         const currentPoint = { x: Math.floor(startingPoint.x + vectorDisplacement.x), y: Math.floor(startingPoint.y + vectorDisplacement.y) }
         for (let i = 0; i <= (mapData.length) - 1; i++) {
             for (let j = 0; j <= (mapData[i].length) - 1; j++) {
                 const element = mapData[i][j];
                 if (element.x == currentPoint.x && element.y == currentPoint.y) {
-                    return { x: element.x, y: element.y, cycleNumber: element.cycleNumber, material: element.material, rayLength: k }
+                    return { x: element.x, y: element.yw, material: element.material, rayLength: k }
                 }
             }
 
@@ -123,27 +126,38 @@ function rayCastingReturnWall(startingPoint, angle, length) {
     }
     return undefined
 }
+*/
+function rayCastingReturnWall(startingPoint, angle, length) {
+    const relevantVectorMapData = []
+    vectorMapData.forEach(element => {
+        const calculatedDisplacement = calculateVectorDisplacement(angle, length)
+        if (!returnTrueIfPointsOnSameVectorSide(element, startingPoint, { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y })){
+        relevantVectorMapData.push(element)
+        drawSquare(startingPoint.x + calculatedDisplacement.x,startingPoint.y + calculatedDisplacement.y,"black",2,ctm)
+    }});
+    console.log(relevantVectorMapData)
+
+
+
+
+
+}
+
 function drawSquare(x, y, color, size, canvas) {
     canvas.fillStyle = color
     canvas.fillRect(x, y, size, size)
 }
 function returnLineFromVector(x0, y0, x1, y1, material) {
-    function MapPixel(x, y, cycleNumber, mat) {
-        this.x = x
-        this.y = y
-        this.cycleNumber = cycleNumber
-        this.material = mat
-    }
+    vectorMapData.push(new MapVector(x0, y0, x1, y1, material))
     let dx = Math.abs(x1 - x0)
     let dy = Math.abs(y1 - y0)
     let sx = (x0 < x1) ? 1 : -1
     let sy = (y0 < y1) ? 1 : -1
     let dir = dx - dy
     let data = []
-    cycleNumber = 1
     while (true) {
-        cycleNumber++
-        data.push(new MapPixel(x0, y0, cycleNumber, material))
+        data.push(new MapPixel(x0, y0, material))
+
         if (x0 === x1 && y0 === y1) { break }
         let a = 2 * dir
         if (a > -dy) {
@@ -155,6 +169,7 @@ function returnLineFromVector(x0, y0, x1, y1, material) {
             y0 += sy
         }
     }
+
     return (data)
 }
 
@@ -166,11 +181,20 @@ function makeLine(startX, startY, endX, endY, material) {
 
     }
 }
+function MapVector(x0, y0, x1, y1, material) {
+    this.start = { x: x0, y: y0 }
+    this.end = { x: x1, y: y1 }
+    this.material = material
+}
+function MapPixel(x, y, mat) {
+    this.x = x
+    this.y = y
+    this.material = mat
+}
 makeLine(400, 400, 100, 100, "blue")
 //makeLine(400, 401, 100, 101, "blue")
 makeLine(100, 100, 400, 100, "red")
 makeLine(400, 100, 400, 400, "green")
-
 /*const cuboid1 = new Cuboid([0,0,0],2,2,2)
 objectList.push(cuboid1)
 function Cuboid(originPoint, sizex, sizey, sizez) {
@@ -179,10 +203,24 @@ function Cuboid(originPoint, sizex, sizey, sizez) {
     this.sizey = sizey
     this.sizez= sizez
   }*/
-
 function toRadians(angle) {
     return angle * (Math.PI / 180);
 }
 function calculateVectorDisplacement(angle, magnitude) {
     return { x: -magnitude * Math.cos(toRadians(angle)), y: -magnitude * Math.sin(toRadians(angle)) }
+}
+function calculateDotProduct(a, b) {
+    return (a.x * b.x + a.y * b.y)
+}
+function returnTrueIfPointsOnSameVectorSide(vector, pointA, pointB) {
+    const absoluteVector = { x: vector.end.x - vector.start.x, y: vector.end.y - vector.start.y }
+    const absolutePointA = { x: pointA.x - vector.start.x, y: pointA.y - vector.start.y }
+    const absolutePointB = { x: pointB.x - vector.start.x, y: pointB.y - vector.start.y }
+    let perpendicularVector = {x:-absoluteVector.y,y:absoluteVector.x}
+    if (Math.sign(calculateDotProduct(perpendicularVector, absolutePointA)) == Math.sign(calculateDotProduct(perpendicularVector, absolutePointB))) {
+
+        return true
+    }
+    console.log(absoluteVector,absolutePointA,absolutePointB)
+    return false
 }
