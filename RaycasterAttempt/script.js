@@ -2,9 +2,9 @@
 
 const fov = 50 //make it even, not odd
 const fps = 40
-const renderAccuracy = 100 //ammount of blocks per frame
+const renderAccuracy = 400 //ammount of blocks per frame
 const turnSensitivity = 6 //degrees turning on click of a or d
-const stepLength = 2 //how far you go after w or s
+const stepLength = 1 //how far you go after w or s
 const renderDistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 const raysPerDegree = 2 //how many rays will be sent per degree of fov
 
@@ -78,21 +78,43 @@ function drawFrame() {
     const angleDifference = fov / renderAccuracy
     let currentAngle = playerpos.rotation - fov / 2
     let currentLine = renderAccuracy
-    const rayResult = rayCastingReturnWall(playerpos, playerpos.rotation, renderDistance)
- /*   while (currentAngle < angleEnd) {
+    while (currentAngle < angleEnd) {
 
 
         const rayResult = rayCastingReturnWall(playerpos, currentAngle, renderDistance)
-        if (rayResult == undefined) { return }
-        ctx.fillStyle = rayResult.material
-        const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.rayLength)
-        const wallProportionsY = Math.round(myCanvas.height / distance)
-        const currentWallPositionX = myCanvas.width - currentLine * wallProportionsX
+        if (rayResult !== undefined) {
+            ctx.fillStyle = rayResult.material
+            if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) {ctx.fillStyle = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
+            const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity)
+            const wallProportionsY = Math.round(myCanvas.height / distance)
+            const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
 
-        ctx.fillRect(currentWallPositionX - (wallProportionsX / 2), (myCanvas.height / 2) - wallProportionsY, wallProportionsX + 1, wallProportionsY * 2)
+            ctx.fillRect(currentWallPositionX - (wallProportionsX / 2), (myCanvas.height / 2) - wallProportionsY, wallProportionsX + 1, wallProportionsY * 2)
+        }
         currentAngle += angleDifference
         currentLine--
-    }*/
+    }
+}
+function materialEncyclopedia(materialName, wallDistanceFromOrigin){
+    
+    switch (materialName) {
+        case "rainbow":
+            const r = (Math.sin(wallDistanceFromOrigin)) * 255;
+            const g = (Math.sin(wallDistanceFromOrigin + 2)) * 255;
+            const b = (Math.sin(wallDistanceFromOrigin + 4)) * 255;
+            return (`rgb(${r}, ${g}, ${b})`)
+        case "blackwhitestripes":
+            if (Math.floor(wallDistanceFromOrigin)%2 <1) {
+                return "black"
+            } else {
+                return "white"
+            }
+        default:
+            break;
+    }
+}
+function returnIntersectionDistanceFromOrigin(wallVector, intersectionPoint) {
+    return (Math.sqrt((wallVector.start.x - intersectionPoint.x) * (wallVector.start.x - intersectionPoint.x) + (wallVector.start.y - intersectionPoint.y) * (wallVector.start.y - intersectionPoint.y)))
 }
 function drawPlayerOnMap() {
     drawSquare(playerpos.x, playerpos.y, "magenta", 2, ctm)
@@ -129,18 +151,26 @@ function rayCastingReturnWall(startingPoint, angle, length) {
 */
 function rayCastingReturnWall(startingPoint, angle, length) {
     const relevantVectorMapData = []
+    let a = 0
     vectorMapData.forEach(element => {
         const calculatedDisplacement = calculateVectorDisplacement(angle, length)
-        if (!returnTrueIfPointsOnSameVectorSide(element, startingPoint, { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y })){
-        relevantVectorMapData.push(element)
-        drawSquare(startingPoint.x + calculatedDisplacement.x,startingPoint.y + calculatedDisplacement.y,"black",2,ctm)
-    }});
-    console.log(relevantVectorMapData)
+        if (!returnTrueIfPointsOnSameVectorSide(element, startingPoint, { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y })) {
+            a = findIntersection(element, { start: { x: startingPoint.x, y: startingPoint.y }, end: { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y } })
+            if (a !== undefined) {
+                const distanceFromPoint = Math.sqrt((a.x - startingPoint.x) * (a.x - startingPoint.x) + (a.y - startingPoint.y) * (a.y - startingPoint.y))
+                element.proximity = distanceFromPoint
+                relevantVectorMapData.push(element)
+                element.intersection = a
 
-
-
-
-
+                relevantVectorMapData.push(element)
+                drawSquare(a.x, a.y, "black", 2, ctm)
+            }
+        }
+    });
+    if (relevantVectorMapData == []) { return undefined }
+    relevantVectorMapData.sort((a, b) => a.proximity - b.proximity);
+ //   if(a!==0&&a!==undefined){relevantVectorMapData[0].intersection = a}
+    return (relevantVectorMapData[0])
 }
 
 function drawSquare(x, y, color, size, canvas) {
@@ -172,7 +202,6 @@ function returnLineFromVector(x0, y0, x1, y1, material) {
 
     return (data)
 }
-
 function makeLine(startX, startY, endX, endY, material) {
     const drawData = returnLineFromVector(startX, startY, endX, endY, material)
     mapData.push(drawData)
@@ -191,18 +220,10 @@ function MapPixel(x, y, mat) {
     this.y = y
     this.material = mat
 }
-makeLine(400, 400, 100, 100, "blue")
-//makeLine(400, 401, 100, 101, "blue")
-makeLine(100, 100, 400, 100, "red")
+makeLine(100, 100, 400, 400, "material-rainbow")
+makeLine(100, 100, 400, 100, "materialblackwhitestripes")
 makeLine(400, 100, 400, 400, "green")
-/*const cuboid1 = new Cuboid([0,0,0],2,2,2)
-objectList.push(cuboid1)
-function Cuboid(originPoint, sizex, sizey, sizez) {
-    this.originPoint = originPoint;
-    this.sizex = sizex
-    this.sizey = sizey
-    this.sizez= sizez
-  }*/
+
 function toRadians(angle) {
     return angle * (Math.PI / 180);
 }
@@ -216,11 +237,38 @@ function returnTrueIfPointsOnSameVectorSide(vector, pointA, pointB) {
     const absoluteVector = { x: vector.end.x - vector.start.x, y: vector.end.y - vector.start.y }
     const absolutePointA = { x: pointA.x - vector.start.x, y: pointA.y - vector.start.y }
     const absolutePointB = { x: pointB.x - vector.start.x, y: pointB.y - vector.start.y }
-    let perpendicularVector = {x:-absoluteVector.y,y:absoluteVector.x}
+    let perpendicularVector = { x: -absoluteVector.y, y: absoluteVector.x }
     if (Math.sign(calculateDotProduct(perpendicularVector, absolutePointA)) == Math.sign(calculateDotProduct(perpendicularVector, absolutePointB))) {
-
         return true
     }
-    console.log(absoluteVector,absolutePointA,absolutePointB)
     return false
 }
+function findIntersection(vector1, vector2) {
+    let denominator = ((vector2.end.y - vector2.start.y) * (vector1.end.x - vector1.start.x)) - ((vector2.end.x - vector2.start.x) * (vector1.end.y - vector1.start.y))
+    let numerator1 = ((vector2.end.x - vector2.start.x) * (vector1.start.y - vector2.start.y)) - ((vector2.end.y - vector2.start.y) * (vector1.start.x - vector2.start.x))
+    let numerator2 = ((vector1.end.x - vector1.start.x) * (vector1.start.y - vector2.start.y)) - ((vector1.end.y - vector1.start.y) * (vector1.start.x - vector2.start.x))
+
+    if (denominator == 0 && numerator1 == 0 && numerator2 == 0) {
+        return undefined
+    }
+
+    if (denominator == 0) {
+        return undefined
+    }
+
+    let r = numerator1 / denominator
+    let s = numerator2 / denominator
+
+    if (r >= 0 && r <= 1 && s >= 0 && s <= 1) {
+        let intersectionX = vector1.start.x + (r * (vector1.end.x - vector1.start.x))
+        let intersectionY = vector1.start.y + (r * (vector1.end.y - vector1.start.y))
+        return { x: intersectionX, y: intersectionY }
+    }
+
+    return undefined
+}
+function printData() {
+    console.log(playerpos, vectorMapData,)
+}
+
+//console.log(returnTrueIfPointsOnSameVectorSide(vectorMapData[0],{x:160,y:150},{x:370,y:380}))
