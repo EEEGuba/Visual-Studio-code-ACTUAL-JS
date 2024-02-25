@@ -1,19 +1,26 @@
 //settings
 
-const fov = 50 //make it even, not odd
+const fov = 60 //make it even, not odd
 const fps = 40
-const renderAccuracy = 400 //ammount of blocks per frame
-const turnSensitivity = 6 //degrees turning on click of a or d
-const stepLength = 1 //how far you go after w or s
+const renderAccuracy = 1200 //ammount of blocks per frame
+const turnSensitivity = 3 //degrees turning on click of a or d
+const stepLength = 0.2 //how far you go after w or s
 const renderDistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
-const raysPerDegree = 2 //how many rays will be sent per degree of fov
 const gameSpeed = 1000//lower the number to make it faster 1000 is default
 
 
 //end of settings
 
 let playerpos = { x: 250, y: 240, rotation: 90 }
-
+const keyMap = {
+    'w': 0,
+    'a': 1,
+    's': 2,
+    'd': 3,
+    'j': 4,
+    'l': 5,
+    ' ': 6
+};
 const myCanvas = document.getElementById("content");
 myCanvas.height = 500;
 myCanvas.width = 1200;
@@ -39,19 +46,18 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("keyup", (event) => {
     keySwitchboard(event, false);
 });
-
-console.log(Object.keys(controller).length)
 function moveMaker() {
  //   console.log(controller,controller.length)
     for (let i = 0; i < Object.keys(controller).length; i++) {
-        
-        if (controller[i].pressed) {keyInterpreter(controller[i]);console.log("w")}
+
+        if (controller[i].pressed) {keyInterpreter(controller[i].key)}
 
     }
 }
 function keySwitchboard(event, isDown) {
-    if (event.key.search(/^[wasd jl]$/g)==1) {
-        controller[event.key].pressed=isDown
+    if (event.key.search(/^[wasd jl]$/g)==0) {
+        const index = keyMap[event.key];
+        controller[index].pressed = isDown;
     }
 
  /*   switch (event.key) {
