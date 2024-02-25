@@ -25,13 +25,13 @@ const ctx = myCanvas.getContext("2d");
 const mapData = []
 const vectorMapData = []
 const controller = {
-    w: { key: "w", pressed: false, func: 0 },
-    a: { key: "a", pressed: false, func: 0 },
-    s: { key: "s", pressed: false, func: 0 },
-    d: { key: "d", pressed: false, func: 0 },
-    j: { key: "j", pressed: false, func: 0 },
-    l: { key: "l", pressed: false, func: 0 },
-    " ": { key: " ", pressed: false, func: 0 }
+    0: { key: "w", pressed: false, func: 0 },
+    1: { key: "a", pressed: false, func: 0 },
+    2: { key: "s", pressed: false, func: 0 },
+    3: { key: "d", pressed: false, func: 0 },
+    4: { key: "j", pressed: false, func: 0 },
+    5: { key: "l", pressed: false, func: 0 },
+    6: { key: " ", pressed: false, func: 0 }
 }
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event, true);
@@ -40,15 +40,20 @@ document.addEventListener("keyup", (event) => {
     keySwitchboard(event, false);
 });
 
-
+console.log(Object.keys(controller).length)
 function moveMaker() {
-    for (let i = 0; i < controller.length; i++) {
+ //   console.log(controller,controller.length)
+    for (let i = 0; i < Object.keys(controller).length; i++) {
+        
         if (controller[i].pressed) {keyInterpreter(controller[i]);console.log("w")}
 
     }
 }
 function keySwitchboard(event, isDown) {
-controller[event.key].pressed=isDown
+    if (event.key.search(/^[wasd jl]$/g)==1) {
+        controller[event.key].pressed=isDown
+    }
+
  /*   switch (event.key) {
         case "w":
             controller[]
@@ -73,7 +78,8 @@ controller[event.key].pressed=isDown
             break;
         default:
             break;
-}*/}
+}*/
+}
     function keyInterpreter(key) {
 
         switch (key) {
