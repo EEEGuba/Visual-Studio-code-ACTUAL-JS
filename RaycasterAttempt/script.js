@@ -7,6 +7,7 @@ const turnSensitivity = 6 //degrees turning on click of a or d
 const stepLength = 1 //how far you go after w or s
 const renderDistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 const raysPerDegree = 2 //how many rays will be sent per degree of fov
+const gameSpeed = 1000//lower the number to make it faster 1000 is default
 
 
 //end of settings
@@ -23,15 +24,34 @@ const ctm = myMap.getContext("2d");
 const ctx = myCanvas.getContext("2d");
 const mapData = []
 const vectorMapData = []
+const controller = {
+    w: { key: "w", pressed: false, func: 0 },
+    a: { key: "a", pressed: false, func: 0 },
+    s: { key: "s", pressed: false, func: 0 },
+    d: { key: "d", pressed: false, func: 0 },
+    j: { key: "j", pressed: false, func: 0 },
+    l: { key: "l", pressed: false, func: 0 },
+    " ": { key: " ", pressed: false, func: 0 }
+}
 document.addEventListener("keydown", (event) => {
-    keySwitchboard(event);
+    keySwitchboard(event, true);
+});
+document.addEventListener("keyup", (event) => {
+    keySwitchboard(event, false);
 });
 
-function keySwitchboard(event) {
 
-    switch (event.key) {
+function moveMaker() {
+    for (let i = 0; i < controller.length; i++) {
+        if (controller[i].pressed) {keyInterpreter(controller[i]);console.log("w")}
+
+    }
+}
+function keySwitchboard(event, isDown) {
+controller[event.key].pressed=isDown
+ /*   switch (event.key) {
         case "w":
-            tempMovement(0)
+            controller[]
             break;
 
         case "a":
@@ -46,229 +66,265 @@ function keySwitchboard(event) {
         case "j":
             playerpos.rotation -= turnSensitivity
             playerpos.rotation = angleCorrector(playerpos.rotation)
-            drawFrame()
             break;
         case "l":
             playerpos.rotation += turnSensitivity
             playerpos.rotation = angleCorrector(playerpos.rotation)
-            drawFrame()
             break;
         default:
             break;
-    }
-    function tempMovement(angle) {
+}*/}
+    function keyInterpreter(key) {
 
-        const a = calculateVectorDisplacement(angleCorrector(playerpos.rotation + angle), stepLength)
-        playerpos.x += a.x
-        playerpos.y += a.y
-        drawPlayerOnMap()
-        drawFrame()
-    }
-}
-function angleCorrector(angle) {
-    if (angle > 359) { return (angle - 360) }
-    else if (angle < 0) { return (angle + 359) }
-    return (angle)
-}
+        switch (key) {
+            case "w":
+                tempMovement(0)
+                break;
 
-function drawFrame() {
-    ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
-    const wallProportionsX = Math.ceil(myCanvas.width / renderAccuracy)
-    const angleEnd = playerpos.rotation + fov / 2
-    const angleDifference = fov / renderAccuracy
-    let currentAngle = playerpos.rotation - fov / 2
-    let currentLine = renderAccuracy
-    while (currentAngle < angleEnd) {
-
-
-        const rayResult = rayCastingReturnWall(playerpos, currentAngle, renderDistance)
-        if (rayResult !== undefined) {
-            ctx.fillStyle = rayResult.material
-            if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) {ctx.fillStyle = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
-            const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity)
-            const wallProportionsY = Math.round(myCanvas.height / distance)
-            const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
-
-            ctx.fillRect(currentWallPositionX - (wallProportionsX / 2), (myCanvas.height / 2) - wallProportionsY, wallProportionsX + 1, wallProportionsY * 2)
+            case "a":
+                tempMovement(270)
+                break;
+            case "s":
+                tempMovement(180)
+                break;
+            case "d":
+                tempMovement(90)
+                break;
+            case "j":
+                playerpos.rotation -= turnSensitivity
+                playerpos.rotation = angleCorrector(playerpos.rotation)
+                break;
+            case "l":
+                playerpos.rotation += turnSensitivity
+                playerpos.rotation = angleCorrector(playerpos.rotation)
+                break;
+            default:
+                break;
         }
-        currentAngle += angleDifference
-        currentLine--
+        function tempMovement(angle) {
+
+            const a = calculateVectorDisplacement(angleCorrector(playerpos.rotation + angle), stepLength)
+            playerpos.x += a.x
+            playerpos.y += a.y
+        }
     }
-}
-function materialEncyclopedia(materialName, wallDistanceFromOrigin){
-    
-    switch (materialName) {
-        case "rainbow":
-            const r = (Math.sin(wallDistanceFromOrigin)) * 255;
-            const g = (Math.sin(wallDistanceFromOrigin + 2)) * 255;
-            const b = (Math.sin(wallDistanceFromOrigin + 4)) * 255;
-            return (`rgb(${r}, ${g}, ${b})`)
-        case "blackwhitestripes":
-            if (Math.floor(wallDistanceFromOrigin)%2 <1) {
-                return "black"
-            } else {
-                return "white"
+    function angleCorrector(angle) {
+        if (angle > 359) { return (angle - 360) }
+        else if (angle < 0) { return (angle + 359) }
+        return (angle)
+    }
+
+    function drawFrame() {
+        ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
+        const wallProportionsX = Math.ceil(myCanvas.width / renderAccuracy)
+        const angleEnd = playerpos.rotation + fov / 2
+        const angleDifference = fov / renderAccuracy
+        let currentAngle = playerpos.rotation - fov / 2
+        let currentLine = renderAccuracy
+        while (currentAngle < angleEnd) {
+
+
+            const rayResult = rayCastingReturnWall(playerpos, currentAngle, renderDistance)
+            if (rayResult !== undefined) {
+                ctx.fillStyle = rayResult.material
+                if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { ctx.fillStyle = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
+                const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity)
+                const wallProportionsY = Math.round(myCanvas.height / distance)
+                const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
+
+                ctx.fillRect(currentWallPositionX - (wallProportionsX / 2), (myCanvas.height / 2) - wallProportionsY, wallProportionsX + 1, wallProportionsY * 2)
             }
-        default:
-            break;
+            currentAngle += angleDifference
+            currentLine--
+        }
     }
-}
-function returnIntersectionDistanceFromOrigin(wallVector, intersectionPoint) {
-    return (Math.sqrt((wallVector.start.x - intersectionPoint.x) * (wallVector.start.x - intersectionPoint.x) + (wallVector.start.y - intersectionPoint.y) * (wallVector.start.y - intersectionPoint.y)))
-}
-function drawPlayerOnMap() {
-    drawSquare(playerpos.x, playerpos.y, "magenta", 2, ctm)
-}
-function drawMap() {
+    function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
-    ctm.clearRect(0, 0, myMap.height, myMap.width)
-    for (let i = 0; i <= (mapData.length) - 1; i++) {
-        for (let j = 0; j <= (mapData[i].length) - 1; j++) {
-            const element = mapData[i][j];
-            drawSquare(element.x, element.y, element.material, 1, ctm)
-        };
+        switch (materialName) {
+            case "rainbow":
+                const r = (Math.sin(wallDistanceFromOrigin)) * 255;
+                const g = (Math.sin(wallDistanceFromOrigin + 2)) * 255;
+                const b = (Math.sin(wallDistanceFromOrigin + 4)) * 255;
+                return (`rgb(${r}, ${g}, ${b})`)
+            case "blackwhitestripes":
+                if (Math.floor(wallDistanceFromOrigin) % 2 < 1) {
+                    return "black"
+                } else {
+                    return "white"
+                }
+            default:
+                break;
+        }
     }
-    drawPlayerOnMap()
-}
-/*
-function rayCastingReturnWall(startingPoint, angle, length) {
+    function returnIntersectionDistanceFromOrigin(wallVector, intersectionPoint) {
+        return (Math.sqrt((wallVector.start.x - intersectionPoint.x) * (wallVector.start.x - intersectionPoint.x) + (wallVector.start.y - intersectionPoint.y) * (wallVector.start.y - intersectionPoint.y)))
+    }
+    function drawPlayerOnMap() {
+        drawSquare(playerpos.x, playerpos.y, "magenta", 2, ctm)
+    }
+    function drawMap() {
 
-    for (let k = 0; k < length; k += 0.5) {
-        const vectorDisplacement = calculateVectorDisplacement(angle, k)
-        const currentPoint = { x: Math.floor(startingPoint.x + vectorDisplacement.x), y: Math.floor(startingPoint.y + vectorDisplacement.y) }
+        ctm.clearRect(0, 0, myMap.height, myMap.width)
         for (let i = 0; i <= (mapData.length) - 1; i++) {
             for (let j = 0; j <= (mapData[i].length) - 1; j++) {
                 const element = mapData[i][j];
-                if (element.x == currentPoint.x && element.y == currentPoint.y) {
-                    return { x: element.x, y: element.yw, material: element.material, rayLength: k }
+                drawSquare(element.x, element.y, element.material, 1, ctm)
+            };
+        }
+    }
+    /*
+    function rayCastingReturnWall(startingPoint, angle, length) {
+    
+        for (let k = 0; k < length; k += 0.5) {
+            const vectorDisplacement = calculateVectorDisplacement(angle, k)
+            const currentPoint = { x: Math.floor(startingPoint.x + vectorDisplacement.x), y: Math.floor(startingPoint.y + vectorDisplacement.y) }
+            for (let i = 0; i <= (mapData.length) - 1; i++) {
+                for (let j = 0; j <= (mapData[i].length) - 1; j++) {
+                    const element = mapData[i][j];
+                    if (element.x == currentPoint.x && element.y == currentPoint.y) {
+                        return { x: element.x, y: element.yw, material: element.material, rayLength: k }
+                    }
+                }
+    
+            }
+        }
+        return undefined
+    }
+    */
+    function rayCastingReturnWall(startingPoint, angle, length) {
+        const relevantVectorMapData = []
+        let a = 0
+        vectorMapData.forEach(element => {
+            const calculatedDisplacement = calculateVectorDisplacement(angle, length)
+            if (!returnTrueIfPointsOnSameVectorSide(element, startingPoint, { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y })) {
+                a = findIntersection(element, { start: { x: startingPoint.x, y: startingPoint.y }, end: { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y } })
+                if (a !== undefined) {
+                    const distanceFromPoint = Math.sqrt((a.x - startingPoint.x) * (a.x - startingPoint.x) + (a.y - startingPoint.y) * (a.y - startingPoint.y))
+                    element.proximity = distanceFromPoint
+                    relevantVectorMapData.push(element)
+                    element.intersection = a
+
+                    relevantVectorMapData.push(element)
+                    drawSquare(a.x, a.y, "black", 2, ctm)
                 }
             }
-
-        }
+        });
+        if (relevantVectorMapData == []) { return undefined }
+        relevantVectorMapData.sort((a, b) => a.proximity - b.proximity);
+        //   if(a!==0&&a!==undefined){relevantVectorMapData[0].intersection = a}
+        return (relevantVectorMapData[0])
     }
-    return undefined
-}
-*/
-function rayCastingReturnWall(startingPoint, angle, length) {
-    const relevantVectorMapData = []
-    let a = 0
-    vectorMapData.forEach(element => {
-        const calculatedDisplacement = calculateVectorDisplacement(angle, length)
-        if (!returnTrueIfPointsOnSameVectorSide(element, startingPoint, { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y })) {
-            a = findIntersection(element, { start: { x: startingPoint.x, y: startingPoint.y }, end: { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y } })
-            if (a !== undefined) {
-                const distanceFromPoint = Math.sqrt((a.x - startingPoint.x) * (a.x - startingPoint.x) + (a.y - startingPoint.y) * (a.y - startingPoint.y))
-                element.proximity = distanceFromPoint
-                relevantVectorMapData.push(element)
-                element.intersection = a
 
-                relevantVectorMapData.push(element)
-                drawSquare(a.x, a.y, "black", 2, ctm)
+    function drawSquare(x, y, color, size, canvas) {
+        canvas.fillStyle = color
+        canvas.fillRect(x, y, size, size)
+    }
+    function returnLineFromVector(x0, y0, x1, y1, material) {
+        vectorMapData.push(new MapVector(x0, y0, x1, y1, material))
+        let dx = Math.abs(x1 - x0)
+        let dy = Math.abs(y1 - y0)
+        let sx = (x0 < x1) ? 1 : -1
+        let sy = (y0 < y1) ? 1 : -1
+        let dir = dx - dy
+        let data = []
+        while (true) {
+            data.push(new MapPixel(x0, y0, material))
+
+            if (x0 === x1 && y0 === y1) { break }
+            let a = 2 * dir
+            if (a > -dy) {
+                dir -= dy
+                x0 += sx
+            }
+            if (a < dx) {
+                dir += dx
+                y0 += sy
             }
         }
-    });
-    if (relevantVectorMapData == []) { return undefined }
-    relevantVectorMapData.sort((a, b) => a.proximity - b.proximity);
- //   if(a!==0&&a!==undefined){relevantVectorMapData[0].intersection = a}
-    return (relevantVectorMapData[0])
-}
 
-function drawSquare(x, y, color, size, canvas) {
-    canvas.fillStyle = color
-    canvas.fillRect(x, y, size, size)
-}
-function returnLineFromVector(x0, y0, x1, y1, material) {
-    vectorMapData.push(new MapVector(x0, y0, x1, y1, material))
-    let dx = Math.abs(x1 - x0)
-    let dy = Math.abs(y1 - y0)
-    let sx = (x0 < x1) ? 1 : -1
-    let sy = (y0 < y1) ? 1 : -1
-    let dir = dx - dy
-    let data = []
-    while (true) {
-        data.push(new MapPixel(x0, y0, material))
+        return (data)
+    }
+    function makeLine(startX, startY, endX, endY, material) {
+        const drawData = returnLineFromVector(startX, startY, endX, endY, material)
+        mapData.push(drawData)
+        for (let i = 0; i < drawData.length; i++) {
+            drawSquare(drawData[i].x, drawData[i].y, material, 1, ctm);
 
-        if (x0 === x1 && y0 === y1) { break }
-        let a = 2 * dir
-        if (a > -dy) {
-            dir -= dy
-            x0 += sx
-        }
-        if (a < dx) {
-            dir += dx
-            y0 += sy
         }
     }
-
-    return (data)
-}
-function makeLine(startX, startY, endX, endY, material) {
-    const drawData = returnLineFromVector(startX, startY, endX, endY, material)
-    mapData.push(drawData)
-    for (let i = 0; i < drawData.length; i++) {
-        drawSquare(drawData[i].x, drawData[i].y, material, 1, ctm);
-
+    function MapVector(x0, y0, x1, y1, material) {
+        this.start = { x: x0, y: y0 }
+        this.end = { x: x1, y: y1 }
+        this.material = material
     }
-}
-function MapVector(x0, y0, x1, y1, material) {
-    this.start = { x: x0, y: y0 }
-    this.end = { x: x1, y: y1 }
-    this.material = material
-}
-function MapPixel(x, y, mat) {
-    this.x = x
-    this.y = y
-    this.material = mat
-}
-makeLine(100, 100, 400, 400, "material-rainbow")
-makeLine(100, 100, 400, 100, "materialblackwhitestripes")
-makeLine(400, 100, 400, 400, "green")
-
-function toRadians(angle) {
-    return angle * (Math.PI / 180);
-}
-function calculateVectorDisplacement(angle, magnitude) {
-    return { x: -magnitude * Math.cos(toRadians(angle)), y: -magnitude * Math.sin(toRadians(angle)) }
-}
-function calculateDotProduct(a, b) {
-    return (a.x * b.x + a.y * b.y)
-}
-function returnTrueIfPointsOnSameVectorSide(vector, pointA, pointB) {
-    const absoluteVector = { x: vector.end.x - vector.start.x, y: vector.end.y - vector.start.y }
-    const absolutePointA = { x: pointA.x - vector.start.x, y: pointA.y - vector.start.y }
-    const absolutePointB = { x: pointB.x - vector.start.x, y: pointB.y - vector.start.y }
-    let perpendicularVector = { x: -absoluteVector.y, y: absoluteVector.x }
-    if (Math.sign(calculateDotProduct(perpendicularVector, absolutePointA)) == Math.sign(calculateDotProduct(perpendicularVector, absolutePointB))) {
-        return true
+    function MapPixel(x, y, mat) {
+        this.x = x
+        this.y = y
+        this.material = mat
     }
-    return false
-}
-function findIntersection(vector1, vector2) {
-    let denominator = ((vector2.end.y - vector2.start.y) * (vector1.end.x - vector1.start.x)) - ((vector2.end.x - vector2.start.x) * (vector1.end.y - vector1.start.y))
-    let numerator1 = ((vector2.end.x - vector2.start.x) * (vector1.start.y - vector2.start.y)) - ((vector2.end.y - vector2.start.y) * (vector1.start.x - vector2.start.x))
-    let numerator2 = ((vector1.end.x - vector1.start.x) * (vector1.start.y - vector2.start.y)) - ((vector1.end.y - vector1.start.y) * (vector1.start.x - vector2.start.x))
+    makeLine(100, 100, 400, 400, "material-rainbow")
+    makeLine(100, 100, 400, 100, "materialblackwhitestripes")
+    makeLine(400, 100, 400, 400, "green")
 
-    if (denominator == 0 && numerator1 == 0 && numerator2 == 0) {
+    function toRadians(angle) {
+        return angle * (Math.PI / 180);
+    }
+    function calculateVectorDisplacement(angle, magnitude) {
+        return { x: -magnitude * Math.cos(toRadians(angle)), y: -magnitude * Math.sin(toRadians(angle)) }
+    }
+    function calculateDotProduct(a, b) {
+        return (a.x * b.x + a.y * b.y)
+    }
+    function returnTrueIfPointsOnSameVectorSide(vector, pointA, pointB) {
+        const absoluteVector = { x: vector.end.x - vector.start.x, y: vector.end.y - vector.start.y }
+        const absolutePointA = { x: pointA.x - vector.start.x, y: pointA.y - vector.start.y }
+        const absolutePointB = { x: pointB.x - vector.start.x, y: pointB.y - vector.start.y }
+        let perpendicularVector = { x: -absoluteVector.y, y: absoluteVector.x }
+        if (Math.sign(calculateDotProduct(perpendicularVector, absolutePointA)) == Math.sign(calculateDotProduct(perpendicularVector, absolutePointB))) {
+            return true
+        }
+        return false
+    }
+    function findIntersection(vector1, vector2) {
+        let denominator = ((vector2.end.y - vector2.start.y) * (vector1.end.x - vector1.start.x)) - ((vector2.end.x - vector2.start.x) * (vector1.end.y - vector1.start.y))
+        let numerator1 = ((vector2.end.x - vector2.start.x) * (vector1.start.y - vector2.start.y)) - ((vector2.end.y - vector2.start.y) * (vector1.start.x - vector2.start.x))
+        let numerator2 = ((vector1.end.x - vector1.start.x) * (vector1.start.y - vector2.start.y)) - ((vector1.end.y - vector1.start.y) * (vector1.start.x - vector2.start.x))
+
+        if (denominator == 0 && numerator1 == 0 && numerator2 == 0) {
+            return undefined
+        }
+
+        if (denominator == 0) {
+            return undefined
+        }
+
+        let r = numerator1 / denominator
+        let s = numerator2 / denominator
+
+        if (r >= 0 && r <= 1 && s >= 0 && s <= 1) {
+            let intersectionX = vector1.start.x + (r * (vector1.end.x - vector1.start.x))
+            let intersectionY = vector1.start.y + (r * (vector1.end.y - vector1.start.y))
+            return { x: intersectionX, y: intersectionY }
+        }
+
         return undefined
     }
+    function printData() {
+        console.log(playerpos, vectorMapData,)
+    }
+    let count = 0
+    function gameClock() {
+        moveMaker()
+        drawMap()
+        drawPlayerOnMap()
+        drawFrame()
 
-    if (denominator == 0) {
-        return undefined
+        setTimeout(() => {
+            gameClock()
+        }, gameSpeed / fps);
     }
 
-    let r = numerator1 / denominator
-    let s = numerator2 / denominator
 
-    if (r >= 0 && r <= 1 && s >= 0 && s <= 1) {
-        let intersectionX = vector1.start.x + (r * (vector1.end.x - vector1.start.x))
-        let intersectionY = vector1.start.y + (r * (vector1.end.y - vector1.start.y))
-        return { x: intersectionX, y: intersectionY }
-    }
-
-    return undefined
-}
-function printData() {
-    console.log(playerpos, vectorMapData,)
-}
+gameClock()
 
 //console.log(returnTrueIfPointsOnSameVectorSide(vectorMapData[0],{x:160,y:150},{x:370,y:380}))
