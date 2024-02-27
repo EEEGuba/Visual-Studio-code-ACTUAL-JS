@@ -10,7 +10,7 @@ const gameSpeed = 1000//lower the number to make it faster 1000 is default
 const sprintRate = 10// sprint is this number * regular speed
 
 //end of settings
-
+let frameCount = 0
 let playerpos = { x: 250, y: 240, rotation: 90 }
 const keyMap = {
     'w': 0,
@@ -127,6 +127,7 @@ function drawFrame() {
         currentAngle += angleDifference
         currentLine--
     }
+    ctx.strokeText(`Frame: ${frameCount}`, 10, 10, 200)
 }
 function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
@@ -295,6 +296,7 @@ function keyCleaner(){
 }*/
 let count = 0
 function gameClock() {
+    frameCount++
     moveMaker()
     drawMap()
     drawPlayerOnMap()
