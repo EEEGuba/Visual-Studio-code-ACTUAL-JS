@@ -4,13 +4,12 @@ const fov = 60 //make it even, not odd
 const fps = 40
 const renderAccuracy = 1200 //ammount of blocks per frame
 const turnSensitivity = 3 //degrees turning on click of a or d
-const stepLength = 0.2 //how far you go every frame
+const stepLength = 0.3 //how far you go every frame
 const renderDistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 const gameSpeed = 1000//lower the number to make it faster 1000 is default
-const sprintRate = 10// sprint is this number * regular speed
+const sprintRate = 3// sprint is this number * regular speed
 
 //end of settings
-let frameCount = 0
 let playerpos = { x: 250, y: 240, rotation: 90 }
 const keyMap = {
     'w': 0,
@@ -116,6 +115,10 @@ function drawFrame() {
 
         const rayResult = rayCastingReturnWall(playerpos, currentAngle, renderDistance)
         if (rayResult !== undefined) {
+            if(rayResult.material.search(/(vertical)/gi) == 0){
+
+            }
+            else{
             ctx.fillStyle = rayResult.material
             if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { ctx.fillStyle = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
             const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity)
@@ -123,11 +126,10 @@ function drawFrame() {
             const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
 
             ctx.fillRect(currentWallPositionX - (wallProportionsX / 2), (myCanvas.height / 2) - wallProportionsY, wallProportionsX + 1, wallProportionsY * 2)
-        }
+        }}
         currentAngle += angleDifference
         currentLine--
     }
-    ctx.strokeText(`Frame: ${frameCount}`, 10, 10, 200)
 }
 function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
@@ -143,6 +145,9 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
             } else {
                 return "white"
             }
+        case "verticalbricks":
+            
+        break;
         default:
             break;
     }
@@ -296,7 +301,7 @@ function keyCleaner(){
 }*/
 let count = 0
 function gameClock() {
-    frameCount++
+
     moveMaker()
     drawMap()
     drawPlayerOnMap()
