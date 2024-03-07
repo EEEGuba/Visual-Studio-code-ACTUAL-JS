@@ -32,7 +32,9 @@ function rayCastingReturnWall(startingPoint, angle, length) {
 }
 */
 
+lineLength*Object.keys(element.material)[i]
 
+if (element.material.search(/(vertical)/gi) == 0)
 
 //settings
 
