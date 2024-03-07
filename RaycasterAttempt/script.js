@@ -7,9 +7,10 @@ const turnSensitivity = 3 //degrees turning on click of a or d
 const stepLength = 0.3 //how far you go every frame
 const renderDistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 const gameSpeed = 1000//lower the number to make it faster 1000 is default
-const sprintRate = 3// sprint is this number * regular speed
+const sprintRate = 10// sprint is this number * regular speed
 
 //end of settings
+
 let playerpos = { x: 250, y: 240, rotation: 90 }
 const keyMap = {
     'w': 0,
@@ -42,6 +43,7 @@ const controller = {
 }
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event, true, event.shiftKey);
+    if (event.key == " ") { event.preventDefault(); }
 });
 document.addEventListener("keyup", (event) => {
     keySwitchboard(event, false, event.shiftKey);
@@ -86,6 +88,8 @@ function keyInterpreter(key) {
             playerpos.rotation += turnSensitivity
             playerpos.rotation = angleCorrector(playerpos.rotation)
             break;
+        case " ":
+            console.log("P O W")
         default:
             break;
     }
@@ -102,7 +106,7 @@ function angleCorrector(angle) {
     else if (angle < 0) { return (angle + 359) }
     return (angle)
 }
-
+let currentFrameData = []
 function drawFrame() {
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
     const wallProportionsX = Math.ceil(myCanvas.width / renderAccuracy)
@@ -112,24 +116,54 @@ function drawFrame() {
     let currentLine = renderAccuracy
     while (currentAngle < angleEnd) {
 
-
         const rayResult = rayCastingReturnWall(playerpos, currentAngle, renderDistance)
         if (rayResult !== undefined) {
-            if(rayResult.material.search(/(vertical)/gi) == 0){
-
-            }
-            else{
-            ctx.fillStyle = rayResult.material
-            if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { ctx.fillStyle = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
             const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity)
             const wallProportionsY = Math.round(myCanvas.height / distance)
+            let materialResult = rayResult.material
+            if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { materialResult = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
             const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
+            currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (myCanvas.height / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: rayResult.proximity })
 
-            ctx.fillRect(currentWallPositionX - (wallProportionsX / 2), (myCanvas.height / 2) - wallProportionsY, wallProportionsX + 1, wallProportionsY * 2)
-        }}
+        }
         currentAngle += angleDifference
         currentLine--
     }
+    frameExecuter()
+}
+
+function frameExecuter() {
+    currentFrameData.sort((a, b) => b.proximity - a.proximity);
+
+    currentFrameData.forEach(element => {
+        if (isObject(element.material)) {
+            const lineLength = element.yWidth 
+           
+            let currentHeight = element.yPos
+            for (let v = 0; v < Object.keys(element.material).length; v++) {
+                
+                if (v == 0) {
+                    ctx.fillStyle = Object.values(element.material)[0]
+                    ctx.fillRect(element.xPos, element.yPos, element.xWidth,(lineLength*parseFloat(Object.keys(element.material)[v+1])))
+                    currentHeight += lineLength*parseFloat(Object.keys(element.material)[v+1])
+                }
+                if (v >= Object.keys(element.material).length-1) {
+                    ctx.fillStyle = Object.values(element.material)[v]
+                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength*(1-parseFloat(Object.keys(element.material)[v])))
+                }
+                else {
+                    ctx.fillStyle = Object.values(element.material)[v]
+                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, element.yWidth-(lineLength*parseFloat(Object.keys(element.material)[v+1])))
+                    currentHeight += lineLength*(parseFloat(Object.keys(element.material)[v]))-parseFloat(Object.keys(element.material)[v])
+                }
+            }
+        }
+        else {
+            ctx.fillStyle = element.material
+            ctx.fillRect(element.xPos, element.yPos, element.xWidth, element.yWidth)
+        }
+    });
+    currentFrameData = []
 }
 function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
@@ -146,8 +180,10 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
                 return "white"
             }
         case "verticalbricks":
-            
-        break;
+
+            break;
+        case "verticalblacklineonwhite":
+            return { 0: "white", 0.33:"gray",0.66: "black" }
         default:
             break;
     }
@@ -241,8 +277,8 @@ function MapPixel(x, y, mat) {
 }
 makeLine(100, 100, 400, 400, "material-rainbow")
 makeLine(100, 100, 400, 100, "materialblackwhitestripes")
-makeLine(400, 100, 400, 400, "green")
-makeLine(100,200,300,400,"pink")
+makeLine(400, 100, 400, 400, "material verticalblacklineonwhite")
+makeLine(100, 200, 300, 400, "pink")
 
 
 function toRadians(angle) {
@@ -289,16 +325,8 @@ function findIntersection(vector1, vector2) {
     return undefined
 }
 function printData() {
-    console.log(isShiftPressed)
+
 }
-/*
-function keyCleaner(){
-    if (controller[keyMap['Shift']].pressed){
-    for (let i = 0; i < Object.keys(controller).length; i++) {
-        controller[i].pressed = false
- 
-    }}
-}*/
 let count = 0
 function gameClock() {
 
@@ -306,7 +334,6 @@ function gameClock() {
     drawMap()
     drawPlayerOnMap()
     drawFrame()
-    // keyCleaner()
 
     setTimeout(() => {
         gameClock()
@@ -315,5 +342,12 @@ function gameClock() {
 
 
 gameClock()
-
+function isObject(value) {
+    //I ripped this function from https://bobbyhadz.com/blog/javascript-check-if-value-is-object, its why it doesnt look like my code
+    return (
+        typeof value === 'object' &&
+        value !== null &&
+        !Array.isArray(value)
+    );
+}
 //console.log(returnTrueIfPointsOnSameVectorSide(vectorMapData[0],{x:160,y:150},{x:370,y:380}))
