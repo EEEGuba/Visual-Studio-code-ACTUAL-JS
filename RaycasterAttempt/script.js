@@ -4,12 +4,13 @@ const fov = 60 //make it even, not odd
 const fps = 40
 const renderAccuracy = 1200 //ammount of blocks per frame
 const turnSensitivity = 3 //degrees turning on click of a or d
-const stepLength = 0.3 //how far you go every frame
+const stepLength = 0.1 //how far you go every frame
 const renderDistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 const gameSpeed = 1000//lower the number to make it faster 1000 is default
 const sprintRate = 10// sprint is this number * regular speed
 
 //end of settings
+let currentFrame = 1
 
 let playerpos = { x: 250, y: 240, rotation: 90 }
 const keyMap = {
@@ -41,6 +42,13 @@ const controller = {
     5: { key: "l", pressed: false },
     6: { key: " ", pressed: false },
 }
+
+makeLine(100, 100, 400, 400, "material-rainbow", false)
+makeLine(100, 100, 400, 100, "materialverticalblackwhitesinewave", false)
+makeLine(400, 100, 400, 400, "material verticalblacklineonwhite", false)
+makeLine(100, 200, 300, 400, "pink", false)
+makeLine(200, 200, 300, 200, "material-glass", true)
+makeLine(250, 250, 300, 200, "material-glass", true)
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event, true, event.shiftKey);
     if (event.key == " ") { event.preventDefault(); }
@@ -118,45 +126,67 @@ function drawFrame() {
 
         const rayResult = rayCastingReturnWall(playerpos, currentAngle, renderDistance)
         if (rayResult !== undefined) {
-            const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity)
-            const wallProportionsY = Math.round(myCanvas.height / distance)
-            let materialResult = rayResult.material
-            if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { materialResult = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
-            const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
-            currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (myCanvas.height / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: rayResult.proximity })
+            if (rayResult[1] == undefined) {
+                const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity)
+                const wallProportionsY = Math.round(myCanvas.height / distance)
+                let materialResult = rayResult.material
+                if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { materialResult = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
+                const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
+                currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (myCanvas.height / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: rayResult.proximity })
+            }
+            else {
+                
+                for (let f = 0; f < rayResult.length; f++) {
+                    const currentRayResult = rayResult[f]
+                    const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (currentRayResult.proximity)
+                    const wallProportionsY = Math.round(myCanvas.height / distance)
+                    let materialResult = currentRayResult.material
+                    if (currentRayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { materialResult = materialEncyclopedia(currentRayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(currentRayResult, currentRayResult.intersection)) }
+                    const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
+                    currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (myCanvas.height / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: currentRayResult.proximity })
 
+                }
+
+            }
         }
         currentAngle += angleDifference
         currentLine--
     }
     frameExecuter()
 }
-
+let consolelogprint = 0
 function frameExecuter() {
     currentFrameData.sort((a, b) => b.proximity - a.proximity);
-
+//i need to make one where the background is 1 color and then you imprint another on that line because them bricks are frame murderers
     currentFrameData.forEach(element => {
         if (isObject(element.material)) {
-            const lineLength = element.yWidth 
-           
+            const lineLength = element.yWidth
             let currentHeight = element.yPos
-            for (let v = 0; v < Object.keys(element.material).length; v++) {
-                
-                if (v == 0) {
-                    ctx.fillStyle = Object.values(element.material)[0]
-                    ctx.fillRect(element.xPos, element.yPos, element.xWidth,(lineLength*parseFloat(Object.keys(element.material)[v+1])))
-                    currentHeight += lineLength*parseFloat(Object.keys(element.material)[v+1])
+            materialApplier:for (let v = 0; v < Object.keys(element.material).length; v++) {
+               // if(Object.keys(element.material)[v]=="opacity"){break materialApplier}
+
+                    if (v == 0) {
+                        
+                        ctx.fillStyle = Object.values(element.material)[0]
+                        if(element.material.color!==undefined){ctx.fillStyle=element.material.color
+                            if(consolelogprint<20){console.log(ctx.fillStyle);consolelogprint++}
+                        }
+                        const calc = (lineLength * parseFloat(Object.keys(element.material)[0]))
+                        ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc)
+                        currentHeight += calc
+                    }
+                    if (v >= Object.keys(element.material).length - 1) {
+                        ctx.fillStyle = Object.values(element.material)[v]
+                        ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material)[v])))
+                    }
+                    else {
+                        const calc = lineLength * ((parseFloat(Object.keys(element.material)[v + 1])) - parseFloat(Object.keys(element.material)[v]))
+                        ctx.fillStyle = Object.values(element.material)[v]
+                        ctx.fillRect(element.xPos, currentHeight, element.xWidth, calc)
+                        currentHeight += calc
+
+                    }
                 }
-                if (v >= Object.keys(element.material).length-1) {
-                    ctx.fillStyle = Object.values(element.material)[v]
-                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength*(1-parseFloat(Object.keys(element.material)[v])))
-                }
-                else {
-                    ctx.fillStyle = Object.values(element.material)[v]
-                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, element.yWidth-(lineLength*parseFloat(Object.keys(element.material)[v+1])))
-                    currentHeight += lineLength*(parseFloat(Object.keys(element.material)[v]))-parseFloat(Object.keys(element.material)[v])
-                }
-            }
         }
         else {
             ctx.fillStyle = element.material
@@ -169,9 +199,9 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
     switch (materialName) {
         case "rainbow":
-            const r = (Math.sin(wallDistanceFromOrigin)) * 255;
-            const g = (Math.sin(wallDistanceFromOrigin + 2)) * 255;
-            const b = (Math.sin(wallDistanceFromOrigin + 4)) * 255;
+            const r = (Math.sin(wallDistanceFromOrigin + currentFrame / 3)) * 255;
+            const g = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 3)) * 255;
+            const b = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 3)) * 255;
             return (`rgb(${r}, ${g}, ${b})`)
         case "blackwhitestripes":
             if (Math.floor(wallDistanceFromOrigin) % 2 < 1) {
@@ -179,11 +209,29 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
             } else {
                 return "white"
             }
+        case "verticalblackwhitesinewave":
+            const waveHeight = getDecimalPart(Math.sin(wallDistanceFromOrigin * 2) / 2 + 0.5).slice(0, 4)
+            return { 0: "white", [waveHeight]: "black" }
         case "verticalbricks":
+            const wallBlockPos = getDecimalPart(wallDistanceFromOrigin)
+            const wallBlockDecisionNum = wallBlockPos.toString().slice(2, 4)
+            if (wallBlockDecisionNum % 25 <= 2) { return "black" }
+            if (wallBlockDecisionNum < 25) {
+                return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" }
+            }
+            if (wallBlockDecisionNum > 50 && wallBlockDecisionNum < 75) {
+                return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" }
+            }
+            return { 0: "orange", 0.04: "black", 0.05: "orange", 0.14: "black", 0.15: "orange", 0.24: "black", 0.25: "orange", 0.34: "black", 0.35: "orange", 0.44: "black", 0.45: "orange", 0.54: "black", 0.55: "orange", 0.64: "black", 0.65: "orange", 0.74: "black", 0.75: "orange", 0.84: "black", 0.85: "orange", 0.94: "black", 0.95: "orange" }
 
-            break;
+        case "glass":
+            if (getDecimalPart(wallDistanceFromOrigin) > 0.94) {
+                return "black"
+            }
+            return "rgba(0,0,255,0.1)"
+
         case "verticalblacklineonwhite":
-            return { 0: "white", 0.33:"gray",0.66: "black" }
+            return { 0: "white", 0.33: "gray", 0.66: "black" }
         default:
             break;
     }
@@ -222,18 +270,28 @@ function rayCastingReturnWall(startingPoint, angle, length) {
             }
         }
     });
-    if (relevantVectorMapData == []) { return undefined }
+    if (relevantVectorMapData == [] || relevantVectorMapData[0] == undefined) { return undefined }
+    if (relevantVectorMapData[1] == undefined) { return relevantVectorMapData[0] }
     relevantVectorMapData.sort((a, b) => a.proximity - b.proximity);
     //   if(a!==0&&a!==undefined){relevantVectorMapData[0].intersection = a}
-    return (relevantVectorMapData[0])
+    if (!relevantVectorMapData[0].isSeeThrough) { return relevantVectorMapData[0] }
+    let returnMapData = []
+    for (let r = 0; r < relevantVectorMapData.length; r++) {
+        //find a way to stop it saving the transparent thing twice
+        returnMapData.push(relevantVectorMapData[r])
+
+        if (!relevantVectorMapData[r].isSeeThrough) {
+            return (returnMapData)
+        }
+    }
 }
 
 function drawSquare(x, y, color, size, canvas) {
     canvas.fillStyle = color
     canvas.fillRect(x, y, size, size)
 }
-function returnLineFromVector(x0, y0, x1, y1, material) {
-    vectorMapData.push(new MapVector(x0, y0, x1, y1, material))
+function returnLineFromVector(x0, y0, x1, y1, material, isSeeThrough) {
+    vectorMapData.push(new MapVector(x0, y0, x1, y1, material, isSeeThrough))
     let dx = Math.abs(x1 - x0)
     let dy = Math.abs(y1 - y0)
     let sx = (x0 < x1) ? 1 : -1
@@ -257,28 +315,26 @@ function returnLineFromVector(x0, y0, x1, y1, material) {
 
     return (data)
 }
-function makeLine(startX, startY, endX, endY, material) {
-    const drawData = returnLineFromVector(startX, startY, endX, endY, material)
+function makeLine(startX, startY, endX, endY, material, isSeeThrough) {
+    const drawData = returnLineFromVector(startX, startY, endX, endY, material, isSeeThrough)
     mapData.push(drawData)
     for (let i = 0; i < drawData.length; i++) {
         drawSquare(drawData[i].x, drawData[i].y, material, 1, ctm);
 
     }
 }
-function MapVector(x0, y0, x1, y1, material) {
+function MapVector(x0, y0, x1, y1, material, isSeeThrough) {
     this.start = { x: x0, y: y0 }
     this.end = { x: x1, y: y1 }
     this.material = material
+    this.isSeeThrough = isSeeThrough
 }
 function MapPixel(x, y, mat) {
     this.x = x
     this.y = y
-    this.material = mat
+    this.material = "brown"
 }
-makeLine(100, 100, 400, 400, "material-rainbow")
-makeLine(100, 100, 400, 100, "materialblackwhitestripes")
-makeLine(400, 100, 400, 400, "material verticalblacklineonwhite")
-makeLine(100, 200, 300, 400, "pink")
+
 
 
 function toRadians(angle) {
@@ -325,7 +381,7 @@ function findIntersection(vector1, vector2) {
     return undefined
 }
 function printData() {
-
+    consolelogprint = 0
 }
 let count = 0
 function gameClock() {
@@ -334,7 +390,7 @@ function gameClock() {
     drawMap()
     drawPlayerOnMap()
     drawFrame()
-
+    currentFrame++
     setTimeout(() => {
         gameClock()
     }, gameSpeed / fps);
@@ -349,5 +405,13 @@ function isObject(value) {
         value !== null &&
         !Array.isArray(value)
     );
+}
+function getDecimalPart(x) {
+    if (Number.isInteger(x)) {
+        return 0;
+    }
+
+    let string = x.toString()
+    return string.replace(/^(.*)\./, "0.")
 }
 //console.log(returnTrueIfPointsOnSameVectorSide(vectorMapData[0],{x:160,y:150},{x:370,y:380}))
