@@ -32,6 +32,9 @@ function rayCastingReturnWall(startingPoint, angle, length) {
 }
 */
 
+            if(consolelogprint<20){console.log(rayResult);consolelogprint++}
+
+
 lineLength*Object.keys(element.material)[i]
 
 if (element.material.search(/(vertical)/gi) == 0)
