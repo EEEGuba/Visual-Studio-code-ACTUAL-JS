@@ -1,17 +1,19 @@
 //settings
 
-const fov = 60 //make it even, not odd
-const fps = 40
-const renderAccuracy = 1200 //ammount of blocks per frame
-const turnSensitivity = 3 //degrees turning on click of a or d
-const stepLength = 0.1 //how far you go every frame
-const renderDistance = 200 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
-const gameSpeed = 1000//lower the number to make it faster 1000 is default
-const sprintRate = 10// sprint is this number * regular speed
-
+let fov = 60 //make it even, not odd
+let fps = 40
+let renderAccuracy = 1200 //ammount of blocks per frame
+let turnSensitivity = 3 //degrees turning on click of a or d
+let stepLength = 0.3 //how far you go every frame
+let renderDistance = 250 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
+let gameSpeed = 1000//lower the number to make it faster 1000 is default
+let sprintRate = 10// sprint is this number * regular speed
+let gametickPause = false
+let noclip = false
 //end of settings
-let currentFrame = 1
 
+let currentFrame = 1
+playerVector = {x:0,y:0}
 let playerpos = { x: 250, y: 240, rotation: 90 }
 const keyMap = {
     'w': 0,
@@ -46,8 +48,9 @@ const controller = {
 makeLine(100, 100, 400, 400, "material-rainbow", false)
 makeLine(100, 100, 400, 100, "materialverticalblackwhitesinewave", false)
 makeLine(400, 100, 400, 400, "material verticalblacklineonwhite", false)
+makeLine(500, 200, 500, 300, "materialverticalseawave", true)
 makeLine(100, 200, 300, 400, "pink", false)
-makeLine(200, 200, 300, 200, "material-glass", true)
+makeLine(200, 200, 300, 200, "materialglass", true)
 makeLine(250, 250, 300, 200, "material-glass", true)
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event, true, event.shiftKey);
@@ -71,7 +74,18 @@ function keySwitchboard(event, isDown, isShiftDown) {
         isShiftPressed = isShiftDown
     }
 }
-
+function apply(){
+ fov = +document.getElementById("fov").value
+ fps = +document.getElementById("fps").value
+ renderAccuracy = +document.getElementById("renderAccuracy").value 
+ turnSensitivity = +document.getElementById("turnSensitivity").value
+ stepLength =+document.getElementById("stepLength").value
+ renderDistance = +document.getElementById("renderDistance").value
+ gameSpeed = +document.getElementById("gameSpeed").value
+ sprintRate = +document.getElementById("sprintRate").value
+ gametickPause = document.getElementById("gametickPause").checked
+ noclip = document.getElementById("noclip").checked
+}
 function keyInterpreter(key) {
     switch (key) {
 
@@ -89,12 +103,10 @@ function keyInterpreter(key) {
             tempMovement(90)
             break;
         case "j":
-            playerpos.rotation -= turnSensitivity
-            playerpos.rotation = angleCorrector(playerpos.rotation)
+            playerpos.rotation = angleCorrector(playerpos.rotation-turnSensitivity)
             break;
         case "l":
-            playerpos.rotation += turnSensitivity
-            playerpos.rotation = angleCorrector(playerpos.rotation)
+            playerpos.rotation = angleCorrector(playerpos.rotation+turnSensitivity)
             break;
         case " ":
             console.log("P O W")
@@ -109,8 +121,11 @@ function tempMovement(angle) {
     playerpos.x += a.x
     playerpos.y += a.y
 }
+function movementExecuter(){
+    
+}
 function angleCorrector(angle) {
-    if (angle > 359) { return (angle - 360) }
+    if (angle > 359) { return (angle - (360*((angle-(angle%360))/360))) }
     else if (angle < 0) { return (angle + 359) }
     return (angle)
 }
@@ -135,7 +150,7 @@ function drawFrame() {
                 currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (myCanvas.height / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: rayResult.proximity })
             }
             else {
-                
+
                 for (let f = 0; f < rayResult.length; f++) {
                     const currentRayResult = rayResult[f]
                     const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (currentRayResult.proximity)
@@ -157,36 +172,35 @@ function drawFrame() {
 let consolelogprint = 0
 function frameExecuter() {
     currentFrameData.sort((a, b) => b.proximity - a.proximity);
-//i need to make one where the background is 1 color and then you imprint another on that line because them bricks are frame murderers
+    //i need to make one where the background is 1 color and then you imprint another on that line because them bricks are frame murderers
     currentFrameData.forEach(element => {
         if (isObject(element.material)) {
             const lineLength = element.yWidth
             let currentHeight = element.yPos
-            materialApplier:for (let v = 0; v < Object.keys(element.material).length; v++) {
-               // if(Object.keys(element.material)[v]=="opacity"){break materialApplier}
+            materialApplier: for (let v = 0; v < Object.keys(element.material).length; v++) {
+                if (v == 0) {
 
-                    if (v == 0) {
-                        
-                        ctx.fillStyle = Object.values(element.material)[0]
-                        if(element.material.color!==undefined){ctx.fillStyle=element.material.color
-                            if(consolelogprint<20){console.log(ctx.fillStyle);consolelogprint++}
-                        }
-                        const calc = (lineLength * parseFloat(Object.keys(element.material)[0]))
-                        ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc)
-                        currentHeight += calc
+                    ctx.fillStyle = Object.values(element.material)[0]
+                    if (element.material.color !== undefined) {
+                        ctx.fillStyle = element.material.color
+                        if (consolelogprint < 20) { console.log(ctx.fillStyle); consolelogprint++ }
                     }
-                    if (v >= Object.keys(element.material).length - 1) {
-                        ctx.fillStyle = Object.values(element.material)[v]
-                        ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material)[v])))
-                    }
-                    else {
-                        const calc = lineLength * ((parseFloat(Object.keys(element.material)[v + 1])) - parseFloat(Object.keys(element.material)[v]))
-                        ctx.fillStyle = Object.values(element.material)[v]
-                        ctx.fillRect(element.xPos, currentHeight, element.xWidth, calc)
-                        currentHeight += calc
-
-                    }
+                    const calc = (lineLength * parseFloat(Object.keys(element.material)[0]))
+                    ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc)
+                    currentHeight += calc
                 }
+                if (v >= Object.keys(element.material).length - 1) {
+                    ctx.fillStyle = Object.values(element.material)[v]
+                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material)[v])))
+                }
+                else {
+                    const calc = lineLength * ((parseFloat(Object.keys(element.material)[v + 1])) - parseFloat(Object.keys(element.material)[v]))
+                    ctx.fillStyle = Object.values(element.material)[v]
+                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, calc)
+                    currentHeight += calc
+
+                }
+            }
         }
         else {
             ctx.fillStyle = element.material
@@ -232,6 +246,17 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
         case "verticalblacklineonwhite":
             return { 0: "white", 0.33: "gray", 0.66: "black" }
+        case "verticalseawave":
+            const calc = (Math.sin(wallDistanceFromOrigin * 2 + currentFrame / 10) / 2 + 0.5 / (wallDistanceFromOrigin * 0.1))
+
+            if (calc > 1) { return "rgba(0,0,0,0)" }
+            const waveSize = getDecimalPart(calc).slice(0, 4)
+            return { 0: "rgba(0,0,0,0)", [waveSize - 0.1]: "rgba(0,0,150,0.1)", [waveSize]: "rgba(0,0,200,0.4)" }
+        case "verticalbluby": //WIP
+            const singleBlock = (getDecimalPart(wallDistanceFromOrigin)) * 4
+            // if(singleBlock>0.95){return "black"}
+            const fish = getDecimalPart((singleBlock - 0.1) * 2 * singleBlock + 0.1)
+            return { 0: "rgba(0,0,0,0)", [fish]: "lightblue", [1 - fish]: "rgba(0,0,0,0)" }
         default:
             break;
     }
@@ -271,16 +296,24 @@ function rayCastingReturnWall(startingPoint, angle, length) {
         }
     });
     if (relevantVectorMapData == [] || relevantVectorMapData[0] == undefined) { return undefined }
-    if (relevantVectorMapData[1] == undefined) { return relevantVectorMapData[0] }
     relevantVectorMapData.sort((a, b) => a.proximity - b.proximity);
+    if (relevantVectorMapData[2] == undefined) { return relevantVectorMapData[0] }
+
     //   if(a!==0&&a!==undefined){relevantVectorMapData[0].intersection = a}
     if (!relevantVectorMapData[0].isSeeThrough) { return relevantVectorMapData[0] }
     let returnMapData = []
     for (let r = 0; r < relevantVectorMapData.length; r++) {
-        //find a way to stop it saving the transparent thing twice
+        //find a way to stop it saving the transparent thing twice bruh
         returnMapData.push(relevantVectorMapData[r])
 
         if (!relevantVectorMapData[r].isSeeThrough) {
+            for (let i = 0; i < returnMapData.length; i++) {
+                if (consolelogprint < 20) { console.log(returnMapData[i + 1]); consolelogprint++ }
+                if (!returnMapData[i + 1] == undefined) {
+                    if (consolelogprint < 20) { console.log("a"); consolelogprint++ }
+                    if (relevantVectorMapData[i].proximity == relevantVectorMapData[i + 1].proximity) { }
+                }
+            }
             return (returnMapData)
         }
     }
@@ -390,10 +423,11 @@ function gameClock() {
     drawMap()
     drawPlayerOnMap()
     drawFrame()
-    currentFrame++
+    if(!gametickPause){currentFrame++}
     setTimeout(() => {
         gameClock()
     }, gameSpeed / fps);
+
 }
 
 
