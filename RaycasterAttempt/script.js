@@ -122,7 +122,8 @@ function tempMovement(angle) {
     playerpos.y += a.y
 }
 function movementExecuter(){
-    
+    playerpos.x += playerVector.x
+    playerpos.y += playerVector.y
 }
 function angleCorrector(angle) {
     if (angle > 359) { return (angle - (360*((angle-(angle%360))/360))) }
@@ -420,6 +421,7 @@ let count = 0
 function gameClock() {
 
     moveMaker()
+    movementExecuter
     drawMap()
     drawPlayerOnMap()
     drawFrame()
