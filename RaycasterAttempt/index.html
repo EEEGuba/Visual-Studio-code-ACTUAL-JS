@@ -2,22 +2,36 @@
 <html>
 
 <head>
-<link rel="stylesheet" href="style.css"/>
-<div id="communicationDiv"></div>
+  <link rel="stylesheet" href="style.css" />
+  <div id="communicationDiv"></div>
 
 </head>
 
 <body type="text">
-  <canvas id="content"></canvas>  
+  <canvas id="content"></canvas>
   <canvas id="map"></canvas>
-  <script src="script.js"></script> 
-  <script src="script2.js"></script> 
-<button onClick="drawMap()">
-CLICK   
-</button>
-<button onClick="printData()">
-  CHECK DATA
-  </button >
-  <button onClick="gameClock()">START GAME CLOCK</button>
+  <script src="script.js"></script>
+  <script src="script2.js"></script>
+  <button onClick="drawMap()">
+    CLICK
+  </button>
+  <button onClick="printData()">
+    CHECK DATA
+  </button><br>
+  <div>
+    <p>I gave the settings no maximum or minimum. Experiment, but remember it might break if you go overboard, if it does just refresh the page</p>
+    <input value="60" id="fov" type="number"> FOV | degrees of view </input> <br>
+    <input value="40" id="fps" type="number"> FPS | frames per second/gameSpeed </input><br>
+    <input min="1" max="1200" value="1200" id="renderAccuracy" type="range"> render accuracy | how many lines per frame you get, set to lower values for better performance </input><br>
+    <input value="3" id="turnSensitivity" type="number"> turn sensitivity | how many degrees you turn per frame </input><br>
+    <input value="0.3" id="stepLength" type="number"> step length | how many blocks you walk per frame </input><br>
+    <input value="250" id="renderDistance" type="number"> render distance | how many blocks you can see forward </input><br>
+    <input value="1000" id="gameSpeed" type="number"> game speed | how fast the game is, default 1000 lower is faster </input><br>
+    <input value="10" id="sprintRate" type="number"> sprint rate | how many times faster is sprinting to walking </input><br>
+    <input value="false" id="noclip" type="checkbox">noclip | walking through walls</input><br>
+    <input value="false" id="gametickPause" type="checkbox">pause framecount | pause animations ect.</input><br>
+    <button onClick="apply()">APPLY SETTINGS</button><br>
+  </div>
+
 
 </body>
