@@ -421,7 +421,7 @@ let count = 0
 function gameClock() {
 
     moveMaker()
-    movementExecuter
+    movementExecuter()
     drawMap()
     drawPlayerOnMap()
     drawFrame()
