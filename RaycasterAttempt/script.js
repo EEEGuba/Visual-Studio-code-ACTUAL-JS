@@ -2,18 +2,21 @@
 
 let fov = 60 //make it even, not odd
 let fps = 40
-let renderAccuracy = 1200 //ammount of blocks per frame
+let renderAccuracy = 200 //ammount of blocks per frame
 let turnSensitivity = 3 //degrees turning on click of a or d
 let stepLength = 0.3 //how far you go every frame
-let renderDistance = 250 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
+let renderDistance = 100 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 let gameSpeed = 1000//lower the number to make it faster 1000 is default
 let sprintRate = 10// sprint is this number * regular speed
+let speedDampening = 0.2 //how fast you slow down, 0 makes you go on ice, 1 is instant
+let maxSpeed = 2
+let recoilSeverity = 10
 let gametickPause = false
 let noclip = false
 //end of settings
-
+let isFiring=false
 let currentFrame = 1
-playerVector = {x:0,y:0}
+playerVector = { x: 0, y: 0 }
 let playerpos = { x: 250, y: 240, rotation: 90 }
 const keyMap = {
     'w': 0,
@@ -22,15 +25,18 @@ const keyMap = {
     'd': 3,
     'j': 4,
     'l': 5,
-    ' ': 6
+    ' ': 6,
+    'i': 7,
+    'k': 8
 };
 const myCanvas = document.getElementById("content");
 myCanvas.height = 500;
+let canvasHeight = myCanvas.height
 myCanvas.width = 1200;
 const myMap = document.getElementById("map");
 myMap.height = 500;
 myMap.width = 500;
-const ctm = myMap.getContext("2d");
+const ctm = myMap.getContext("2d", { alpha: false });
 const ctx = myCanvas.getContext("2d");
 const mapData = []
 const vectorMapData = []
@@ -43,6 +49,8 @@ const controller = {
     4: { key: "j", pressed: false },
     5: { key: "l", pressed: false },
     6: { key: " ", pressed: false },
+    7: { key: "i", pressed: false },
+    8: { key: "k", pressed: false }
 }
 
 makeLine(100, 100, 400, 400, "material-rainbow", false)
@@ -66,7 +74,7 @@ function moveMaker() {
 }
 function keySwitchboard(event, isDown, isShiftDown) {
     const key = event.key.toLowerCase()
-    if (key.search(/^[wasd jl]$/g) == 0) {
+    if (key.search(/^[wasd jlik]$/g) == 0) {
         const index = keyMap[key];
         controller[index].pressed = isDown;
     }
@@ -74,59 +82,103 @@ function keySwitchboard(event, isDown, isShiftDown) {
         isShiftPressed = isShiftDown
     }
 }
-function apply(){
- fov = +document.getElementById("fov").value
- fps = +document.getElementById("fps").value
- renderAccuracy = +document.getElementById("renderAccuracy").value 
- turnSensitivity = +document.getElementById("turnSensitivity").value
- stepLength =+document.getElementById("stepLength").value
- renderDistance = +document.getElementById("renderDistance").value
- gameSpeed = +document.getElementById("gameSpeed").value
- sprintRate = +document.getElementById("sprintRate").value
- gametickPause = document.getElementById("gametickPause").checked
- noclip = document.getElementById("noclip").checked
+function apply() {
+    fov = +document.getElementById("fov").value
+    fps = +document.getElementById("fps").value
+    renderAccuracy = +document.getElementById("renderAccuracy").value
+    turnSensitivity = +document.getElementById("turnSensitivity").value
+    stepLength = +document.getElementById("stepLength").value
+    renderDistance = +document.getElementById("renderDistance").value
+    gameSpeed = +document.getElementById("gameSpeed").value
+    sprintRate = +document.getElementById("sprintRate").value
+    gametickPause = document.getElementById("gametickPause").checked
+    noclip = document.getElementById("noclip").checked
 }
+let fireCooldown = false
 function keyInterpreter(key) {
     switch (key) {
 
         case "w":
-            tempMovement(0)
+            movement(0)
             break;
 
         case "a":
-            tempMovement(270)
+            movement(270)
             break;
         case "s":
-            tempMovement(180)
+            movement(180)
             break;
         case "d":
-            tempMovement(90)
+            movement(90)
             break;
         case "j":
-            playerpos.rotation = angleCorrector(playerpos.rotation-turnSensitivity)
+            playerpos.rotation = angleCorrector(playerpos.rotation - turnSensitivity)
             break;
         case "l":
-            playerpos.rotation = angleCorrector(playerpos.rotation+turnSensitivity)
+            playerpos.rotation = angleCorrector(playerpos.rotation + turnSensitivity)
+            break;
+        case "i":
+            canvasHeight += turnSensitivity*5
+            break;
+        case "k":
+            canvasHeight -= turnSensitivity*5   
             break;
         case " ":
-            console.log("P O W")
+            let recoilCount = 0
+            const randomNumber = (Math.random() * 2 - 1) * recoilSeverity
+            const correctRotation = playerpos.rotation
+            const correctPitch = canvasHeight
+            function recoil() {
+                fireCooldown = true
+
+                if (recoilCount <= 10) {
+                    isFiring=true
+                    canvasHeight += randomNumber
+                    playerpos.rotation += randomNumber * 0.1
+                    recoilCount++
+                }
+                if (recoilCount > 10) {
+                    isFiring = false
+                    canvasHeight -= randomNumber
+                    playerpos.rotation -= randomNumber * 0.1
+                    recoilCount++
+                }
+                if (recoilCount < 21) {
+                    setTimeout(() => {
+                        recoil()
+                    }, gameSpeed / fps / 3)
+                }
+
+                else {
+                    recoilCount = 0;
+                    canvasHeight = correctPitch
+                    fireCooldown = false
+                    return
+                }
+            }
+            if (!fireCooldown) { recoil() }
         default:
             break;
     }
 }
-function tempMovement(angle) {
+function movement(angle) {
     let stepDistance = stepLength
     if (isShiftPressed) { stepDistance *= sprintRate }
     const a = calculateVectorDisplacement(angleCorrector(playerpos.rotation + angle), stepDistance)
-    playerpos.x += a.x
-    playerpos.y += a.y
+    playerVector.x += a.x
+    playerVector.y += a.y
 }
-function movementExecuter(){
+function movementExecuter() {
+    if (!controller[8].pressed&&!controller[7].pressed){canvasHeight+= (myCanvas.height-canvasHeight)*0.3}
+    if ((playerVector.x > speedDampening || playerVector.x < -speedDampening) && !controller[0].pressed && !controller[2].pressed) { playerVector.x += -(playerVector.x * speedDampening) }
+    else if (!controller[0].pressed && !controller[2].pressed) { playerVector.x = 0 }
+    if ((playerVector.y > speedDampening || playerVector.y < -speedDampening) && !controller[1].pressed && !controller[3].pressed) { playerVector.y += -(playerVector.y * speedDampening) }
+    else if (!controller[1].pressed && !controller[3].pressed) { playerVector.y = 0 }
     playerpos.x += playerVector.x
     playerpos.y += playerVector.y
 }
 function angleCorrector(angle) {
-    if (angle > 359) { return (angle - (360*((angle-(angle%360))/360))) }
+    if (angle > 359) { return (angle - (360 * ((angle - (angle % 360)) / 360))) }
     else if (angle < 0) { return (angle + 359) }
     return (angle)
 }
@@ -148,7 +200,7 @@ function drawFrame() {
                 let materialResult = rayResult.material
                 if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { materialResult = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
                 const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
-                currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (myCanvas.height / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: rayResult.proximity })
+                currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (canvasHeight / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: rayResult.proximity })
             }
             else {
 
@@ -159,7 +211,7 @@ function drawFrame() {
                     let materialResult = currentRayResult.material
                     if (currentRayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { materialResult = materialEncyclopedia(currentRayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(currentRayResult, currentRayResult.intersection)) }
                     const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
-                    currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (myCanvas.height / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: currentRayResult.proximity })
+                    currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (canvasHeight / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: currentRayResult.proximity })
 
                 }
 
@@ -190,7 +242,7 @@ function frameExecuter() {
                     ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc)
                     currentHeight += calc
                 }
-                if (v >= Object.keys(element.material).length - 1) {
+                else if (v >= Object.keys(element.material).length - 1) {
                     ctx.fillStyle = Object.values(element.material)[v]
                     ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material)[v])))
                 }
@@ -209,6 +261,13 @@ function frameExecuter() {
         }
     });
     currentFrameData = []
+    if (isFiring) {
+        drawSquare(myCanvas.width/2-80,myCanvas.height-190,"rgba(255, 175, 0, 0.5)",160,ctx)
+        drawSquare(myCanvas.width/2-40,myCanvas.height-150,"rgba(255, 0, 0, 0.61)",80,ctx)
+        
+    }
+    ctx.fillStyle = "rgb(140, 140, 140)"
+    ctx.fillRect(myCanvas.width/2-10,myCanvas.height-100,20,100)
 }
 function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
@@ -278,6 +337,9 @@ function drawMap() {
         };
     }
 }
+function returnAngleAndMagnitudeFromZero(vector) {
+    
+}
 function rayCastingReturnWall(startingPoint, angle, length) {
     const relevantVectorMapData = []
     let a = 0
@@ -292,7 +354,7 @@ function rayCastingReturnWall(startingPoint, angle, length) {
                 element.intersection = a
 
                 relevantVectorMapData.push(element)
-                drawSquare(a.x, a.y, "black", 2, ctm)
+                drawSquare(a.x, a.y, "white", 2, ctm)
             }
         }
     });
@@ -425,7 +487,7 @@ function gameClock() {
     drawMap()
     drawPlayerOnMap()
     drawFrame()
-    if(!gametickPause){currentFrame++}
+    if (!gametickPause) { currentFrame++ }
     setTimeout(() => {
         gameClock()
     }, gameSpeed / fps);
