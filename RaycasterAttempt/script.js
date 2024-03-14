@@ -242,7 +242,7 @@ function frameExecuter() {
                     ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc)
                     currentHeight += calc
                 }
-                else if (v >= Object.keys(element.material).length - 1) {
+                if (v >= Object.keys(element.material).length - 1) {
                     ctx.fillStyle = Object.values(element.material)[v]
                     ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material)[v])))
                 }
