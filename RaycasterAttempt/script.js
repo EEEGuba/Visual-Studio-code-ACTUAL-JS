@@ -2,13 +2,13 @@
 
 let fov = 60 //make it even, not odd
 let fps = 40
-let renderAccuracy = 200 //ammount of blocks per frame
+let renderAccuracy = 1200 //ammount of blocks per frame
 let turnSensitivity = 3 //degrees turning on click of a or d
 let stepLength = 0.3 //how far you go every frame
-let renderDistance = 100 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
+let renderDistance = 250 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 let gameSpeed = 1000//lower the number to make it faster 1000 is default
 let sprintRate = 10// sprint is this number * regular speed
-let speedDampening = 0.2 //how fast you slow down, 0 makes you go on ice, 1 is instant
+let speedDampening = 0.03 //how fast you slow down, 0 makes you go on ice, 1 is instant
 let maxSpeed = 2
 let recoilSeverity = 10
 let gametickPause = false
@@ -16,7 +16,7 @@ let noclip = false
 //end of settings
 let isFiring=false
 let currentFrame = 1
-playerVector = { x: 0, y: 0 }
+playerVector = { magnitude:0,angle:0}
 let playerpos = { x: 250, y: 240, rotation: 90 }
 const keyMap = {
     'w': 0,
@@ -99,17 +99,17 @@ function keyInterpreter(key) {
     switch (key) {
 
         case "w":
-            movement(0)
+            movement(stepLength,0)
             break;
 
         case "a":
-            movement(270)
+            movement(stepLength,270)
             break;
         case "s":
-            movement(180)
+            movement(stepLength,180)
             break;
         case "d":
-            movement(90)
+            movement(stepLength,90)
             break;
         case "j":
             playerpos.rotation = angleCorrector(playerpos.rotation - turnSensitivity)
@@ -126,11 +126,10 @@ function keyInterpreter(key) {
         case " ":
             let recoilCount = 0
             const randomNumber = (Math.random() * 2 - 1) * recoilSeverity
-            const correctRotation = playerpos.rotation
             const correctPitch = canvasHeight
+            movement(0.1*recoilSeverity,angleCorrector(180))
             function recoil() {
                 fireCooldown = true
-
                 if (recoilCount <= 10) {
                     isFiring=true
                     canvasHeight += randomNumber
@@ -161,21 +160,27 @@ function keyInterpreter(key) {
             break;
     }
 }
-function movement(angle) {
-    let stepDistance = stepLength
-    if (isShiftPressed) { stepDistance *= sprintRate }
-    const a = calculateVectorDisplacement(angleCorrector(playerpos.rotation + angle), stepDistance)
-    playerVector.x += a.x
-    playerVector.y += a.y
+function movement(ammount,angle) {
+    
+    let stepDistance = ammount
+    if (isShiftPressed&&ammount===stepLength) { stepDistance *= sprintRate }
+    const vectorChange = calculateVectorDisplacement(angleCorrector(playerpos.rotation+angle),stepDistance)
+    const currentPlayerVector = calculateVectorDisplacement(playerVector.angle,playerVector.magnitude)
+    const newVector = {x:vectorChange.x+currentPlayerVector.x,y:vectorChange.y+currentPlayerVector.y}
+    const newMagVector = returnAngleAndMagnitudeFromZero(newVector)
+    playerVector.magnitude = Math.abs(newMagVector.magnitude)
+    playerVector.angle = newMagVector.angle
+    if(consolelogprint<20){console.log(playerVector);consolelogprint++}
 }
+
 function movementExecuter() {
-    if (!controller[8].pressed&&!controller[7].pressed){canvasHeight+= (myCanvas.height-canvasHeight)*0.3}
-    if ((playerVector.x > speedDampening || playerVector.x < -speedDampening) && !controller[0].pressed && !controller[2].pressed) { playerVector.x += -(playerVector.x * speedDampening) }
-    else if (!controller[0].pressed && !controller[2].pressed) { playerVector.x = 0 }
-    if ((playerVector.y > speedDampening || playerVector.y < -speedDampening) && !controller[1].pressed && !controller[3].pressed) { playerVector.y += -(playerVector.y * speedDampening) }
-    else if (!controller[1].pressed && !controller[3].pressed) { playerVector.y = 0 }
-    playerpos.x += playerVector.x
-    playerpos.y += playerVector.y
+    playerVector.magnitude*=1-speedDampening
+    if(playerVector.magnitude<0.1){playerVector.magnitude=0}
+    
+    const playerShift = calculateVectorDisplacement(playerVector.angle,playerVector.magnitude)
+    playerpos.x += playerShift.x
+    playerpos.y += playerShift.y
+    
 }
 function angleCorrector(angle) {
     if (angle > 359) { return (angle - (360 * ((angle - (angle % 360)) / 360))) }
@@ -211,7 +216,7 @@ function drawFrame() {
                     let materialResult = currentRayResult.material
                     if (currentRayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { materialResult = materialEncyclopedia(currentRayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(currentRayResult, currentRayResult.intersection)) }
                     const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
-                    currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (canvasHeight / 2) - wallProportionsY, xWidth: wallProportionsX + 1, yWidth: wallProportionsY * 2, material: materialResult, proximity: currentRayResult.proximity })
+                    currentFrameData.push({ xPos: currentWallPositionX - (wallProportionsX / 2), yPos: (canvasHeight / 2) - wallProportionsY, xWidth: wallProportionsX +1, yWidth: wallProportionsY * 2, material: materialResult, proximity: currentRayResult.proximity })
 
                 }
 
@@ -338,7 +343,10 @@ function drawMap() {
     }
 }
 function returnAngleAndMagnitudeFromZero(vector) {
-    
+        //cartesian->polar m = √(x² + y²) and θ = arccos(x / m), painfull 
+        const m = Math.sqrt(vector.x*vector.x+vector.y*vector.y)
+        console.log(toRadians(vector.x/m))
+    return{magnitude:m,angle:toDegrees(Math.atan2(vector.y,vector.x))+180}
 }
 function rayCastingReturnWall(startingPoint, angle, length) {
     const relevantVectorMapData = []
@@ -364,24 +372,23 @@ function rayCastingReturnWall(startingPoint, angle, length) {
 
     //   if(a!==0&&a!==undefined){relevantVectorMapData[0].intersection = a}
     if (!relevantVectorMapData[0].isSeeThrough) { return relevantVectorMapData[0] }
+    relevantVectorMapData.forEach(function (element,index){
+        if(!relevantVectorMapData[index+1]== [undefined]){
+        if (Math.abs(element.proximity - relevantVectorMapData[index+1].proximity)<1){
+            relevantVectorMapData.splice(index, 1)
+        }}
+    });
+  
     let returnMapData = []
     for (let r = 0; r < relevantVectorMapData.length; r++) {
         //find a way to stop it saving the transparent thing twice bruh
+        //this shit makes no sense and I WROTE IT
         returnMapData.push(relevantVectorMapData[r])
-
-        if (!relevantVectorMapData[r].isSeeThrough) {
-            for (let i = 0; i < returnMapData.length; i++) {
-                if (consolelogprint < 20) { console.log(returnMapData[i + 1]); consolelogprint++ }
-                if (!returnMapData[i + 1] == undefined) {
-                    if (consolelogprint < 20) { console.log("a"); consolelogprint++ }
-                    if (relevantVectorMapData[i].proximity == relevantVectorMapData[i + 1].proximity) { }
-                }
-            }
+        if (!relevantVectorMapData[r].isSeeThrough||relevantVectorMapData[r+1]==undefined) {
             return (returnMapData)
         }
     }
 }
-
 function drawSquare(x, y, color, size, canvas) {
     canvas.fillStyle = color
     canvas.fillRect(x, y, size, size)
@@ -429,12 +436,6 @@ function MapPixel(x, y, mat) {
     this.x = x
     this.y = y
     this.material = "brown"
-}
-
-
-
-function toRadians(angle) {
-    return angle * (Math.PI / 180);
 }
 function calculateVectorDisplacement(angle, magnitude) {
     return { x: -magnitude * Math.cos(toRadians(angle)), y: -magnitude * Math.sin(toRadians(angle)) }
@@ -511,5 +512,12 @@ function getDecimalPart(x) {
 
     let string = x.toString()
     return string.replace(/^(.*)\./, "0.")
+}
+
+function toRadians(angle) {
+    return angle * (Math.PI / 180);
+}
+function toDegrees(angle) {
+    return angle * (180 / Math.PI)
 }
 //console.log(returnTrueIfPointsOnSameVectorSide(vectorMapData[0],{x:160,y:150},{x:370,y:380}))
