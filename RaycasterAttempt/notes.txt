@@ -31,7 +31,7 @@ function rayCastingReturnWall(startingPoint, angle, length) {
     return undefined
 }
 */
-
+                if (consolelogprint < 20) { console.log(returnMapData[i + 1]); consolelogprint++ }
             if(consolelogprint<20){console.log(rayResult);consolelogprint++}
 
 
