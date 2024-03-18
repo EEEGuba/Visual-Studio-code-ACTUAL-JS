@@ -8,7 +8,7 @@ let stepLength = 0.3 //how far you go every frame
 let renderDistance = 250 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 let gameSpeed = 1000//lower the number to make it faster 1000 is default
 let sprintRate = 10// sprint is this number * regular speed
-let speedDampening = 0.03 //how fast you slow down, 0 makes you go on ice, 1 is instant
+let speedDampening = 0.05 //how fast you slow down, 0 makes you go on ice, 1 is instant
 let maxSpeed = 2
 let recoilSeverity = 10
 let gametickPause = false
@@ -53,13 +53,13 @@ const controller = {
     8: { key: "k", pressed: false }
 }
 
-makeLine(100, 100, 400, 400, "material-rainbow", false)
-makeLine(100, 100, 400, 100, "materialverticalblackwhitesinewave", false)
-makeLine(400, 100, 400, 400, "material verticalblacklineonwhite", false)
-makeLine(500, 200, 500, 300, "materialverticalseawave", true)
-makeLine(100, 200, 300, 400, "pink", false)
-makeLine(200, 200, 300, 200, "materialglass", true)
-makeLine(250, 250, 300, 200, "material-glass", true)
+makeLine(100, 100, 400, 400, "material-rainbow", false,"wall")
+makeLine(100, 100, 400, 100, "materialverticalblackwhitesinewave", false,"wall")
+makeLine(400, 100, 400, 400, "material verticalblacklineonwhite", false,"wall")
+makeLine(500, 200, 500, 300, "materialverticalseawave", true,"passThroughMaterial")
+makeLine(100, 200, 300, 400, "pink", false,"wall")
+makeLine(200, 200, 300, 200, "materialglass", true,"wall")
+makeLine(250, 250, 300, 200, "material-glass", true,"wall")
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event, true, event.shiftKey);
     if (event.key == " ") { event.preventDefault(); }
@@ -161,7 +161,6 @@ function keyInterpreter(key) {
     }
 }
 function movement(ammount,angle) {
-    
     let stepDistance = ammount
     if (isShiftPressed&&ammount===stepLength) { stepDistance *= sprintRate }
     const vectorChange = calculateVectorDisplacement(angleCorrector(playerpos.rotation+angle),stepDistance)
@@ -170,21 +169,49 @@ function movement(ammount,angle) {
     const newMagVector = returnAngleAndMagnitudeFromZero(newVector)
     playerVector.magnitude = Math.abs(newMagVector.magnitude)
     playerVector.angle = newMagVector.angle
-    if(consolelogprint<20){console.log(playerVector);consolelogprint++}
+    //if(consolelogprint<20){console.log(playerVector);consolelogprint++}
 }
 
 function movementExecuter() {
-    playerVector.magnitude*=1-speedDampening
-    if(playerVector.magnitude<0.1){playerVector.magnitude=0}
-    
-    const playerShift = calculateVectorDisplacement(playerVector.angle,playerVector.magnitude)
+    if (controller[0].pressed==false&&controller[1].pressed==false&&controller[2].pressed==false&&controller[3].pressed==false) {
+           playerVector.magnitude*=1-speedDampening
+    if(playerVector.magnitude<0.1){playerVector.magnitude=0} 
+}
+
+if(playerVector.magnitude>maxSpeed){playerVector.magnitude=maxSpeed}
+const playerShift = calculateVectorDisplacement(playerVector.angle,playerVector.magnitude)
+const wallDetection = wallCollision(playerpos,{x:playerpos.x+playerShift.x,y:playerpos.y+playerShift.y})
+
+    if(!noclip&&!wallDetection==undefined){
+        const originalPlayerVectorAngle = playerVector.angle
+        const wallNormal = {x:-(wallDetection.end.y-wallDetection.start.y),y:(wallDetection.end.x-wallDetection.start.x)}
+        let dotOfWallNormal = calculateDotProduct(playerShift,wallNormal)
+        if (Math.sign(dotOfWallNormal)<0){wallNormal.x*=-1;wallNormal.y*=-1;dotOfWallNormal=calculateDotProduct(playerShift,wallNormal)}
+        playerShift.x -=2*(wallNormal.x*dotOfWallNormal)
+        playerShift.y-=2*(wallNormal.y*dotOfWallNormal)
+        const bounceVector = returnAngleAndMagnitudeFromZero(playerShift)
+        bounceVector.magnitude=playerVector.magnitude
+        bounceVector.angle = angleCorrector(originalPlayerVectorAngle-(bounceVector.angle-originalPlayerVectorAngle )*100000)
+        const finalPlayerShift = calculateVectorDisplacement(angleCorrector(bounceVector.angle),bounceVector.magnitude)
+        console.log(wallDetection)
+        playerVector.angle = bounceVector.angle
+        playerpos.x += finalPlayerShift.x
+        playerpos.y += finalPlayerShift.y 
+        console.log(dotOfWallNormal,playerShift,bounceVector,finalPlayerShift)
+    }
+    else{
     playerpos.x += playerShift.x
     playerpos.y += playerShift.y
-    
+    }
+}
+function wallCollision(){
+    const collisionResult = rayCastingReturnWall(playerpos,playerVector.angle,playerVector.magnitude)
+if (collisionResult!=undefined){return collisionResult}
+    return undefined
 }
 function angleCorrector(angle) {
     if (angle > 359) { return (angle - (360 * ((angle - (angle % 360)) / 360))) }
-    else if (angle < 0) { return (angle + 359) }
+    else if (angle < 0) { return (angle + 359+360*((angle - (angle % 360)) / 360)) }
     return (angle)
 }
 let currentFrameData = []
@@ -241,7 +268,6 @@ function frameExecuter() {
                     ctx.fillStyle = Object.values(element.material)[0]
                     if (element.material.color !== undefined) {
                         ctx.fillStyle = element.material.color
-                        if (consolelogprint < 20) { console.log(ctx.fillStyle); consolelogprint++ }
                     }
                     const calc = (lineLength * parseFloat(Object.keys(element.material)[0]))
                     ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc)
@@ -345,8 +371,19 @@ function drawMap() {
 function returnAngleAndMagnitudeFromZero(vector) {
         //cartesian->polar m = √(x² + y²) and θ = arccos(x / m), painfull 
         const m = Math.sqrt(vector.x*vector.x+vector.y*vector.y)
-        console.log(toRadians(vector.x/m))
     return{magnitude:m,angle:toDegrees(Math.atan2(vector.y,vector.x))+180}
+}
+let animcount = 0
+function testAnim(){
+    if(animcount!=0){
+        const animationAdress = vectorMapData.findIndex(i => i.wallFunction == "animation1")
+        if(animationAdress>=0){vectorMapData.splice(animationAdress,1),mapData.splice(animationAdress,1)}
+        if(consolelogprint<20){console.log(animationAdress);consolelogprint++}
+    }
+   
+   makeLine(0,animcount,500,animcount,"red",false,"animation1")
+    animcount++
+    if (animcount==300){console.log(vectorMapData)}
 }
 function rayCastingReturnWall(startingPoint, angle, length) {
     const relevantVectorMapData = []
@@ -373,16 +410,16 @@ function rayCastingReturnWall(startingPoint, angle, length) {
     //   if(a!==0&&a!==undefined){relevantVectorMapData[0].intersection = a}
     if (!relevantVectorMapData[0].isSeeThrough) { return relevantVectorMapData[0] }
     relevantVectorMapData.forEach(function (element,index){
-        if(!relevantVectorMapData[index+1]== [undefined]){
+        if(!relevantVectorMapData[index+1]== [undefined]/*undefined doesnt work, only [undefined], i love JS*/){
         if (Math.abs(element.proximity - relevantVectorMapData[index+1].proximity)<1){
             relevantVectorMapData.splice(index, 1)
         }}
+        if(consolelogprint<20){console.log(relevantVectorMapData);consolelogprint++
+        }
     });
   
     let returnMapData = []
     for (let r = 0; r < relevantVectorMapData.length; r++) {
-        //find a way to stop it saving the transparent thing twice bruh
-        //this shit makes no sense and I WROTE IT
         returnMapData.push(relevantVectorMapData[r])
         if (!relevantVectorMapData[r].isSeeThrough||relevantVectorMapData[r+1]==undefined) {
             return (returnMapData)
@@ -393,8 +430,8 @@ function drawSquare(x, y, color, size, canvas) {
     canvas.fillStyle = color
     canvas.fillRect(x, y, size, size)
 }
-function returnLineFromVector(x0, y0, x1, y1, material, isSeeThrough) {
-    vectorMapData.push(new MapVector(x0, y0, x1, y1, material, isSeeThrough))
+function returnLineFromVector(x0, y0, x1, y1, material, isSeeThrough,wallFunction) {
+    vectorMapData.push(new MapVector(x0, y0, x1, y1, material, isSeeThrough,wallFunction))
     let dx = Math.abs(x1 - x0)
     let dy = Math.abs(y1 - y0)
     let sx = (x0 < x1) ? 1 : -1
@@ -402,7 +439,7 @@ function returnLineFromVector(x0, y0, x1, y1, material, isSeeThrough) {
     let dir = dx - dy
     let data = []
     while (true) {
-        data.push(new MapPixel(x0, y0, material))
+        data.push(new MapPixel(x0, y0))
 
         if (x0 === x1 && y0 === y1) { break }
         let a = 2 * dir
@@ -418,21 +455,23 @@ function returnLineFromVector(x0, y0, x1, y1, material, isSeeThrough) {
 
     return (data)
 }
-function makeLine(startX, startY, endX, endY, material, isSeeThrough) {
-    const drawData = returnLineFromVector(startX, startY, endX, endY, material, isSeeThrough)
+function makeLine(startX, startY, endX, endY, material, isSeeThrough,wallFunction) {
+    const drawData = returnLineFromVector(startX, startY, endX, endY, material, isSeeThrough,wallFunction)
+
     mapData.push(drawData)
     for (let i = 0; i < drawData.length; i++) {
         drawSquare(drawData[i].x, drawData[i].y, material, 1, ctm);
 
     }
 }
-function MapVector(x0, y0, x1, y1, material, isSeeThrough) {
+function MapVector(x0, y0, x1, y1, material, isSeeThrough, wallFunction) {
     this.start = { x: x0, y: y0 }
     this.end = { x: x1, y: y1 }
     this.material = material
     this.isSeeThrough = isSeeThrough
+    this.wallFunction = wallFunction
 }
-function MapPixel(x, y, mat) {
+function MapPixel(x, y) {
     this.x = x
     this.y = y
     this.material = "brown"
@@ -447,7 +486,7 @@ function returnTrueIfPointsOnSameVectorSide(vector, pointA, pointB) {
     const absoluteVector = { x: vector.end.x - vector.start.x, y: vector.end.y - vector.start.y }
     const absolutePointA = { x: pointA.x - vector.start.x, y: pointA.y - vector.start.y }
     const absolutePointB = { x: pointB.x - vector.start.x, y: pointB.y - vector.start.y }
-    let perpendicularVector = { x: -absoluteVector.y, y: absoluteVector.x }
+    const perpendicularVector = { x: -absoluteVector.y, y: absoluteVector.x }
     if (Math.sign(calculateDotProduct(perpendicularVector, absolutePointA)) == Math.sign(calculateDotProduct(perpendicularVector, absolutePointB))) {
         return true
     }
@@ -482,7 +521,7 @@ function printData() {
 }
 let count = 0
 function gameClock() {
-
+ //   if(animcount<500){testAnim()}
     moveMaker()
     movementExecuter()
     drawMap()
