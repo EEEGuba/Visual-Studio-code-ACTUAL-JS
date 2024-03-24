@@ -203,7 +203,7 @@ function bounceCalculator(wallDetection, shift, ignoreCollision) {
         const nextCollision = wallCollision(wallDetection.intersection, bounceVector.angle, bounceVector.magnitude)
         if(nextCollision!=undefined&&nextCollision!=[undefined]){
             console.log(nextCollision)
-        if (nextCollision.length<7) {
+        if (nextCollision.length<Object.keys(vectorMapData[0]).length) {
             const nextBounce = bounceCalculator(nextCollision, calculateVectorDisplacement(bounceVector.angle, bounceVector.magnitude))
             console.log(nextBounce,wallDetection)
            return { x: nextBounce.x, y: nextBounce.y, angle: nextBounce.angle }
