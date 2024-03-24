@@ -17,7 +17,7 @@ let noclip = false
 //end of settings
 let isFiring = false
 let currentFrame = 1
-playerVector = { magnitude: 0, angle: 0 }
+const playerVector = { magnitude: 0, angle: 0 }
 let playerpos = { x: 250, y: 240, rotation: 90 }
 const keyMap = {
     'w': 0,
@@ -221,8 +221,8 @@ function normaliseVector(vector) {
 }
 function wallCollision(start, angle, magnitude) {
     const collisionResult = rayCastingReturnWall(start, angle, magnitude)
-    if (collisionResult != undefined) { return collisionResult }
-    return undefined
+    return collisionResult 
+    
 }
 function angleCorrector(angle) {
     if (angle > 359) { return (angle - (360 * ((angle - (angle % 360)) / 360))) }
