@@ -256,7 +256,7 @@ function bounceCalculator(wallDetection, shift, ignoreCollision) {
     if (!ignoreCollision && wallDetection != undefined) {
         /** @type {Vector | undefined} */
         let wallNormal = undefined
-        if (Object.keys(wallDetection).length < 7) {
+        if (Object.keys(wallDetection).length < Object.keys(vectorMapData[0]).length) {
             wallNormal = normaliseVector({ x: -(wallDetection[0].end.y - wallDetection[0].start.y), y: (wallDetection[0].end.x - wallDetection[0].start.x) })
         }
         else { wallNormal = normaliseVector({ x: -(wallDetection.end.y - wallDetection.start.y), y: (wallDetection.end.x - wallDetection.start.x) }) }
@@ -296,8 +296,8 @@ function normaliseVector(vector) {
  */
 function wallCollision(start, angle, magnitude) {
     const collisionResult = rayCastingReturnWall(start, angle, magnitude)
-    if (collisionResult != undefined) { return collisionResult }
-    return undefined
+    return collisionResult 
+    
 }
 /**
  * @param {number} angle 
