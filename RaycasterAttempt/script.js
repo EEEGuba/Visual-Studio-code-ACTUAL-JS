@@ -11,6 +11,7 @@ let sprintRate = 10// sprint is this number * regular speed
 let speedDampening = 0.05 //how fast you slow down, 0 makes you go on ice, 1 is instant
 let maxSpeed = 20
 let recoilSeverity = 10
+let bounceDampening = 0.5 //0 no bounce, 1 same speed
 let gametickPause = false
 let noclip = false
 //end of settings
@@ -58,8 +59,8 @@ makeLine(100, 100, 400, 100, "materialverticalblackwhitesinewave", false, "wall"
 makeLine(400, 100, 400, 400, "material verticalblacklineonwhite", false, "wall")
 makeLine(500, 200, 500, 300, "materialverticalseawave", true, "passThroughMaterial")
 makeLine(100, 200, 300, 400, "pink", false, "wall")
-makeLine(200, 200, 300, 200, "materialglass", true, "wall")
-makeLine(250, 250, 300, 200, "material-glass", true, "wall")
+makeLine(198, 200, 301, 200, "materialglass", true, "wall")
+makeLine(248, 250, 301, 200, "material-glass", true, "wall")
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event, true, event.shiftKey);
     if (event.key == " ") { event.preventDefault(); }
@@ -179,41 +180,47 @@ function movementExecuter() {
 
     if (playerVector.magnitude > maxSpeed) { playerVector.magnitude = maxSpeed }
     let playerShift = calculateVectorDisplacement(playerVector.angle, playerVector.magnitude)
-    let wallDetection = wallCollision(playerpos, { x: playerpos.x + playerShift.x, y: playerpos.y + playerShift.y })
-
-    if (!noclip && wallDetection != undefined) {
-        while(wallDetection!=undefined){
-        const originalPlayerVectorAngle = playerVector.angle
-        
-        let wallNormal = normaliseVector({ x: -(wallDetection.end.y - wallDetection.start.y), y: (wallDetection.end.x - wallDetection.start.x) })
-        if(wallDetection.length>=1){
-            console.log("a")
+    let wallDetection = wallCollision(playerpos, playerVector.angle, playerVector.magnitude)
+    const bounceResult = bounceCalculator(wallDetection, playerShift, noclip)
+    playerpos.x += bounceResult.x
+    playerpos.y += bounceResult.y
+    if (bounceResult.angle != undefined) {
+        playerVector.angle = bounceResult.angle
+    }
+}
+function bounceCalculator(wallDetection, shift, ignoreCollision) {
+    if (!ignoreCollision && wallDetection != undefined) {
+        let wallNormal = undefined
+        if (Object.keys(wallDetection).length < 7) {
             wallNormal = normaliseVector({ x: -(wallDetection[0].end.y - wallDetection[0].start.y), y: (wallDetection[0].end.x - wallDetection[0].start.x) })
         }
-        let dotOfWallNormal = calculateDotProduct(playerShift, wallNormal)
-        if (Math.sign(dotOfWallNormal) <= 0) { wallNormal.x *= -1; wallNormal.y *= -1; dotOfWallNormal = calculateDotProduct(playerShift, wallNormal) }
-        playerShift.x -= 2 * (wallNormal.x * dotOfWallNormal)
-        playerShift.y -= 2 * (wallNormal.y * dotOfWallNormal)
-        const bounceVector = returnAngleAndMagnitudeFromZero(playerShift)
-        playerVector.angle = bounceVector.angle
-        playerpos.x += playerShift.x
-        playerpos.y += playerShift.y
-        lastCollision=currentFrame
-        playerShift = calculateVectorDisplacement(playerVector.angle, playerVector.magnitude)
-        wallDetection = wallCollision(playerpos, { x: playerpos.x + playerShift.x, y: playerpos.y + playerShift.y })
-    }
+        else { wallNormal = normaliseVector({ x: -(wallDetection.end.y - wallDetection.start.y), y: (wallDetection.end.x - wallDetection.start.x) }) }
+        let dotOfWallNormal = calculateDotProduct(shift, wallNormal)
+        if (Math.sign(dotOfWallNormal) <= 0) { wallNormal.x *= -1; wallNormal.y *= -1; dotOfWallNormal = calculateDotProduct(shift, wallNormal) }
+        shift.x -= 2 * (wallNormal.x * dotOfWallNormal)
+        shift.y -= 2 * (wallNormal.y * dotOfWallNormal)  
+        const bounceVector = returnAngleAndMagnitudeFromZero(shift)
+        const nextCollision = wallCollision(wallDetection.intersection, bounceVector.angle, bounceVector.magnitude)
+        if(nextCollision!=undefined&&nextCollision!=[undefined]){
+            console.log(nextCollision)
+        if (nextCollision.length<7) {
+            const nextBounce = bounceCalculator(nextCollision, calculateVectorDisplacement(bounceVector.angle, bounceVector.magnitude))
+            console.log(nextBounce,wallDetection)
+           return { x: nextBounce.x, y: nextBounce.y, angle: nextBounce.angle }
+        }}
+        return { x: shift.x, y: shift.y, angle: bounceVector.angle }
+
     }
     else {
-        playerpos.x += playerShift.x
-        playerpos.y += playerShift.y
+        return { x: shift.x, y: shift.y, angle: undefined }
     }
 }
-function normaliseVector(vector){
+function normaliseVector(vector) {
     const magVector = returnAngleAndMagnitudeFromZero(vector)
-    return {x:vector.x/magVector.magnitude,y:vector.y/magVector.magnitude}
+    return { x: vector.x / magVector.magnitude, y: vector.y / magVector.magnitude }
 }
-function wallCollision() {
-    const collisionResult = rayCastingReturnWall(playerpos, playerVector.angle, playerVector.magnitude)
+function wallCollision(start, angle, magnitude) {
+    const collisionResult = rayCastingReturnWall(start, angle, magnitude)
     if (collisionResult != undefined) { return collisionResult }
     return undefined
 }
@@ -568,3 +575,5 @@ function toDegrees(angle) {
     return angle * (180 / Math.PI)
 }
 //console.log(returnTrueIfPointsOnSameVectorSide(vectorMapData[0],{x:160,y:150},{x:370,y:380}))
+
+
