@@ -1,3 +1,57 @@
+// @ts-check
+
+class MapVector {
+    /** @type {Vector} */
+    start;
+    /** @type {Vector} */
+    end;
+    /** @type {string} */
+    material;
+    /** @type {boolean} */
+    isSeeThrough;
+    /** @type {string} */
+    wallFunction;
+    /** @type {number} */
+    proximity;
+    /** @type {Vector} */
+    intersection;
+
+    /**
+     * @param {number} x0 
+     * @param {number} y0 
+     * @param {number} x1 
+     * @param {number} y1 
+     * @param {string} material 
+     * @param {boolean} isSeeThrough 
+     * @param {string} wallFunction 
+     */
+    constructor(x0, y0, x1, y1, material, isSeeThrough, wallFunction) {
+        this.start = { x: x0, y: y0 }
+        this.end = { x: x1, y: y1 }
+        this.material = material
+        this.isSeeThrough = isSeeThrough
+        this.wallFunction = wallFunction
+    }
+}
+class MapPixel {
+    /** @type {number} */
+    x;
+    /** @type {number} */
+    y;
+    /** @type {string} */
+    material;
+
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     */
+    constructor(x, y) {
+        this.x = x
+        this.y = y
+        this.material = "brown"
+    }
+}
+
 //settings
 
 let fov = 60 //make it even, not odd
@@ -112,19 +166,15 @@ const keyMap = {
     'i': 7,
     'k': 8
 };
-/** @type {HTMLCanvasElement} */
-const myCanvas = document.getElementById("content");
+const myCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById("content"));
 myCanvas.height = 500;
 let canvasHeight = myCanvas.height
 myCanvas.width = 1200;
-/** @type {HTMLCanvasElement} */
-const myMap = document.getElementById("map");
+const myMap = /** @type {HTMLCanvasElement} */ (document.getElementById("map"));
 myMap.height = 500;
 myMap.width = 500;
-/** @type {CanvasRenderingContext2D} */
-const ctm = myMap.getContext("2d", { alpha: false });
-/** @type {CanvasRenderingContext2D} */
-const ctx = myCanvas.getContext("2d");
+const ctm = /** @type {CanvasRenderingContext2D} */ (myMap.getContext("2d", { alpha: false }));
+const ctx = /** @type {CanvasRenderingContext2D} */ (myCanvas.getContext("2d"));
 
 /** @type {MapPixel[][]} */
 const mapData = []
@@ -181,21 +231,21 @@ function keySwitchboard(event, isDown, isShiftDown) {
         const index = keyMap[key];
         controller[index].pressed = isDown;
     }
-    if (event.shiftKey || event.key.search(/^[WASD]$/gi == 0)) {
+    if (event.shiftKey || event.key.search(/^[WASD]$/gi) == 0) {
         isShiftPressed = isShiftDown
     }
 }
 function apply() {
-    fov = +document.getElementById("fov").value
-    fps = +document.getElementById("fps").value
-    renderAccuracy = +document.getElementById("renderAccuracy").value
-    turnSensitivity = +document.getElementById("turnSensitivity").value
-    stepLength = +document.getElementById("stepLength").value
-    renderDistance = +document.getElementById("renderDistance").value
-    gameSpeed = +document.getElementById("gameSpeed").value
-    sprintRate = +document.getElementById("sprintRate").value
-    gametickPause = document.getElementById("gametickPause").checked
-    noclip = document.getElementById("noclip").checked
+    fov = +(/** @type {HTMLInputElement} */ (document.getElementById("fov")).value)
+    fps = +(/** @type {HTMLInputElement} */ (document.getElementById("fps")).value)
+    renderAccuracy = +(/** @type {HTMLInputElement} */ (document.getElementById("renderAccuracy")).value)
+    turnSensitivity = +(/** @type {HTMLInputElement} */ (document.getElementById("turnSensitivity")).value)
+    stepLength = +(/** @type {HTMLInputElement} */ (document.getElementById("stepLength")).value)
+    renderDistance = +(/** @type {HTMLInputElement} */ (document.getElementById("renderDistance")).value)
+    gameSpeed = +(/** @type {HTMLInputElement} */ (document.getElementById("gameSpeed")).value)
+    sprintRate = +(/** @type {HTMLInputElement} */ (document.getElementById("sprintRate")).value)
+    gametickPause = /** @type {HTMLInputElement} */ (document.getElementById("gametickPause")).checked
+    noclip = /** @type {HTMLInputElement} */ (document.getElementById("noclip")).checked
 }
 let fireCooldown = false
 /**
@@ -307,7 +357,7 @@ function bounceCalculator(wallDetection, shift, ignoreCollision) {
     if (!ignoreCollision && wallDetection != undefined) {
         /** @type {Vector | undefined} */
         let wallNormal = undefined
-        if (Object.keys(wallDetection).length < Object.keys(vectorMapData[0]).length) {
+        if (Array.isArray(wallDetection)) {
             wallNormal = normaliseVector({ x: -(wallDetection[0].end.y - wallDetection[0].start.y), y: (wallDetection[0].end.x - wallDetection[0].start.x) })
         }
         else { wallNormal = normaliseVector({ x: -(wallDetection.end.y - wallDetection.start.y), y: (wallDetection.end.x - wallDetection.start.x) }) }
@@ -316,11 +366,11 @@ function bounceCalculator(wallDetection, shift, ignoreCollision) {
         shift.x -= 2 * (wallNormal.x * dotOfWallNormal)
         shift.y -= 2 * (wallNormal.y * dotOfWallNormal)  
         const bounceVector = returnAngleAndMagnitudeFromZero(shift)
-        const nextCollision = wallCollision(wallDetection.intersection, bounceVector.angle, bounceVector.magnitude)
-        if(nextCollision!=undefined&&nextCollision!=[undefined]){
+        const nextCollision = wallCollision(Array.isArray(wallDetection) ? wallDetection[0].intersection : wallDetection.intersection, bounceVector.angle, bounceVector.magnitude)
+        if(nextCollision!==undefined){
             console.log(nextCollision)
-        if (nextCollision.length<Object.keys(vectorMapData[0]).length) {
-            const nextBounce = bounceCalculator(nextCollision, calculateVectorDisplacement(bounceVector.angle, bounceVector.magnitude))
+        if (Array.isArray(nextCollision)) {
+            const nextBounce = bounceCalculator(nextCollision, calculateVectorDisplacement(bounceVector.angle, bounceVector.magnitude), ignoreCollision)
             console.log(nextBounce,wallDetection)
            return { x: nextBounce.x, y: nextBounce.y, angle: nextBounce.angle }
         }}
@@ -339,7 +389,7 @@ function normaliseVector(vector) {
     return { x: vector.x / magVector.magnitude, y: vector.y / magVector.magnitude }
 }
 /**
- * @param {PlayerPosition} start 
+ * @param {Vector} start 
  * @param {number} angle 
  * @param {number} magnitude 
  * @returns {undefined | MapVector | MapVector[]}
@@ -365,8 +415,8 @@ function angleCorrector(angle) {
  * @property {number} yPos
  * @property {number} xWidth
  * @property {number} yWidth
- * @property {string | Record<number, string>} material
- * @property {number | undefined} proximity
+ * @property {string | Record<number, string> | undefined} material
+ * @property {number} proximity
  */
 
 /** @type {FrameData[]} */
@@ -382,10 +432,10 @@ function drawFrame() {
 
         const rayResult = rayCastingReturnWall(playerpos, currentAngle, renderDistance)
         if (rayResult !== undefined) {
-            if (rayResult[1] == undefined) {
+            if (!Array.isArray(rayResult)) {
                 const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity)
                 const wallProportionsY = Math.round(myCanvas.height / distance)
-                /** @type {string | Record<number, string>} */
+                /** @type {string | Record<number, string> | undefined} */
                 let materialResult = rayResult.material
                 if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { materialResult = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection)) }
                 const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
@@ -398,7 +448,7 @@ function drawFrame() {
                     const currentRayResult = rayResult[f]
                     const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (currentRayResult.proximity)
                     const wallProportionsY = Math.round(myCanvas.height / distance)
-                    /** @type {string | Record<number, string>} */
+                    /** @type {string | Record<number, string> | undefined} */
                     let materialResult = currentRayResult.material
                     if (currentRayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) == 0) { materialResult = materialEncyclopedia(currentRayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(currentRayResult, currentRayResult.intersection)) }
                     const currentWallPositionX = (myCanvas.width - currentLine * wallProportionsX) + wallProportionsX / 2
@@ -462,7 +512,7 @@ function frameExecuter() {
 /**
  * @param {string} materialName 
  * @param {number} wallDistanceFromOrigin 
- * @returns {string | Record<number, string>}
+ * @returns {string | Record<number, string> | undefined}
  */
 function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
@@ -563,7 +613,7 @@ function testAnim() {
     if (animcount == 300) { console.log(vectorMapData) }
 }
 /**
- * @param {PlayerPosition} startingPoint 
+ * @param {Vector} startingPoint 
  * @param {number} angle 
  * @param {number} length 
  * @returns {undefined | MapVector | MapVector[]}
@@ -571,11 +621,12 @@ function testAnim() {
 function rayCastingReturnWall(startingPoint, angle, length) {
     /** @type {MapVector[]} */
     const relevantVectorMapData = []
-    let a = undefined
+    /** @type {Vector | undefined} */
+    let a = undefined;
     vectorMapData.forEach(element => {
         const calculatedDisplacement = calculateVectorDisplacement(angle, length)
         if (!returnTrueIfPointsOnSameVectorSide(element, startingPoint, { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y })) {
-            a = findIntersection(element, { start: { x: startingPoint.x, y: startingPoint.y }, end: { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y } })
+            a = findIntersection(element, new MapVector(startingPoint.x, startingPoint.y, startingPoint.x + calculatedDisplacement.x, startingPoint.y + calculatedDisplacement.y, "", false, ""))
             if (a !== undefined) {
                 const distanceFromPoint = Math.sqrt((a.x - startingPoint.x) * (a.x - startingPoint.x) + (a.y - startingPoint.y) * (a.y - startingPoint.y))
                 element.proximity = distanceFromPoint
@@ -594,7 +645,7 @@ function rayCastingReturnWall(startingPoint, angle, length) {
     //   if(a!==0&&a!==undefined){relevantVectorMapData[0].intersection = a}
     if (!relevantVectorMapData[0].isSeeThrough) { return relevantVectorMapData[0] }
     relevantVectorMapData.forEach(function (element, index) {
-        if (relevantVectorMapData[index + 1] != undefined/*undefined doesnt work, only [undefined], i love JS*/) {
+        if (relevantVectorMapData[index + 1] !== undefined/*undefined doesnt work, only [undefined], i love JS*/) {
             if (Math.abs(element.proximity - relevantVectorMapData[index + 1].proximity) < 1) {
                 relevantVectorMapData.splice(index, 1)
             }
@@ -695,7 +746,7 @@ function calculateDotProduct(a, b) {
     return (a.x * b.x + a.y * b.y)
 }
 /**
- * @param {Vector} vector 
+ * @param {MapVector} vector 
  * @param {Vector} pointA 
  * @param {Vector} pointB 
  * @returns {boolean}
@@ -711,8 +762,8 @@ function returnTrueIfPointsOnSameVectorSide(vector, pointA, pointB) {
     return false
 }
 /**
- * @param {Vector} vector1 
- * @param {Vector} vector2 
+ * @param {MapVector} vector1 
+ * @param {MapVector} vector2 
  * @returns {Vector | undefined}
  */
 function findIntersection(vector1, vector2) {
@@ -773,11 +824,11 @@ function isObject(value) {
 }
 /**
  * @param {number} x 
- * @returns {string | 0}
+ * @returns {string}
  */
 function getDecimalPart(x) {
     if (Number.isInteger(x)) {
-        return 0;
+        return "0";
     }
 
     let string = x.toString()
