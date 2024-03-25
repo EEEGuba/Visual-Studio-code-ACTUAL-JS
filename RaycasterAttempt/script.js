@@ -63,8 +63,8 @@ let renderDistance = 250 //impacts how far away a wall has to be to not appear, 
 let gameSpeed = 1000//lower the number to make it faster 1000 is default
 let sprintRate = 10// sprint is this number * regular speed
 let speedDampening = 0.05 //how fast you slow down, 0 makes you go on ice, 1 is instant
-let maxSpeed = 20
-let recoilSeverity = 10
+let maxSpeed = 20 
+let recoilSeverity = 10 
 let bounceDampening = 0.5 //0 no bounce, 1 same speed
 let gametickPause = false
 let noclip = false
@@ -72,6 +72,57 @@ let noclip = false
 let isFiring = false
 let currentFrame = 1
 
+class MapVector {
+    /** @type {Vector} */
+    start;
+    /** @type {Vector} */
+    end;
+    /** @type {string} */
+    material;
+    /** @type {boolean} */
+    isSeeThrough;
+    /** @type {string} */
+    wallFunction;
+    /** @type {number | undefined} */
+    proximity;
+    /** @type {number | undefined} */
+    intersection;
+
+    /**
+     * @param {number} x0 
+     * @param {number} y0 
+     * @param {number} x1 
+     * @param {number} y1 
+     * @param {string} material 
+     * @param {boolean} isSeeThrough 
+     * @param {string} wallFunction 
+     */
+    constructor(x0, y0, x1, y1, material, isSeeThrough, wallFunction) {
+        this.start = { x: x0, y: y0 }
+        this.end = { x: x1, y: y1 }
+        this.material = material
+        this.isSeeThrough = isSeeThrough
+        this.wallFunction = wallFunction
+    }
+}
+class MapPixel {
+    /** @type {number} */
+    x;
+    /** @type {number} */
+    y;
+    /** @type {string} */
+    material;
+
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     */
+    constructor(x, y) {
+        this.x = x
+        this.y = y
+        this.material = "brown"
+    }
+}
 /**
  * @typedef {Object} PlayerVector
  * @property {number} magnitude
@@ -324,7 +375,6 @@ function bounceCalculator(wallDetection, shift, ignoreCollision) {
            return { x: nextBounce.x, y: nextBounce.y, angle: nextBounce.angle }
         }}
         return { x: shift.x, y: shift.y, angle: bounceVector.angle }
-
     }
     else {
         return { x: shift.x, y: shift.y, angle: undefined }
@@ -480,7 +530,9 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
             }
         case "verticalblackwhitesinewave":
             /** @type {string} */
-            const waveHeight = getDecimalPart(Math.sin(wallDistanceFromOrigin * 2) / 2 + 0.5).slice(0, 4)
+            const decimalPart = getDecimalPart(Math.sin(wallDistanceFromOrigin * 2) / 2 + 0.5)
+            if(decimalPart<=0.01){return "black"}
+            const waveHeight = decimalPart.slice(0, 4)
             return { 0: "white", [waveHeight]: "black" }
         case "verticalbricks":
             const wallBlockPos = getDecimalPart(wallDistanceFromOrigin)
@@ -610,6 +662,7 @@ function rayCastingReturnWall(startingPoint, angle, length) {
         }
     }
 }
+
 /**
  * @param {number} x 
  * @param {number} y 
@@ -675,6 +728,7 @@ function makeLine(startX, startY, endX, endY, material, isSeeThrough, wallFuncti
 
     }
 }
+
 /**
  * @param {number} angle 
  * @param {number} magnitude 
