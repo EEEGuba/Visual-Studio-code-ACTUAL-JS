@@ -58,7 +58,7 @@ let fov = 60 //make it even, not odd
 let fps = 40
 let renderAccuracy = 1200 //ammount of blocks per frame
 let turnSensitivity = 3 //degrees turning on click of a or d
-let stepLength = 0.3 //how far you go every frame
+let stepLength = 0.1 //how far you go every frame
 let renderDistance = 250 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 let gameSpeed = 1000//lower the number to make it faster 1000 is default
 let sprintRate = 10// sprint is this number * regular speed
@@ -480,7 +480,7 @@ function reset() {
     playerVector.magnitude = 0
     canvasHeight = myCanvas.height
     currentFrame = 1
-    playerpos = { x: 250, y: 240, rotation: 90 }
+    playerpos = { x: 220, y: 210, rotation: 50 }
 }
 /**
  * @param {string} materialName 
