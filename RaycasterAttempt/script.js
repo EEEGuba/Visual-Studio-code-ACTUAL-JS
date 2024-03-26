@@ -63,66 +63,14 @@ let renderDistance = 250 //impacts how far away a wall has to be to not appear, 
 let gameSpeed = 1000//lower the number to make it faster 1000 is default
 let sprintRate = 10// sprint is this number * regular speed
 let speedDampening = 0.05 //how fast you slow down, 0 makes you go on ice, 1 is instant
-let maxSpeed = 20 
-let recoilSeverity = 10 
+let maxSpeed = 20
+let recoilSeverity = 5
 let bounceDampening = 0.5 //0 no bounce, 1 same speed
 let gametickPause = false
-let noclip = false
+let noclip = true
 //end of settings
 let isFiring = false
 let currentFrame = 1
-
-class MapVector {
-    /** @type {Vector} */
-    start;
-    /** @type {Vector} */
-    end;
-    /** @type {string} */
-    material;
-    /** @type {boolean} */
-    isSeeThrough;
-    /** @type {string} */
-    wallFunction;
-    /** @type {number | undefined} */
-    proximity;
-    /** @type {number | undefined} */
-    intersection;
-
-    /**
-     * @param {number} x0 
-     * @param {number} y0 
-     * @param {number} x1 
-     * @param {number} y1 
-     * @param {string} material 
-     * @param {boolean} isSeeThrough 
-     * @param {string} wallFunction 
-     */
-    constructor(x0, y0, x1, y1, material, isSeeThrough, wallFunction) {
-        this.start = { x: x0, y: y0 }
-        this.end = { x: x1, y: y1 }
-        this.material = material
-        this.isSeeThrough = isSeeThrough
-        this.wallFunction = wallFunction
-    }
-}
-class MapPixel {
-    /** @type {number} */
-    x;
-    /** @type {number} */
-    y;
-    /** @type {string} */
-    material;
-
-    /**
-     * @param {number} x 
-     * @param {number} y 
-     */
-    constructor(x, y) {
-        this.x = x
-        this.y = y
-        this.material = "brown"
-    }
-}
 /**
  * @typedef {Object} PlayerVector
  * @property {number} magnitude
@@ -153,7 +101,7 @@ const playerVector = { magnitude: 0, angle: 0 }
  */
 
 /** @type {PlayerPosition} */
-let playerpos = { x: 250, y: 240, rotation: 90 }
+let playerpos = { x: 220, y: 210, rotation: 50 }
 /** @type {Record<string, number>} */
 const keyMap = {
     'w': 0,
@@ -204,8 +152,9 @@ const controller = {
 makeLine(100, 100, 400, 400, "material-rainbow", false, "wall")
 makeLine(100, 100, 400, 100, "materialverticalblackwhitesinewave", false, "wall")
 makeLine(400, 100, 400, 400, "material verticalblacklineonwhite", false, "wall")
-makeLine(500, 200, 500, 300, "materialverticalseawave", true, "passThroughMaterial")
+makeLine(450, 200, 500, 300, "materialverticalseawave", true, "passThroughMaterial")
 makeLine(100, 200, 300, 400, "pink", false, "wall")
+makeLine(200, 200, 202, 200, "materialverticalbricks", false, "wall")
 makeLine(198, 200, 301, 200, "materialglass", true, "wall")
 makeLine(248, 250, 301, 200, "material-glass", true, "wall")
 document.addEventListener("keydown", (event) => {
@@ -244,6 +193,9 @@ function apply() {
     renderDistance = +(/** @type {HTMLInputElement} */ (document.getElementById("renderDistance")).value)
     gameSpeed = +(/** @type {HTMLInputElement} */ (document.getElementById("gameSpeed")).value)
     sprintRate = +(/** @type {HTMLInputElement} */ (document.getElementById("sprintRate")).value)
+    recoilSeverity = +(/** @type {HTMLInputElement} */ (document.getElementById("recoilSeverity")).value)
+    maxSpeed = +(/** @type {HTMLInputElement} */ (document.getElementById("maxSpeed")).value)
+    speedDampening = +(/** @type {HTMLInputElement} */ (document.getElementById("speedDampening")).value)
     gametickPause = /** @type {HTMLInputElement} */ (document.getElementById("gametickPause")).checked
     noclip = /** @type {HTMLInputElement} */ (document.getElementById("noclip")).checked
 }
@@ -340,7 +292,7 @@ function movementExecuter() {
     if (playerVector.magnitude > maxSpeed) { playerVector.magnitude = maxSpeed }
     let playerShift = calculateVectorDisplacement(playerVector.angle, playerVector.magnitude)
     let wallDetection = wallCollision(playerpos, playerVector.angle, playerVector.magnitude)
-    const bounceResult = bounceCalculator(wallDetection, playerShift, noclip)
+    const bounceResult = bounceCalculator(wallDetection, playerShift, noclip, true)
     playerpos.x += bounceResult.x
     playerpos.y += bounceResult.y
     if (bounceResult.angle != undefined) {
@@ -351,29 +303,35 @@ function movementExecuter() {
  * @param {undefined | MapVector | MapVector[]} wallDetection 
  * @param {Vector} shift 
  * @param {boolean} ignoreCollision 
+ * @param {boolean} isFirstBounce
  * @returns {AngledVector}
  */
-function bounceCalculator(wallDetection, shift, ignoreCollision) {
+function bounceCalculator(wallDetection, shift, ignoreCollision, isFirstBounce) {
     if (!ignoreCollision && wallDetection != undefined) {
         /** @type {Vector | undefined} */
         let wallNormal = undefined
         if (Array.isArray(wallDetection)) {
-            wallNormal = normaliseVector({ x: -(wallDetection[0].end.y - wallDetection[0].start.y), y: (wallDetection[0].end.x - wallDetection[0].start.x) })
+            if (wallDetection[0].proximity > 0.01) {
+                wallNormal = normaliseVector({ x: -(wallDetection[0].end.y - wallDetection[0].start.y), y: (wallDetection[0].end.x - wallDetection[0].start.x) })
+            }
+            else if (wallDetection[0].proximity < 0.01 && !isFirstBounce) { console.log(wallDetection[1], "bruh") }
+
         }
         else { wallNormal = normaliseVector({ x: -(wallDetection.end.y - wallDetection.start.y), y: (wallDetection.end.x - wallDetection.start.x) }) }
         let dotOfWallNormal = calculateDotProduct(shift, wallNormal)
         if (Math.sign(dotOfWallNormal) <= 0) { wallNormal.x *= -1; wallNormal.y *= -1; dotOfWallNormal = calculateDotProduct(shift, wallNormal) }
         shift.x -= 2 * (wallNormal.x * dotOfWallNormal)
-        shift.y -= 2 * (wallNormal.y * dotOfWallNormal)  
+        shift.y -= 2 * (wallNormal.y * dotOfWallNormal)
         const bounceVector = returnAngleAndMagnitudeFromZero(shift)
         const nextCollision = wallCollision(Array.isArray(wallDetection) ? wallDetection[0].intersection : wallDetection.intersection, bounceVector.angle, bounceVector.magnitude)
-        if(nextCollision!==undefined){
+        if (nextCollision !== undefined) {
             console.log(nextCollision)
-        if (Array.isArray(nextCollision)) {
-            const nextBounce = bounceCalculator(nextCollision, calculateVectorDisplacement(bounceVector.angle, bounceVector.magnitude), ignoreCollision)
-            console.log(nextBounce,wallDetection)
-           return { x: nextBounce.x, y: nextBounce.y, angle: nextBounce.angle }
-        }}
+            if (Array.isArray(nextCollision)) {
+                const nextBounce = bounceCalculator(nextCollision, calculateVectorDisplacement(bounceVector.angle, bounceVector.magnitude), ignoreCollision, false)
+                console.log(nextBounce, wallDetection)
+                return { x: nextBounce.x, y: nextBounce.y, angle: nextBounce.angle }
+            }
+        }
         return { x: shift.x, y: shift.y, angle: bounceVector.angle }
     }
     else {
@@ -396,8 +354,8 @@ function normaliseVector(vector) {
  */
 function wallCollision(start, angle, magnitude) {
     const collisionResult = rayCastingReturnWall(start, angle, magnitude)
-    return collisionResult 
-    
+    return collisionResult
+
 }
 /**
  * @param {number} angle 
@@ -509,6 +467,21 @@ function frameExecuter() {
     ctx.fillStyle = "rgb(140, 140, 140)"
     ctx.fillRect(myCanvas.width / 2 - 10, myCanvas.height - 100, 20, 100)
 }
+function addWall() {
+    if(document.getElementById("material").value==""){document.getElementById("selectMaterialText").innerHTML="SELECT A MATERIAL BELOW FIRST";return}
+    const xStart = +(document.getElementById("xStart")).value
+    const yStart = +(document.getElementById("yStart")).value
+    const xEnd = +(document.getElementById("xEnd")).value
+    const yEnd = +(document.getElementById("yEnd")).value
+    const isSeeThrough = document.getElementById("isSeeThrough").checked
+    makeLine(xStart, yStart, xEnd, yEnd, document.getElementById("material").value, isSeeThrough, "wall")
+}
+function reset() {
+    playerVector.magnitude = 0
+    canvasHeight = myCanvas.height
+    currentFrame = 1
+    playerpos = { x: 250, y: 240, rotation: 90 }
+}
 /**
  * @param {string} materialName 
  * @param {number} wallDistanceFromOrigin 
@@ -518,10 +491,15 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
     switch (materialName) {
         case "rainbow":
-            const r = (Math.sin(wallDistanceFromOrigin + currentFrame / 3)) * 255;
-            const g = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 3)) * 255;
-            const b = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 3)) * 255;
+            const r = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
+            const g = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 5)) * 255;
+            const b = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 5)) * 255;
             return (`rgb(${r}, ${g}, ${b})`)
+        case "shiftingrainbow":
+            const red = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
+            const green = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 4)) * 255;
+            const blue = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 3)) * 255;
+            return (`rgb(${red}, ${green}, ${blue})`)
         case "blackwhitestripes":
             if (Math.floor(wallDistanceFromOrigin) % 2 < 1) {
                 return "black"
@@ -531,7 +509,7 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
         case "verticalblackwhitesinewave":
             /** @type {string} */
             const decimalPart = getDecimalPart(Math.sin(wallDistanceFromOrigin * 2) / 2 + 0.5)
-            if(decimalPart<=0.01){return "black"}
+            if (decimalPart <= 0.01) { return "black" }
             const waveHeight = decimalPart.slice(0, 4)
             return { 0: "white", [waveHeight]: "black" }
         case "verticalbricks":
@@ -811,15 +789,13 @@ function gameClock() {
 
 gameClock()
 /**
- * @param {string | Record<number, string>} value 
+ * @param {string | Record<number, string> | undefined} value 
  * @returns {boolean}
  */
 function isObject(value) {
     //I ripped this function from https://bobbyhadz.com/blog/javascript-check-if-value-is-object, its why it doesnt look like my code
     return (
-        typeof value === 'object' &&
-        value !== null &&
-        !Array.isArray(value)
+        typeof value === 'object'
     );
 }
 /**
@@ -849,5 +825,3 @@ function toDegrees(angle) {
     return angle * (180 / Math.PI)
 }
 //console.log(returnTrueIfPointsOnSameVectorSide(vectorMapData[0],{x:160,y:150},{x:370,y:380}))
-
-
