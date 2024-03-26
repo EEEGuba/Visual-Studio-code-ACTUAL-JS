@@ -1,10 +1,52 @@
-#content,#map {
-    float: left;
-    border: 2px solid black;
-  }
-#content {
-    background-image: 
-      linear-gradient(180deg, #001aff -30% -30%, 21%, #fff 25% 25%, #0ff 35% 35%, #f80 60%, #f3b600 80%, #efba00 100%)
-    ;
-  }
+html *
+{
   
+   color: #000 !important;
+   font-family: Arial !important;
+}
+
+#content,
+#map {
+  float: left;
+  border: 2px solid black;
+}
+
+#content {
+  float:left;
+  background-image:
+    linear-gradient(180deg, #001aff -30% -30%, 21%, #fff 25% 25%, #0ff 35% 35%, #f80 60%, #f3b600 80%, #efba00 100%);
+}
+
+.settings {
+  border-radius: 5px;
+  margin-left: 5px;
+  margin-top: 5px;
+  float: left;
+  border: 2px solid black;
+  max-width: 690px;
+}
+
+.wallAdder {
+  position:absolute;
+  bottom:40px; right:0;
+  float: right top;
+  border-radius: 5px;
+  margin-left: 10px;
+  margin-top: 2px;
+  border: 2px solid black;
+  max-width: 300px;
+}
+
+.button {
+  position:absolute;
+  top:70px; right:20;
+  margin-left: 25px;
+  text-shadow: 1px 1px white;
+  border-radius: 10%;
+  border: black;
+  color: black;
+  padding: 15px 32px;
+  text-align: center;
+  font-size: 26px;
+
+}
