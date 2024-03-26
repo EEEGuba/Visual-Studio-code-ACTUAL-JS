@@ -1,6 +1,5 @@
 html *
 {
-  
    color: #000 !important;
    font-family: Arial !important;
 }
@@ -27,8 +26,9 @@ html *
 }
 
 .wallAdder {
+  font-size: 85%;
   position:absolute;
-  bottom:40px; right:0;
+  bottom:180px; right:0;
   float: right top;
   border-radius: 5px;
   margin-left: 10px;
@@ -39,7 +39,7 @@ html *
 
 .button {
   position:absolute;
-  top:70px; right:20;
+  top:80px; right:20;
   margin-left: 25px;
   text-shadow: 1px 1px white;
   border-radius: 10%;
