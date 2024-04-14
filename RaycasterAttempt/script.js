@@ -562,12 +562,16 @@ function drawPlayerOnMap() {
 function drawMap() {
 
     ctm.clearRect(0, 0, myMap.height, myMap.width)
-    for (let i = 0; i <= (mapData.length) - 1; i++) {
+   /* for (let i = 0; i <= (mapData.length) - 1; i++) {
         for (let j = 0; j <= (mapData[i].length) - 1; j++) {
             const element = mapData[i][j];
             drawSquare(element.x, element.y, element.material, 1, ctm)
         };
     }
+    */
+   vectorMapData.forEach(element => {
+    drawLine(element.start,element.end,"brown",ctm)
+   });
 }
 /**
  * @param {Vector} vector 
@@ -640,7 +644,21 @@ function rayCastingReturnWall(startingPoint, angle, length) {
         }
     }
 }
+/**
+ * @param {Vector} startingPoint 
+ * @param {Vector} endingPoint
+ * @param {string} color 
+ * @param {object} canvas
+ */
 
+function drawLine(startingPoint,endingPoint,color, canvas){
+canvas.strokeStyle = color;
+canvas.lineWidth = 1;
+canvas.beginPath()
+canvas.moveTo(startingPoint.x, startingPoint.y);
+canvas.lineTo(endingPoint.x,endingPoint.y);
+canvas.stroke();
+}
 /**
  * @param {number} x 
  * @param {number} y 
@@ -779,6 +797,7 @@ function gameClock() {
     drawMap()
     drawPlayerOnMap()
     drawFrame()
+
     if (!gametickPause) { currentFrame++ }
     setTimeout(() => {
         gameClock()
@@ -798,6 +817,7 @@ function isObject(value) {
         typeof value === 'object'
     );
 }
+
 /**
  * @param {number} x 
  * @returns {string}
