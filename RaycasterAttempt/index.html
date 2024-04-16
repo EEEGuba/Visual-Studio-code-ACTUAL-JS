@@ -8,7 +8,10 @@
 </head>
 
 <body>
-  <canvas id="content"></canvas>
+  <div id="wrapper">
+    <canvas id="content"></canvas>
+    <canvas id="UI"></canvas>
+  </div>
   <canvas id="map"></canvas>
   <script src="script.js"></script>
   <!--<script src="script2.js"></script>
@@ -20,7 +23,8 @@
   </button><br>-->
   <div class="settings">
     <h2 class="directions">Use W A S D to move,J I K L to look around and space to shoot</h2>
-    <p> These are the settings, I gave them no maximum or minimum. <br>Experiment, but remember it might break if you go overboard, if it
+    <p> These are the settings, I gave them no maximum or minimum. <br>Experiment, but remember it might break if you go
+      overboard, if it
       does just refresh the page</p>
     <input value="60" id="fov" type="number"> FOV | degrees of view </input> <br>
     <input value="40" id="fps" type="number"> FPS | frames per second/gameSpeed </input><br>
@@ -38,18 +42,20 @@
     <input value="true" id="noclip" type="checkbox" checked>noclip | walking through walls <b
       style='color:red;'>(Collision in beta! Avoid corners!)</b></input><br>
     <input value="false" id="gametickPause" type="checkbox">pause framecount | pause animations ect.</input><br>
-    <input value="5" id="recoilSeverity" type="number"> recoil severity | how far you fly back after shooting and how much the screen shakes
+    <input value="5" id="recoilSeverity" type="number"> recoil severity | how far you fly back after shooting and how
+    much the screen shakes
     </input><br>
     <input value="10" id="maxSpeed" type="number"> max speed | how much you can speed up
     </input><br>
-    <input value="0.05" id="speedDampening" type="number"> speed dampening | how fast you slow down, 0 makes you go on ice, 1 is instant
+    <input value="0.05" id="speedDampening" type="number"> speed dampening | how fast you slow down, 0 makes you go on
+    ice, 1 is instant
     </input><br><br>
     <button onClick="apply()">APPLY SETTINGS</button>
 
 
   </div>
   <p>This program was done with stock Javascript and no libraries, for use in 1920x1080 resolution (fullscreen) </p>
-  
+
   <div class="wallAdder">
     <p>Add walls here, the map below has coordinates from 0,0 at the top left to 500,500 at the bottom right</p>
     <input value="100" id="xStart" type="number"> x coordinate of start </input> <br>
@@ -57,7 +63,7 @@
     <input value="500" id="xEnd" type="number"> x coordinate of end</input><br>
     <input value="500" id="yEnd" type="number"> y coordinate of end</input><br>
     <p id="selectMaterialText">select material</p>
-    
+
     <input list="materialName" id="material">
     <datalist id="materialName">
       <option value="materialrainbow">animated</option>
@@ -66,10 +72,13 @@
       <option value="verticalblackwhitesinewave"></option>
       <option value="verticalseawave">animated</option>
       <option value="verticalbricks">this one lags pretty easilly</option>
-    </datalist><label for="materialName"><p><small>you can also enter any color into here you want by entering rgba(red,green,blue,opacity), remember to mark ones with less that 1 opacity as see through!</small></p></label>
+    </datalist><label for="materialName">
+      <p><small>you can also enter any color into here you want by entering rgba(red,green,blue,opacity), remember to
+          mark ones with less that 1 opacity as see through!</small></p>
+    </label>
     <br><input value="false" id="isSeeThrough" type="checkbox">is the wall seethrough?</input><br>
     <br><button onClick="addWall()">ADD WALL</button> <br>walls can only be deleted with reloading the page for now
   </div>
-  <button  class="button" onClick="reset()">RESET PLAYER</button>
-  
+  <button class="button" onClick="reset()">RESET PLAYER</button>
+
 </body>

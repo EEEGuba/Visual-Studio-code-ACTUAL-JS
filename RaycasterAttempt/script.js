@@ -118,18 +118,37 @@ const myCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById("cont
 myCanvas.height = 500;
 let canvasHeight = myCanvas.height
 myCanvas.width = 1200;
+const myUI = /** @type {HTMLCanvasElement} */ (document.getElementById("UI"));
+myUI.height = 700;
+myUI.width = 1200
 const myMap = /** @type {HTMLCanvasElement} */ (document.getElementById("map"));
 myMap.height = 500;
 myMap.width = 500;
 const ctm = /** @type {CanvasRenderingContext2D} */ (myMap.getContext("2d", { alpha: false }));
 const ctx = /** @type {CanvasRenderingContext2D} */ (myCanvas.getContext("2d"));
+const ctu = /** @type {CanvasRenderingContext2D} */ (myUI.getContext("2d"));
 
 /** @type {MapPixel[][]} */
 const mapData = []
 /** @type {MapVector[]} */
 const vectorMapData = []
 let isShiftPressed = false
-
+const bukit2 = new Image();
+bukit2.src = "bukit2.png";
+function drawImageActualSize() {
+    ctu.drawImage(bukit2,500,500,50,50);
+    console.log(bukit2)
+  }
+UIHandler()
+function UIHandler(){
+    drawSquare(5,5,"pink",200,ctu)
+    drawImageActualSize()
+    ctu.fillStyle="grey"
+   ctu.fillRect(0,500,1200,200)
+   ctu.fillStyle="white"
+   ctu.font = `80px Verdana`;
+   ctu.fillText("this will be a banger UI some day",10,600,1190)
+}
 /**
  * @typedef {Object} ControllerKey
  * @property {string} key
@@ -468,7 +487,7 @@ function frameExecuter() {
     ctx.fillRect(myCanvas.width / 2 - 10, myCanvas.height - 100, 20, 100)
 }
 function addWall() {
-    if(document.getElementById("material").value==""){document.getElementById("selectMaterialText").innerHTML="SELECT A MATERIAL BELOW FIRST";return}
+    if (document.getElementById("material").value == "") { document.getElementById("selectMaterialText").innerHTML = "SELECT A MATERIAL BELOW FIRST"; return }
     const xStart = +(document.getElementById("xStart")).value
     const yStart = +(document.getElementById("yStart")).value
     const xEnd = +(document.getElementById("xEnd")).value
@@ -562,16 +581,16 @@ function drawPlayerOnMap() {
 function drawMap() {
 
     ctm.clearRect(0, 0, myMap.height, myMap.width)
-   /* for (let i = 0; i <= (mapData.length) - 1; i++) {
-        for (let j = 0; j <= (mapData[i].length) - 1; j++) {
-            const element = mapData[i][j];
-            drawSquare(element.x, element.y, element.material, 1, ctm)
-        };
-    }
-    */
-   vectorMapData.forEach(element => {
-    drawLine(element.start,element.end,"brown",ctm)
-   });
+    /* for (let i = 0; i <= (mapData.length) - 1; i++) {
+         for (let j = 0; j <= (mapData[i].length) - 1; j++) {
+             const element = mapData[i][j];
+             drawSquare(element.x, element.y, element.material, 1, ctm)
+         };
+     }
+     */
+    vectorMapData.forEach(element => {
+        drawLine(element.start, element.end, "brown", ctm)
+    });
 }
 /**
  * @param {Vector} vector 
@@ -651,14 +670,19 @@ function rayCastingReturnWall(startingPoint, angle, length) {
  * @param {object} canvas
  */
 
-function drawLine(startingPoint,endingPoint,color, canvas){
-canvas.strokeStyle = color;
-canvas.lineWidth = 1;
-canvas.beginPath()
-canvas.moveTo(startingPoint.x, startingPoint.y);
-canvas.lineTo(endingPoint.x,endingPoint.y);
-canvas.stroke();
+function drawLine(startingPoint, endingPoint, color, canvas) {
+    canvas.strokeStyle = color;
+    canvas.lineWidth = 1;
+    canvas.beginPath()
+    canvas.moveTo(startingPoint.x, startingPoint.y);
+    canvas.lineTo(endingPoint.x, endingPoint.y);
+    canvas.stroke();
 }
+
+function testimagerender() {
+
+}
+
 /**
  * @param {number} x 
  * @param {number} y 
@@ -797,6 +821,7 @@ function gameClock() {
     drawMap()
     drawPlayerOnMap()
     drawFrame()
+
 
     if (!gametickPause) { currentFrame++ }
     setTimeout(() => {

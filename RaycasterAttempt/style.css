@@ -5,7 +5,8 @@ html *
 }
 
 #content,
-#map {
+#map,
+#UI {
   float: left;
   border: 2px solid black;
 }
@@ -15,7 +16,12 @@ html *
   background-image:
     linear-gradient(180deg, #001aff -30% -30%, 21%, #fff 25% 25%, #0ff 35% 35%, #f80 60%, #f3b600 80%, #efba00 100%);
 }
-
+#wrapper{
+  position:relative;
+}
+#UI,#content{
+  position:absolute; top:0px; left:0px;
+}
 .settings {
   border-radius: 5px;
   margin-left: 5px;
