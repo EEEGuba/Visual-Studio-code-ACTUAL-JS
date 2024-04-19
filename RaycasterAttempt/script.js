@@ -1,4 +1,5 @@
 // @ts-check
+"use strict";
 
 class MapVector {
     /** @type {Vector} */
@@ -327,13 +328,14 @@ function movementExecuter() {
  */
 function bounceCalculator(wallDetection, shift, ignoreCollision, isFirstBounce) {
     if (!ignoreCollision && wallDetection != undefined) {
-        /** @type {Vector | undefined} */
-        let wallNormal = undefined
+        let wallNormal = { x: 1, y: 1 }
         if (Array.isArray(wallDetection)) {
             if (wallDetection[0].proximity > 0.01) {
                 wallNormal = normaliseVector({ x: -(wallDetection[0].end.y - wallDetection[0].start.y), y: (wallDetection[0].end.x - wallDetection[0].start.x) })
             }
-            else if (wallDetection[0].proximity < 0.01 && !isFirstBounce) { console.log(wallDetection[1], "bruh") }
+            else if (wallDetection[0].proximity < 0.01 && !isFirstBounce) {
+                console.log(wallDetection[1], "bruh")
+            }
 
         }
         else { wallNormal = normaliseVector({ x: -(wallDetection.end.y - wallDetection.start.y), y: (wallDetection.end.x - wallDetection.start.x) }) }
@@ -448,24 +450,24 @@ function frameExecuter() {
         if (isObject(element.material)) {
             const lineLength = element.yWidth
             let currentHeight = element.yPos
-            materialApplier: for (let v = 0; v < Object.keys(element.material).length; v++) {
+            materialApplier: for (let v = 0; v < Object.keys(element.material ?? {}).length; v++) {
                 if (v == 0) {
 
-                    ctx.fillStyle = Object.values(element.material)[0]
-                    if (element.material.color !== undefined) {
+                    ctx.fillStyle = Object.values(element.material ?? {})[0]
+                    /*if (element.material.color !== undefined) {  // material.color doesn't exist
                         ctx.fillStyle = element.material.color
-                    }
-                    const calc = (lineLength * parseFloat(Object.keys(element.material)[0]))
+                    }*/
+                    const calc = (lineLength * parseFloat(Object.keys(element.material ?? {})[0]))
                     ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc)
                     currentHeight += calc
                 }
-                if (v >= Object.keys(element.material).length - 1) {
-                    ctx.fillStyle = Object.values(element.material)[v]
-                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material)[v])))
+                if (v >= Object.keys(element.material ?? {}).length - 1) {
+                    ctx.fillStyle = Object.values(element.material ?? {})[v]
+                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material ?? {})[v])))
                 }
                 else {
-                    const calc = lineLength * ((parseFloat(Object.keys(element.material)[v + 1])) - parseFloat(Object.keys(element.material)[v]))
-                    ctx.fillStyle = Object.values(element.material)[v]
+                    const calc = lineLength * ((parseFloat(Object.keys(element.material ?? {})[v + 1])) - parseFloat(Object.keys(element.material ?? {})[v]))
+                    ctx.fillStyle = Object.values(element.material ?? {})[v]
                     ctx.fillRect(element.xPos, currentHeight, element.xWidth, calc)
                     currentHeight += calc
 
@@ -473,7 +475,7 @@ function frameExecuter() {
             }
         }
         else {
-            ctx.fillStyle = element.material
+            ctx.fillStyle = element.material?.toString() ?? ""
             ctx.fillRect(element.xPos, element.yPos, element.xWidth, element.yWidth)
         }
     });
@@ -487,13 +489,13 @@ function frameExecuter() {
     ctx.fillRect(myCanvas.width / 2 - 10, myCanvas.height - 100, 20, 100)
 }
 function addWall() {
-    if (document.getElementById("material").value == "") { document.getElementById("selectMaterialText").innerHTML = "SELECT A MATERIAL BELOW FIRST"; return }
-    const xStart = +(document.getElementById("xStart")).value
-    const yStart = +(document.getElementById("yStart")).value
-    const xEnd = +(document.getElementById("xEnd")).value
-    const yEnd = +(document.getElementById("yEnd")).value
-    const isSeeThrough = document.getElementById("isSeeThrough").checked
-    makeLine(xStart, yStart, xEnd, yEnd, document.getElementById("material").value, isSeeThrough, "wall")
+    if (/** @type {HTMLInputElement} */ (document.getElementById("material")).value == "") { /** @type {HTMLElement} */ (document.getElementById("selectMaterialText")).innerHTML = "SELECT A MATERIAL BELOW FIRST"; return }
+    const xStart = +/** @type {HTMLInputElement} */(document.getElementById("xStart")).value
+    const yStart = +/** @type {HTMLInputElement} */(document.getElementById("yStart")).value
+    const xEnd = +/** @type {HTMLInputElement} */(document.getElementById("xEnd")).value
+    const yEnd = +/** @type {HTMLInputElement} */(document.getElementById("yEnd")).value
+    const isSeeThrough = /** @type {HTMLInputElement} */ (document.getElementById("isSeeThrough")).checked
+    makeLine(xStart, yStart, xEnd, yEnd, /** @type {HTMLInputElement} */ (document.getElementById("material")).value, isSeeThrough, "wall")
 }
 function reset() {
     playerVector.magnitude = 0
@@ -528,23 +530,24 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
         case "verticalblackwhitesinewave":
             /** @type {string} */
             const decimalPart = getDecimalPart(Math.sin(wallDistanceFromOrigin * 2) / 2 + 0.5)
-            if (decimalPart <= 0.01) { return "black" }
+            if (parseFloat(decimalPart) <= 0.01) { return "black" }
             const waveHeight = decimalPart.slice(0, 4)
             return { 0: "white", [waveHeight]: "black" }
         case "verticalbricks":
             const wallBlockPos = getDecimalPart(wallDistanceFromOrigin)
             const wallBlockDecisionNum = wallBlockPos.toString().slice(2, 4)
-            if (wallBlockDecisionNum % 25 <= 2) { return "black" }
-            if (wallBlockDecisionNum < 25) {
+            const wallBlockDecisionNumber = parseFloat(wallBlockDecisionNum);
+            if (wallBlockDecisionNumber % 25 <= 2) { return "black" }
+            if (wallBlockDecisionNumber < 25) {
                 return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" }
             }
-            if (wallBlockDecisionNum > 50 && wallBlockDecisionNum < 75) {
+            if (wallBlockDecisionNumber > 50 && wallBlockDecisionNumber < 75) {
                 return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" }
             }
             return { 0: "orange", 0.04: "black", 0.05: "orange", 0.14: "black", 0.15: "orange", 0.24: "black", 0.25: "orange", 0.34: "black", 0.35: "orange", 0.44: "black", 0.45: "orange", 0.54: "black", 0.55: "orange", 0.64: "black", 0.65: "orange", 0.74: "black", 0.75: "orange", 0.84: "black", 0.85: "orange", 0.94: "black", 0.95: "orange" }
 
         case "glass":
-            if (getDecimalPart(wallDistanceFromOrigin) > 0.94) {
+            if (parseFloat(getDecimalPart(wallDistanceFromOrigin)) > 0.94) {
                 return "black"
             }
             return "rgba(0,0,255,0.1)"
@@ -557,12 +560,12 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
             if (calc > 1) { return "rgba(0,0,0,0)" }
             /** @type {string} */
             const waveSize = getDecimalPart(calc).slice(0, 4)
-            return { 0: "rgba(0,0,0,0)", [waveSize - 0.1]: "rgba(0,0,150,0.1)", [waveSize]: "rgba(0,0,200,0.4)" }
+            return { 0: "rgba(0,0,0,0)", [parseFloat(waveSize) - 0.1]: "rgba(0,0,150,0.1)", [waveSize]: "rgba(0,0,200,0.4)" }
         case "verticalbluby": //WIP
-            const singleBlock = (getDecimalPart(wallDistanceFromOrigin)) * 4
+            const singleBlock = (parseFloat(getDecimalPart(wallDistanceFromOrigin))) * 4
             // if(singleBlock>0.95){return "black"}
             const fish = getDecimalPart((singleBlock - 0.1) * 2 * singleBlock + 0.1)
-            return { 0: "rgba(0,0,0,0)", [fish]: "lightblue", [1 - fish]: "rgba(0,0,0,0)" }
+            return { 0: "rgba(0,0,0,0)", [fish]: "lightblue", [1 - parseFloat(fish)]: "rgba(0,0,0,0)" }
         default:
             break;
     }
