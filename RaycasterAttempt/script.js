@@ -57,7 +57,7 @@ class MapPixel {
 
 let fov = 60 //make it even, not odd
 let fps = 40
-let renderAccuracy = 1200 //ammount of blocks per frame
+let renderAccuracy = 600 //ammount of blocks per frame
 let turnSensitivity = 3 //degrees turning on click of a or d
 let stepLength = 0.1 //how far you go every frame
 let renderDistance = 250 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
@@ -65,7 +65,7 @@ let gameSpeed = 1000//lower the number to make it faster 1000 is default
 let sprintRate = 10// sprint is this number * regular speed
 let speedDampening = 0.05 //how fast you slow down, 0 makes you go on ice, 1 is instant
 let maxSpeed = 20
-let recoilSeverity = 5
+let recoilSeverity = 0.5
 let bounceDampening = 0.5 //0 no bounce, 1 same speed
 let gametickPause = false
 let noclip = true
@@ -134,21 +134,28 @@ const mapData = []
 /** @type {MapVector[]} */
 const vectorMapData = []
 let isShiftPressed = false
-const bukit2 = new Image();
-bukit2.src = "bukit2.png";
-function drawImageActualSize() {
-    ctu.drawImage(bukit2,500,500,50,50);
-    console.log(bukit2)
-  }
+const Gun1 = new Image();
+Gun1.src = "DNpistol1.png";
+
+function drawGunAnimation(frame, gun) {
+    const gunPlacement = {x:650,y:250}
+    const gunScale = {x:250,y:250}
+    ctu.clearRect(gunPlacement.x,gunPlacement.y,gunScale.x,gunScale.y)
+    const imageWidth = gun.width-5
+    const frameShift = (imageWidth/4)*(frame-1)
+    ctu.drawImage(gun, frameShift, 0, imageWidth/4, gun.height,gunPlacement.x,gunPlacement.y,gunScale.x,gunScale.y);
+
+}
 UIHandler()
-function UIHandler(){
-    drawSquare(5,5,"pink",200,ctu)
-    drawImageActualSize()
-    ctu.fillStyle="grey"
-   ctu.fillRect(0,500,1200,200)
-   ctu.fillStyle="white"
-   ctu.font = `80px Verdana`;
-   ctu.fillText("this will be a banger UI some day",10,600,1190)
+function UIHandler() {
+    ctu.fillStyle="rgba(0,255,0,0.8)"
+    ctu.fillRect(myUI.width/2-10,myUI.height/2-110,20,20)
+    drawGunAnimation(1,Gun1)
+    ctu.fillStyle = "grey"
+    ctu.fillRect(0, 500, 1200, 200)
+    ctu.fillStyle = "white"
+    ctu.font = `80px Verdana`;
+    ctu.fillText("this will be a banger UI some day", 10, 600, 1190)
 }
 /**
  * @typedef {Object} ControllerKey
@@ -220,6 +227,7 @@ function apply() {
     noclip = /** @type {HTMLInputElement} */ (document.getElementById("noclip")).checked
 }
 let fireCooldown = false
+const Gun1shot = new Audio('DNpistolshot.mp3');
 /**
  * @param {string} key 
  */
@@ -257,6 +265,25 @@ function keyInterpreter(key) {
             const correctPitch = canvasHeight
             movement(0.1 * recoilSeverity, angleCorrector(180))
             function recoil() {
+                switch (recoilCount) {
+                    case 1:
+                        drawGunAnimation(2, Gun1)
+                        const newAudio = Gun1shot.cloneNode()
+                        newAudio.play()
+                        break;
+                    case 3:
+                        drawGunAnimation(3, Gun1)
+                        break;
+                    case 7:
+                        drawGunAnimation(4, Gun1)
+                        break;
+                    case 14:
+                        drawGunAnimation(1, Gun1)
+                        break;
+                    default:
+
+                        break;
+                }
                 fireCooldown = true
                 if (recoilCount <= 10) {
                     isFiring = true
@@ -269,6 +296,7 @@ function keyInterpreter(key) {
                     canvasHeight -= randomNumber
                     playerpos.rotation -= randomNumber * 0.1
                     recoilCount++
+
                 }
                 if (recoilCount < 21) {
                     setTimeout(() => {
@@ -480,13 +508,6 @@ function frameExecuter() {
         }
     });
     currentFrameData = []
-    if (isFiring) {
-        drawSquare(myCanvas.width / 2 - 80, myCanvas.height - 190, "rgba(255, 175, 0, 0.5)", 160, ctx)
-        drawSquare(myCanvas.width / 2 - 40, myCanvas.height - 150, "rgba(255, 0, 0, 0.61)", 80, ctx)
-
-    }
-    ctx.fillStyle = "rgb(140, 140, 140)"
-    ctx.fillRect(myCanvas.width / 2 - 10, myCanvas.height - 100, 20, 100)
 }
 function addWall() {
     if (/** @type {HTMLInputElement} */ (document.getElementById("material")).value == "") { /** @type {HTMLElement} */ (document.getElementById("selectMaterialText")).innerHTML = "SELECT A MATERIAL BELOW FIRST"; return }
@@ -495,7 +516,7 @@ function addWall() {
     const xEnd = +/** @type {HTMLInputElement} */(document.getElementById("xEnd")).value
     const yEnd = +/** @type {HTMLInputElement} */(document.getElementById("yEnd")).value
     const isSeeThrough = /** @type {HTMLInputElement} */ (document.getElementById("isSeeThrough")).checked
-    makeLine(xStart, yStart, xEnd, yEnd, /** @type {HTMLInputElement} */ (document.getElementById("material")).value, isSeeThrough, "wall")
+    makeLine(xStart, yStart, xEnd, yEnd, /** @type {HTMLInputElement} */(document.getElementById("material")).value, isSeeThrough, "wall")
 }
 function reset() {
     playerVector.magnitude = 0
@@ -681,11 +702,6 @@ function drawLine(startingPoint, endingPoint, color, canvas) {
     canvas.lineTo(endingPoint.x, endingPoint.y);
     canvas.stroke();
 }
-
-function testimagerender() {
-
-}
-
 /**
  * @param {number} x 
  * @param {number} y 
