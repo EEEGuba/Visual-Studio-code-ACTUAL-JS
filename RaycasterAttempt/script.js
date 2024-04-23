@@ -136,6 +136,8 @@ const vectorMapData = []
 let isShiftPressed = false
 const Gun1 = new Image();
 Gun1.src = "DNpistol1.png";
+const skybox = new Image()
+skybox.src = "skybox1.png"
 
 function drawGunAnimation(frame, gun) {
     const gunPlacement = {x:650,y:250}
@@ -145,6 +147,13 @@ function drawGunAnimation(frame, gun) {
     const frameShift = (imageWidth/4)*(frame-1)
     ctu.drawImage(gun, frameShift, 0, imageWidth/4, gun.height,gunPlacement.x,gunPlacement.y,gunScale.x,gunScale.y);
 
+}
+let logpring = 0
+function drawSkybox(skybox,rotation){
+   // if (logpring<100){console.log(playerpos.rotation);logpring++}
+    const rot = skybox.width/360
+    ctx.drawImage(skybox,rotation*rot,0,rot*fov,skybox.height,0,canvasHeight/2-450,myCanvas.width,skybox.height-40)
+    if(rotation+fov>360){ctx.drawImage(skybox,rotation*rot-skybox.width,0,rot*fov,skybox.height,0,canvasHeight/2-450,myCanvas.width,skybox.height-40)}
 }
 UIHandler()
 function UIHandler() {
@@ -430,6 +439,7 @@ function angleCorrector(angle) {
 let currentFrameData = []
 function drawFrame() {
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
+    drawSkybox(skybox,playerpos.rotation)
     const wallProportionsX = Math.ceil(myCanvas.width / renderAccuracy)
     const angleEnd = playerpos.rotation + fov / 2
     const angleDifference = fov / renderAccuracy
