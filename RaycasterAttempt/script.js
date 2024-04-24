@@ -57,7 +57,7 @@ class MapPixel {
 
 let fov = 60 //make it even, not odd
 let fps = 40
-let renderAccuracy = 600 //ammount of blocks per frame
+let renderAccuracy = 300 //ammount of blocks per frame
 let turnSensitivity = 3 //degrees turning on click of a or d
 let stepLength = 0.1 //how far you go every frame
 let renderDistance = 250 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
@@ -138,28 +138,33 @@ const Gun1 = new Image();
 Gun1.src = "DNpistol1.png";
 const skybox = new Image()
 skybox.src = "skybox1.png"
+const testTexture1 = new Image()
+testTexture1.src = "bukit2.png"
+const chainlinkFence = new Image()
+chainlinkFence.src = "chainlink_fence.png"
+
 
 function drawGunAnimation(frame, gun) {
-    const gunPlacement = {x:650,y:250}
-    const gunScale = {x:250,y:250}
-    ctu.clearRect(gunPlacement.x,gunPlacement.y,gunScale.x,gunScale.y)
-    const imageWidth = gun.width-5
-    const frameShift = (imageWidth/4)*(frame-1)
-    ctu.drawImage(gun, frameShift, 0, imageWidth/4, gun.height,gunPlacement.x,gunPlacement.y,gunScale.x,gunScale.y);
+    const gunPlacement = { x: 650, y: 250 }
+    const gunScale = { x: 250, y: 250 }
+    ctu.clearRect(gunPlacement.x, gunPlacement.y, gunScale.x, gunScale.y)
+    const imageWidth = gun.width - 5
+    const frameShift = (imageWidth / 4) * (frame - 1)
+    ctu.drawImage(gun, frameShift, 0, imageWidth / 4, gun.height, gunPlacement.x, gunPlacement.y, gunScale.x, gunScale.y);
 
 }
 let logpring = 0
-function drawSkybox(skybox,rotation){
-   // if (logpring<100){console.log(playerpos.rotation);logpring++}
-    const rot = skybox.width/360
-    ctx.drawImage(skybox,rotation*rot,0,rot*fov,skybox.height,0,canvasHeight/2-450,myCanvas.width,skybox.height-40)
-    if(rotation+fov>360){ctx.drawImage(skybox,rotation*rot-skybox.width,0,rot*fov,skybox.height,0,canvasHeight/2-450,myCanvas.width,skybox.height-40)}
+function drawSkybox(skybox, rotation) {
+    // if (logpring<100){console.log(playerpos.rotation);logpring++}
+    const rot = skybox.width / 360
+    ctx.drawImage(skybox, rotation * rot, 0, rot * fov, skybox.height, 0, canvasHeight / 2 - 450, myCanvas.width, skybox.height - 40)
+    if (rotation + fov > 360) { ctx.drawImage(skybox, rotation * rot - skybox.width, 0, rot * fov, skybox.height, 0, canvasHeight / 2 - 450, myCanvas.width, skybox.height - 40) }
 }
 UIHandler()
 function UIHandler() {
-    ctu.fillStyle="rgba(0,255,0,0.8)"
-    ctu.fillRect(myUI.width/2-10,myUI.height/2-110,20,20)
-    drawGunAnimation(1,Gun1)
+    ctu.fillStyle = "rgba(0,255,0,0.8)"
+    ctu.fillRect(myUI.width / 2 - 10, myUI.height / 2 - 110, 20, 20)
+    drawGunAnimation(1, Gun1)
     ctu.fillStyle = "grey"
     ctu.fillRect(0, 500, 1200, 200)
     ctu.fillStyle = "white"
@@ -190,8 +195,8 @@ makeLine(100, 100, 400, 100, "materialverticalblackwhitesinewave", false, "wall"
 makeLine(400, 100, 400, 400, "material verticalblacklineonwhite", false, "wall")
 makeLine(450, 200, 500, 300, "materialverticalseawave", true, "passThroughMaterial")
 makeLine(100, 200, 300, 400, "pink", false, "wall")
-makeLine(200, 200, 202, 200, "materialverticalbricks", false, "wall")
-makeLine(198, 200, 301, 200, "materialglass", true, "wall")
+//makeLine(200, 200, 202, 200, "materialverticalbricks", false, "wall")
+makeLine(198, 200, 301, 200, "materialimagechainlinkFence", true, "wall")
 makeLine(248, 250, 301, 200, "material-glass", true, "wall")
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event, true, event.shiftKey);
@@ -439,7 +444,7 @@ function angleCorrector(angle) {
 let currentFrameData = []
 function drawFrame() {
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
-    drawSkybox(skybox,playerpos.rotation)
+    drawSkybox(skybox, playerpos.rotation)
     const wallProportionsX = Math.ceil(myCanvas.width / renderAccuracy)
     const angleEnd = playerpos.rotation + fov / 2
     const angleDifference = fov / renderAccuracy
@@ -486,29 +491,34 @@ function frameExecuter() {
     //i need to make one where the background is 1 color and then you imprint another on that line because them bricks are frame murderers
     currentFrameData.forEach(element => {
         if (isObject(element.material)) {
-            const lineLength = element.yWidth
-            let currentHeight = element.yPos
-            materialApplier: for (let v = 0; v < Object.keys(element.material ?? {}).length; v++) {
-                if (v == 0) {
+            if (element.material.image != undefined) {
+                ctx.drawImage(element.material.image, element.material.position, 0, myCanvas.width / renderAccuracy, element.material.image.height, element.xPos, element.yPos, element.xWidth, element.yWidth)
+            }
+            else {
+                const lineLength = element.yWidth
+                let currentHeight = element.yPos
+                materialApplier: for (let v = 0; v < Object.keys(element.material ?? {}).length; v++) {
+                    if (v == 0) {
 
-                    ctx.fillStyle = Object.values(element.material ?? {})[0]
-                    /*if (element.material.color !== undefined) {  // material.color doesn't exist
-                        ctx.fillStyle = element.material.color
-                    }*/
-                    const calc = (lineLength * parseFloat(Object.keys(element.material ?? {})[0]))
-                    ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc)
-                    currentHeight += calc
-                }
-                if (v >= Object.keys(element.material ?? {}).length - 1) {
-                    ctx.fillStyle = Object.values(element.material ?? {})[v]
-                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material ?? {})[v])))
-                }
-                else {
-                    const calc = lineLength * ((parseFloat(Object.keys(element.material ?? {})[v + 1])) - parseFloat(Object.keys(element.material ?? {})[v]))
-                    ctx.fillStyle = Object.values(element.material ?? {})[v]
-                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, calc)
-                    currentHeight += calc
+                        ctx.fillStyle = Object.values(element.material ?? {})[0]
+                        /*if (element.material.color !== undefined) {  // material.color doesn't exist
+                            ctx.fillStyle = element.material.color
+                        }*/
+                        const calc = (lineLength * parseFloat(Object.keys(element.material ?? {})[0]))
+                        ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc)
+                        currentHeight += calc
+                    }
+                    if (v >= Object.keys(element.material ?? {}).length - 1) {
+                        ctx.fillStyle = Object.values(element.material ?? {})[v]
+                        ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material ?? {})[v])))
+                    }
+                    else {
+                        const calc = lineLength * ((parseFloat(Object.keys(element.material ?? {})[v + 1])) - parseFloat(Object.keys(element.material ?? {})[v]))
+                        ctx.fillStyle = Object.values(element.material ?? {})[v]
+                        ctx.fillRect(element.xPos, currentHeight, element.xWidth, calc)
+                        currentHeight += calc
 
+                    }
                 }
             }
         }
@@ -542,6 +552,13 @@ function reset() {
 function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
 
     switch (materialName) {
+        case "imagetestTexture1":
+            const position = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * testTexture1.width
+            return { image: testTexture1, position: position }
+        case "imagechainlinkFence":
+            const position2 = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * chainlinkFence.width
+            return { image: chainlinkFence, position: position2}
+
         case "rainbow":
             const r = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
             const g = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 5)) * 255;
