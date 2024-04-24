@@ -11,7 +11,7 @@ image.onload = drawImageActualSize // Draw when image has loaded
 
 
 function drawImageActualSize(image2) {
-  ctx.drawImage(image , 0,0,hurb,hurb);
+  ctx.drawImage(image , 0,0,20,0,10,10,10,10);
 }
 function drawFrame(image){
     ctx.clearRect(0,0,myCanvas.width,myCanvas.height)
