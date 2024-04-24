@@ -14,7 +14,7 @@ html *
 #content {
   float:left;
   background-image:
-    linear-gradient(180deg, #001aff -30% -30%, 21%, #fff 25% 25%, #0ff 35% 35%, #f80 60%, #f3b600 80%, #efba00 100%);
+  linear-gradient(0deg, rgba(8,12,24,1) 50%, rgba(34,193,195,1) 50%, rgba(0,0,0,1) 50%);
 }
 #wrapper{
   position:relative;
