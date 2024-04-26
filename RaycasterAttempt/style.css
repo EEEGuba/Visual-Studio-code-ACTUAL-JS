@@ -1,13 +1,18 @@
 body{
-  position:absolute;
-  height: 1430px;
+  height: 1000px;
 }
 html *
 {
-   color: #000 !important;
-   font-family: Arial !important;
+  color: #000 !important;
+  font-family: Arial !important;
 }
 
+#programDisclaimer{
+  position: fixed;
+  top: 0px;
+  left: 1220px;
+  max-width: 500px;
+}
 #content,
 #UI {
   float: left;
@@ -30,29 +35,28 @@ html *
 }
 .settings {
   border-radius: 5px;
-  right: 0px;
-  top: 510px;
+  left: 15px;
+  top: 520px;
   float: left;
   position:absolute;
   border: 2px solid black;
-  max-width: 440px;
+  max-width: 980px;
 }
 .wallAdder {
   font-size: 100%;
   position:absolute;
-  top:510px; right:450px;
+  top:520px; right:5px;
   float: right top;
   border-radius: 5px;
   margin-left: 10px;
   margin-top: 2px;
   border: 2px solid black;
-  max-width: 300px;
+  max-width: 500px;
 }
-
 .button {
   position:absolute;
-  top:0px;
-  right:0px;
+  top:20px;
+  left:0px;
   margin-left: 25px;
   text-shadow: 1px 1px white;
   border-radius: 10%;
