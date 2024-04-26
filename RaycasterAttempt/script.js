@@ -57,7 +57,7 @@ class MapPixel {
 
 let fov = 60 //make it even, not odd
 let fps = 40
-let renderAccuracy = 300 //ammount of blocks per frame
+let renderAccuracy = 600 //ammount of blocks per frame
 let turnSensitivity = 3 //degrees turning on click of a or d
 let stepLength = 0.1 //how far you go every frame
 let renderDistance = 250 //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
@@ -113,19 +113,20 @@ const keyMap = {
     'l': 5,
     ' ': 6,
     'i': 7,
-    'k': 8
+    'k': 8,
+    'm': 9
 };
 const myCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById("content"));
 myCanvas.height = 500;
 let canvasHeight = myCanvas.height
 myCanvas.width = 1200;
 const myUI = /** @type {HTMLCanvasElement} */ (document.getElementById("UI"));
-myUI.height = 700;
+myUI.height = 500;
 myUI.width = 1200
 const myMap = /** @type {HTMLCanvasElement} */ (document.getElementById("map"));
 myMap.height = 500;
 myMap.width = 500;
-const ctm = /** @type {CanvasRenderingContext2D} */ (myMap.getContext("2d", { alpha: false }));
+const ctm = /** @type {CanvasRenderingContext2D} */ (myMap.getContext("2d"));
 const ctx = /** @type {CanvasRenderingContext2D} */ (myCanvas.getContext("2d"));
 const ctu = /** @type {CanvasRenderingContext2D} */ (myUI.getContext("2d"));
 
@@ -140,6 +141,8 @@ const skybox = new Image()
 skybox.src = "skybox1.png"
 const testTexture1 = new Image()
 testTexture1.src = "bukit2.png"
+const crosshair = new Image()
+crosshair.src = "crosshair1.png"
 const chainlinkFence = new Image()
 chainlinkFence.src = "chainlink_fence.png"
 
@@ -162,8 +165,7 @@ function drawSkybox(skybox, rotation) {
 }
 UIHandler()
 function UIHandler() {
-    ctu.fillStyle = "rgba(0,255,0,0.8)"
-    ctu.fillRect(myUI.width / 2 - 10, myUI.height / 2 - 110, 20, 20)
+    ctu.drawImage(crosshair, myUI.width / 2 - 10, myUI.height / 2  /*-110*/, 20, 20)
     drawGunAnimation(1, Gun1)
     ctu.fillStyle = "grey"
     ctu.fillRect(0, 500, 1200, 200)
@@ -187,7 +189,9 @@ const controller = {
     5: { key: "l", pressed: false },
     6: { key: " ", pressed: false },
     7: { key: "i", pressed: false },
-    8: { key: "k", pressed: false }
+    8: { key: "k", pressed: false },
+    9: { key: "m", pressed: false }
+
 }
 
 makeLine(100, 100, 400, 400, "material-rainbow", false, "wall")
@@ -195,8 +199,8 @@ makeLine(100, 100, 400, 100, "materialverticalblackwhitesinewave", false, "wall"
 makeLine(400, 100, 400, 400, "material verticalblacklineonwhite", false, "wall")
 makeLine(450, 200, 500, 300, "materialverticalseawave", true, "passThroughMaterial")
 makeLine(100, 200, 300, 400, "pink", false, "wall")
-//makeLine(200, 200, 202, 200, "materialverticalbricks", false, "wall")
-makeLine(198, 200, 301, 200, "materialimagechainlinkFence", true, "wall")
+makeLine(300, 200, 300, 300, "materialimagetestTexture1", false, "wall")
+makeLine(200, 200, 300, 200, "materialimagechainlinkFence", true, "wall")
 makeLine(248, 250, 301, 200, "material-glass", true, "wall")
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event, true, event.shiftKey);
@@ -217,7 +221,7 @@ function moveMaker() {
  */
 function keySwitchboard(event, isDown, isShiftDown) {
     const key = event.key.toLowerCase()
-    if (key.search(/^[wasd jlik]$/g) == 0) {
+    if (key.search(/^[wasd jlikm]$/g) == 0) {
         const index = keyMap[key];
         controller[index].pressed = isDown;
     }
@@ -557,7 +561,7 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
             return { image: testTexture1, position: position }
         case "imagechainlinkFence":
             const position2 = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * chainlinkFence.width
-            return { image: chainlinkFence, position: position2}
+            return { image: chainlinkFence, position: position2 }
 
         case "rainbow":
             const r = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
@@ -627,10 +631,9 @@ function returnIntersectionDistanceFromOrigin(wallVector, intersectionPoint) {
     return (Math.sqrt((wallVector.start.x - intersectionPoint.x) * (wallVector.start.x - intersectionPoint.x) + (wallVector.start.y - intersectionPoint.y) * (wallVector.start.y - intersectionPoint.y)))
 }
 function drawPlayerOnMap() {
-    drawSquare(playerpos.x, playerpos.y, "magenta", 2, ctm)
+    drawSquare(playerpos.x, playerpos.y, "magenta", 5, ctm)
 }
 function drawMap() {
-
     ctm.clearRect(0, 0, myMap.height, myMap.width)
     /* for (let i = 0; i <= (mapData.length) - 1; i++) {
          for (let j = 0; j <= (mapData[i].length) - 1; j++) {
@@ -686,7 +689,7 @@ function rayCastingReturnWall(startingPoint, angle, length) {
                 element.intersection = a
 
                 relevantVectorMapData.push(element)
-                drawSquare(a.x, a.y, "white", 2, ctm)
+                if (controller[9].pressed) { drawSquare(a.x, a.y, "white", 2, ctm) }
             }
         }
     });
@@ -864,10 +867,14 @@ function gameClock() {
     //   if(animcount<500){testAnim()}
     moveMaker()
     movementExecuter()
-    drawMap()
-    drawPlayerOnMap()
+    if (controller[9].pressed) {
+        drawMap()
+        drawPlayerOnMap()
+    }
+    else {
+        ctm.clearRect(0, 0, myMap.height, myMap.width)
+    }
     drawFrame()
-
 
     if (!gametickPause) { currentFrame++ }
     setTimeout(() => {
