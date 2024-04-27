@@ -59,15 +59,15 @@ const mapData = [];
 const vectorMapData = [];
 let isShiftPressed = false;
 const Gun1 = new Image();
-Gun1.src = "DNpistol1.png";
+Gun1.src = "assets/DNpistol1.png";
 const skybox = new Image();
-skybox.src = "skybox1.png";
+skybox.src = "assets/skybox1.png";
 const testTexture1 = new Image();
-testTexture1.src = "bukit2.png";
+testTexture1.src = "assets/bukit2.png";
 const crosshair = new Image();
-crosshair.src = "crosshair1.png";
+crosshair.src = "assets/crosshair1.png";
 const chainlinkFence = new Image();
-chainlinkFence.src = "chainlink_fence.png";
+chainlinkFence.src = "assets/chainlink_fence.png";
 
 /**
  * @param {number} frame
@@ -180,7 +180,7 @@ function apply() {
     noclip = /** @type {HTMLInputElement} */ (document.getElementById("noclip")).checked;
 }
 let fireCooldown = false;
-const Gun1shot = new Audio('DNpistolshot.mp3');
+const Gun1shot = new Audio('assets/DNpistolshot.mp3');
 /** @param {string} key */
 function keyInterpreter(key) {
     switch (key) {
