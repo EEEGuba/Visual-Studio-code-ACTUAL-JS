@@ -358,8 +358,8 @@ function drawFrame() {
             if (!Array.isArray(rayResult)) {
                 const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity);
                 const wallProportionsY = Math.round(myCanvas.height / distance);
-                /** @type {string | Record<number, string> | undefined} */
-                let materialResult = rayResult.material;
+                /** @type {Material | undefined} */
+                let materialResult = new SimpleMaterial(rayResult.material);
                 if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) === 0) {
                     materialResult = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection));
                 }
@@ -372,8 +372,8 @@ function drawFrame() {
                     const currentRayResult = rayResult[f];
                     const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (currentRayResult.proximity);
                     const wallProportionsY = Math.round(myCanvas.height / distance);
-                    /** @type {string | Record<number, string> | undefined} */
-                    let materialResult = currentRayResult.material;
+                    /** @type {Material | undefined} */
+                    let materialResult = new SimpleMaterial(currentRayResult.material);
                     if (currentRayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) === 0) {
                         materialResult = materialEncyclopedia(currentRayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(currentRayResult, currentRayResult.intersection));
                     }
@@ -392,41 +392,7 @@ function frameExecuter() {
     currentFrameData.sort((a, b) => b.proximity - a.proximity);
     //i need to make one where the background is 1 color and then you imprint another on that line because them bricks are frame murderers
     currentFrameData.forEach(element => {
-        if (!isObject(element.material)) {
-            ctx.fillStyle = element.material?.toString() ?? "";
-            ctx.fillRect(element.xPos, element.yPos, element.xWidth, element.yWidth);
-            return;
-        }
-
-        if (/** @type {MaterialTexture} */ (element.material).image !== undefined) {
-            const material = /** @type {MaterialTexture} */ (element.material);
-            ctx.drawImage(material.image, material.position, 0, myCanvas.width / renderAccuracy, material.image.height, element.xPos, element.yPos, element.xWidth, element.yWidth);
-        }
-        else {
-            const lineLength = element.yWidth;
-            let currentHeight = element.yPos;
-            for (let v = 0; v < Object.keys(element.material ?? {}).length; v++) {
-                if (v === 0) {
-                    ctx.fillStyle = Object.values(element.material ?? {})[0];
-                    /*if (element.material.color !== undefined) {  // material.color doesn't exist
-                        ctx.fillStyle = element.material.color
-                    }*/
-                    const calc = (lineLength * parseFloat(Object.keys(element.material ?? {})[0]));
-                    ctx.fillRect(element.xPos, element.yPos, element.xWidth, calc);
-                    currentHeight += calc;
-                }
-                if (v >= Object.keys(element.material ?? {}).length - 1) {
-                    ctx.fillStyle = Object.values(element.material ?? {})[v];
-                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, lineLength * (1 - parseFloat(Object.keys(element.material ?? {})[v])));
-                }
-                else {
-                    const calc = lineLength * ((parseFloat(Object.keys(element.material ?? {})[v + 1])) - parseFloat(Object.keys(element.material ?? {})[v]));
-                    ctx.fillStyle = Object.values(element.material ?? {})[v];
-                    ctx.fillRect(element.xPos, currentHeight, element.xWidth, calc);
-                    currentHeight += calc;
-                }
-            }
-        }
+        element.material?.draw(myCanvas, ctx, element, renderAccuracy);
     });
     currentFrameData = [];
 }
@@ -451,67 +417,67 @@ function reset() {
 /**
  * @param {string} materialName 
  * @param {number} wallDistanceFromOrigin 
- * @returns {string | Record<number, string> | undefined | MaterialTexture}
+ * @returns {Material | undefined}
  */
 function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
     switch (materialName) {
         case "imagetestTexture1":
             const position = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * testTexture1.width;
-            return { image: testTexture1, position: position };
+            return new TextureMaterial(testTexture1, position);
         case "imagechainlinkFence":
             const position2 = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * chainlinkFence.width;
-            return { image: chainlinkFence, position: position2 };
+            return new TextureMaterial(chainlinkFence, position2);
         case "rainbow":
             const r = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
             const g = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 5)) * 255;
             const b = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 5)) * 255;
-            return `rgb(${r}, ${g}, ${b})`;
+            return new RGBAMaterial(r, g, b);
         case "shiftingrainbow":
             const red = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
             const green = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 4)) * 255;
             const blue = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 3)) * 255;
-            return `rgb(${red}, ${green}, ${blue})`;
+            return new RGBAMaterial(red, green, blue);
         case "blackwhitestripes":
-            return Math.floor(wallDistanceFromOrigin) % 2 < 1 ? "black" : "white";
+            return new SimpleMaterial(Math.floor(wallDistanceFromOrigin) % 2 < 1 ? "black" : "white");
         case "verticalblackwhitesinewave":
             /** @type {string} */
             const decimalPart = getDecimalPart(Math.sin(wallDistanceFromOrigin * 2) / 2 + 0.5);
             if (parseFloat(decimalPart) <= 0.01) {
-                return "black";
+                return new SimpleMaterial("black");
             }
             const waveHeight = decimalPart.slice(0, 4);
-            return { 0: "white", [waveHeight]: "black" };
+            return new MappedMaterial({ 0: "white", [waveHeight]: "black" });
         case "verticalbricks":
             const wallBlockPos = getDecimalPart(wallDistanceFromOrigin);
             const wallBlockDecisionNum = wallBlockPos.toString().slice(2, 4);
             const wallBlockDecisionNumber = parseFloat(wallBlockDecisionNum);
             if (wallBlockDecisionNumber % 25 <= 2) {
-                return "black";
+                return new SimpleMaterial("black");
             }
             if (wallBlockDecisionNumber < 25) {
-                return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" };
+                return new MappedMaterial({ 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" });
             }
             if (wallBlockDecisionNumber > 50 && wallBlockDecisionNumber < 75) {
-                return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" };
+                return new MappedMaterial({ 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" });
             }
-            return { 0: "orange", 0.04: "black", 0.05: "orange", 0.14: "black", 0.15: "orange", 0.24: "black", 0.25: "orange", 0.34: "black", 0.35: "orange", 0.44: "black", 0.45: "orange", 0.54: "black", 0.55: "orange", 0.64: "black", 0.65: "orange", 0.74: "black", 0.75: "orange", 0.84: "black", 0.85: "orange", 0.94: "black", 0.95: "orange" };
+            return new MappedMaterial({ 0: "orange", 0.04: "black", 0.05: "orange", 0.14: "black", 0.15: "orange", 0.24: "black", 0.25: "orange", 0.34: "black", 0.35: "orange", 0.44: "black", 0.45: "orange", 0.54: "black", 0.55: "orange", 0.64: "black", 0.65: "orange", 0.74: "black", 0.75: "orange", 0.84: "black", 0.85: "orange", 0.94: "black", 0.95: "orange" });
         case "glass":
-            return parseFloat(getDecimalPart(wallDistanceFromOrigin)) > 0.94 ? "black" : "rgba(0,0,255,0.1)";
+            return new SimpleMaterial(parseFloat(getDecimalPart(wallDistanceFromOrigin)) > 0.94 ? "black" : "rgba(0,0,255,0.1)");
         case "verticalblacklineonwhite":
-            return { 0: "white", 0.33: "gray", 0.66: "black" };
+            return new MappedMaterial({ 0: "white", 0.33: "gray", 0.66: "black" });
         case "verticalseawave":
             const calc = (Math.sin(wallDistanceFromOrigin * 2 + currentFrame / 10) / 2 + 0.5 / (wallDistanceFromOrigin * 0.1));
 
             if (calc > 1) {
-                return "rgba(0,0,0,0)";
+                return new RGBAMaterial(0, 0, 0, 0);
             }
             const waveSize = getDecimalPart(calc).slice(0, 4);
-            return { 0: "rgba(0,0,0,0)", [parseFloat(waveSize) - 0.1]: "rgba(0,0,150,0.1)", [waveSize]: "rgba(0,0,200,0.4)" };
+            return new MappedMaterial({ 0: "rgba(0,0,0,0)", [parseFloat(waveSize) - 0.1]: "rgba(0,0,150,0.1)", [waveSize]: "rgba(0,0,200,0.4)" });
         case "verticalbluby": //WIP
             const singleBlock = (parseFloat(getDecimalPart(wallDistanceFromOrigin))) * 4;
             // if(singleBlock>0.95){return "black"}
             const fish = getDecimalPart((singleBlock - 0.1) * 2 * singleBlock + 0.1);
-            return { 0: "rgba(0,0,0,0)", [fish]: "lightblue", [1 - parseFloat(fish)]: "rgba(0,0,0,0)" };
+            return new MappedMaterial({ 0: "rgba(0,0,0,0)", [fish]: "lightblue", [1 - parseFloat(fish)]: "rgba(0,0,0,0)" });
         default:
             break;
     }

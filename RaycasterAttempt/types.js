@@ -38,12 +38,6 @@
  * @property {number} yPos
  * @property {number} xWidth
  * @property {number} yWidth
- * @property {string | Record<number, string> | undefined} material
+ * @property {Material | undefined} material
  * @property {number} proximity
- */
-
-/**
- * @typedef {Object} MaterialTexture
- * @property {HTMLImageElement} image,
- * @property {number} position
  */
