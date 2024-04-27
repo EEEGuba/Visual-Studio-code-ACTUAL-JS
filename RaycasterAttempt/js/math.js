@@ -101,8 +101,8 @@ function findIntersection(vector1, vector2) {
     const s = numerator2 / denominator;
 
     if (r >= 0 && r <= 1 && s >= 0 && s <= 1) {
-        let intersectionX = vector1.start.x + (r * (vector1.end.x - vector1.start.x));
-        let intersectionY = vector1.start.y + (r * (vector1.end.y - vector1.start.y));
+        const intersectionX = vector1.start.x + (r * (vector1.end.x - vector1.start.x));
+        const intersectionY = vector1.start.y + (r * (vector1.end.y - vector1.start.y));
         return { x: intersectionX, y: intersectionY };
     }
 

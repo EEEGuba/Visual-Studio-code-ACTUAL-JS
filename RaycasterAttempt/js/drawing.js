@@ -15,6 +15,7 @@ function drawLine(startingPoint, endingPoint, color, canvas) {
     canvas.lineTo(endingPoint.x, endingPoint.y);
     canvas.stroke();
 }
+
 /**
  * @param {number} x
  * @param {number} y
