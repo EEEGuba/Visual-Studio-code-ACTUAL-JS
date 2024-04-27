@@ -38,6 +38,6 @@
  * @property {number} yPos
  * @property {number} xWidth
  * @property {number} yWidth
- * @property {Material | undefined} material
+ * @property {Material} material
  * @property {number} proximity
  */

@@ -358,7 +358,7 @@ function drawFrame() {
             if (!Array.isArray(rayResult)) {
                 const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (rayResult.proximity);
                 const wallProportionsY = Math.round(myCanvas.height / distance);
-                /** @type {Material | undefined} */
+                /** @type {Material} */
                 let materialResult = new SimpleMaterial(rayResult.material);
                 if (rayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) === 0) {
                     materialResult = materialEncyclopedia(rayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(rayResult, rayResult.intersection));
@@ -372,7 +372,7 @@ function drawFrame() {
                     const currentRayResult = rayResult[f];
                     const distance = Math.cos(toRadians(playerpos.rotation - currentAngle)) * (currentRayResult.proximity);
                     const wallProportionsY = Math.round(myCanvas.height / distance);
-                    /** @type {Material | undefined} */
+                    /** @type {Material} */
                     let materialResult = new SimpleMaterial(currentRayResult.material);
                     if (currentRayResult.material.search(/(material)[- ]?[a-z]{1,20}/gi) === 0) {
                         materialResult = materialEncyclopedia(currentRayResult.material.replace(/(material)[- ]?/gi, ""), returnIntersectionDistanceFromOrigin(currentRayResult, currentRayResult.intersection));
@@ -392,7 +392,7 @@ function frameExecuter() {
     currentFrameData.sort((a, b) => b.proximity - a.proximity);
     //i need to make one where the background is 1 color and then you imprint another on that line because them bricks are frame murderers
     currentFrameData.forEach(element => {
-        element.material?.draw(myCanvas, ctx, element, renderAccuracy);
+        element.material.draw(myCanvas, ctx, element, renderAccuracy);
     });
     currentFrameData = [];
 }
@@ -414,10 +414,10 @@ function reset() {
     currentFrame = 1;
     playerpos = { x: 220, y: 210, rotation: 50 };
 }
+
 /**
- * @param {string} materialName 
- * @param {number} wallDistanceFromOrigin 
- * @returns {Material | undefined}
+ * @param {string} materialName
+ * @param {number} wallDistanceFromOrigin
  */
 function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
     switch (materialName) {
@@ -479,7 +479,7 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
             const fish = getDecimalPart((singleBlock - 0.1) * 2 * singleBlock + 0.1);
             return new MappedMaterial({ 0: "rgba(0,0,0,0)", [fish]: "lightblue", [1 - parseFloat(fish)]: "rgba(0,0,0,0)" });
         default:
-            break;
+            return new SimpleMaterial("black");
     }
 }
 
