@@ -3,7 +3,6 @@
 
 <head>
   <link rel="stylesheet" href="style.css" />
-  <div id="communicationDiv"></div>
 
 </head>
 
@@ -21,17 +20,16 @@
     CHECK DATA
   </button><br>-->
   <div class="settings">
-    <h2 class="directions">Use W A S D to move,J I K L to look around and space to shoot</h2>
+    <h2 class="directions">Use W A S D to move,J I K L to look around, space to shoot and M for the map</h2>
     <p> These are the settings, I gave them no maximum or minimum. <br>Experiment, but remember it might break if you go
       overboard, if it
       does just refresh the page</p>
     <input value="60" id="fov" type="number"> FOV | degrees of view </input> <br>
     <input value="40" id="fps" type="number"> FPS | frames per second/gameSpeed </input><br>
-    <input min="1" max="1200" value="1200" id="renderAccuracy" type="range"> render accuracy | how many lines per frame
-    you get, set to lower values for better performance </input><br>
+    <input min="1" max="1200" value="600" id="renderAccuracy" type="number"> render accuracy | how many lines per frame you get, set to lower values for better performance, recommended 1200,600,300,200 </input><br>
     <input value="3" id="turnSensitivity" type="number"> turn sensitivity | how many degrees you turn per frame
     </input><br>
-    <input value="0.3" id="stepLength" type="number"> player speed | how quickly you gain speed </input><br>
+    <input value="0.1" id="stepLength" type="number"> player speed | how quickly you gain speed </input><br>
     <input value="250" id="renderDistance" type="number"> render distance | how many blocks you can see forward
     </input><br>
     <input value="1000" id="gameSpeed" type="number"> game speed | how fast the game is, default 1000 lower is faster
@@ -41,10 +39,10 @@
     <input value="true" id="noclip" type="checkbox" checked>noclip | walking through walls <b
       style='color:red;'>(Collision in beta! Avoid corners!)</b></input><br>
     <input value="false" id="gametickPause" type="checkbox">pause framecount | pause animations ect.</input><br>
-    <input value="5" id="recoilSeverity" type="number"> recoil severity | how far you fly back after shooting and how
+    <input value="0.5" id="recoilSeverity" type="number"> recoil severity | how far you fly back after shooting and how
     much the screen shakes
     </input><br>
-    <input value="10" id="maxSpeed" type="number"> max speed | how much you can speed up
+    <input value="20" id="maxSpeed" type="number"> max speed | how much you can speed up
     </input><br>
     <input value="0.05" id="speedDampening" type="number"> speed dampening | how fast you slow down, 0 makes you go on
     ice, 1 is instant
@@ -53,7 +51,8 @@
 
 
   </div>
-  <p>This program was done with stock Javascript and no libraries, for use in 1920x1080 resolution (fullscreen) </p>
+  <div id="programDisclaimer">  <p >This program was done with stock Javascript and no libraries, for use in 1920x1080 resolution (fullscreen) </p>
+  </div>
 
   <div class="wallAdder">
     <p>Add walls here, the map below has coordinates from 0,0 at the top left to 500,500 at the bottom right</p>

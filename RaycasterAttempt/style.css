@@ -1,18 +1,29 @@
+body{
+  height: 1000px;
+}
 html *
 {
-   color: #000 !important;
-   font-family: Arial !important;
+  color: #000 !important;
+  font-family: Arial !important;
 }
 
+#programDisclaimer{
+  position: fixed;
+  top: 0px;
+  left: 1220px;
+  max-width: 500px;
+}
 #content,
-#map,
 #UI {
   float: left;
   border: 2px solid black;
 }
-
+#map{
+  position:absolute;
+  top:0px;
+  left: 700px;
+}
 #content {
-  float:left;
   background-image:
   linear-gradient(0deg, rgba(8,12,24,1) 50%, rgba(34,193,195,1) 50%, rgba(0,0,0,1) 50%);
 }
@@ -24,28 +35,28 @@ html *
 }
 .settings {
   border-radius: 5px;
-  margin-left: 5px;
-  margin-top: 5px;
+  left: 15px;
+  top: 520px;
   float: left;
-  border: 2px solid black;
-  max-width: 690px;
-}
-
-.wallAdder {
-  font-size: 85%;
   position:absolute;
-  bottom:180px; right:0;
+  border: 2px solid black;
+  max-width: 980px;
+}
+.wallAdder {
+  font-size: 100%;
+  position:absolute;
+  top:520px; right:5px;
   float: right top;
   border-radius: 5px;
   margin-left: 10px;
   margin-top: 2px;
   border: 2px solid black;
-  max-width: 300px;
+  max-width: 500px;
 }
-
 .button {
   position:absolute;
-  top:80px; right:20;
+  top:20px;
+  left:0px;
   margin-left: 25px;
   text-shadow: 1px 1px white;
   border-radius: 10%;
