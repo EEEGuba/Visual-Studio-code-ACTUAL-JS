@@ -46,23 +46,23 @@ class TextureMaterial extends Material {
     }
 }
 
-class RGBAMaterial extends Material {
+class RGBMaterial extends Material {
     /** @type {number} */
     r;
     /** @type {number} */
     g;
     /** @type {number} */
     b;
-    /** @type {number} */
+    /** @type {number | undefined} */
     a;
 
     /**
      * @param {number} r
      * @param {number} g
      * @param {number} b
-     * @param {number} a
+     * @param {number | undefined} a
      */
-    constructor(r, g, b, a = 1.0) {
+    constructor(r, g, b, a = undefined) {
         super();
         this.r = r;
         this.g = g;
@@ -77,7 +77,7 @@ class RGBAMaterial extends Material {
      * @param {number} accuracy
      */
     draw(canvas, ctx, data, accuracy) {
-        ctx.fillStyle = `rbga(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
+        ctx.fillStyle = this.a === undefined ? `rgb(${this.r}, ${this.g}, ${this.b})` : `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
         ctx.fillRect(data.xPos, data.yPos, data.xWidth, data.yWidth);
     }
 }

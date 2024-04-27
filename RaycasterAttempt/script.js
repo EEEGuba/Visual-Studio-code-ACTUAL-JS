@@ -431,12 +431,12 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
             const r = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
             const g = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 5)) * 255;
             const b = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 5)) * 255;
-            return new RGBAMaterial(r, g, b);
+            return new RGBMaterial(r, g, b);
         case "shiftingrainbow":
             const red = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
             const green = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 4)) * 255;
             const blue = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 3)) * 255;
-            return new RGBAMaterial(red, green, blue);
+            return new RGBMaterial(red, green, blue);
         case "blackwhitestripes":
             return new SimpleMaterial(Math.floor(wallDistanceFromOrigin) % 2 < 1 ? "black" : "white");
         case "verticalblackwhitesinewave":
@@ -469,7 +469,7 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
             const calc = (Math.sin(wallDistanceFromOrigin * 2 + currentFrame / 10) / 2 + 0.5 / (wallDistanceFromOrigin * 0.1));
 
             if (calc > 1) {
-                return new RGBAMaterial(0, 0, 0, 0);
+                return new RGBMaterial(0, 0, 0, 0);
             }
             const waveSize = getDecimalPart(calc).slice(0, 4);
             return new MappedMaterial({ 0: "rgba(0,0,0,0)", [parseFloat(waveSize) - 0.1]: "rgba(0,0,150,0.1)", [waveSize]: "rgba(0,0,200,0.4)" });
