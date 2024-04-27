@@ -118,12 +118,15 @@ const controller = {
     3: { key: "d", pressed: false },
     4: { key: "j", pressed: false },
     5: { key: "l", pressed: false },
-    6: { key: " ", pressed: false },
+    6: { key: " ", pressed: true },
     7: { key: "i", pressed: false },
     8: { key: "k", pressed: false },
     9: { key: "m", pressed: false }
-};
 
+}
+setTimeout(() => {
+    controller[6].pressed = false
+}, 50);
 makeLine(100, 100, 400, 400, "material-rainbow", false, "wall");
 makeLine(100, 100, 400, 100, "materialverticalblackwhitesinewave", false, "wall");
 makeLine(400, 100, 400, 400, "material verticalblacklineonwhite", false, "wall");
