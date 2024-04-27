@@ -174,3 +174,12 @@ function angleCorrector(angle) {
     
     return angle;
 }
+
+/**
+ * @param {MapVector} wallVector
+ * @param {Vector} intersectionPoint
+ * @returns {number}
+ */
+function returnIntersectionDistanceFromOrigin(wallVector, intersectionPoint) {
+    return Math.sqrt((wallVector.start.x - intersectionPoint.x) * (wallVector.start.x - intersectionPoint.x) + (wallVector.start.y - intersectionPoint.y) * (wallVector.start.y - intersectionPoint.y));
+}

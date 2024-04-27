@@ -64,6 +64,8 @@ const skybox = new Image();
 skybox.src = "skybox1.png";
 const testTexture1 = new Image();
 testTexture1.src = "bukit2.png";
+const crosshair = new Image();
+crosshair.src = "crosshair1.png";
 const chainlinkFence = new Image();
 chainlinkFence.src = "chainlink_fence.png";
 
@@ -396,8 +398,9 @@ function frameExecuter() {
             return;
         }
 
-        if (element.material.image !== undefined) {
-            ctx.drawImage(element.material.image, element.material.position, 0, myCanvas.width / renderAccuracy, element.material.image.height, element.xPos, element.yPos, element.xWidth, element.yWidth);
+        if (/** @type {MaterialTexture} */ (element.material).image !== undefined) {
+            const material = /** @type {MaterialTexture} */ (element.material);
+            ctx.drawImage(material.image, material.position, 0, myCanvas.width / renderAccuracy, material.image.height, element.xPos, element.yPos, element.xWidth, element.yWidth);
         }
         else {
             const lineLength = element.yWidth;
@@ -448,90 +451,77 @@ function reset() {
 /**
  * @param {string} materialName 
  * @param {number} wallDistanceFromOrigin 
- * @returns {string | Record<number, string> | undefined}
+ * @returns {string | Record<number, string> | undefined | MaterialTexture}
  */
 function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
-
     switch (materialName) {
         case "imagetestTexture1":
-            const position = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * testTexture1.width
-            return { image: testTexture1, position: position }
+            const position = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * testTexture1.width;
+            return { image: testTexture1, position: position };
         case "imagechainlinkFence":
-            const position2 = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * chainlinkFence.width
-            return { image: chainlinkFence, position: position2 }
-
+            const position2 = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * chainlinkFence.width;
+            return { image: chainlinkFence, position: position2 };
         case "rainbow":
             const r = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
             const g = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 5)) * 255;
             const b = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 5)) * 255;
-            return (`rgb(${r}, ${g}, ${b})`)
+            return `rgb(${r}, ${g}, ${b})`;
         case "shiftingrainbow":
             const red = (Math.sin(wallDistanceFromOrigin + currentFrame / 5)) * 255;
             const green = (Math.sin(wallDistanceFromOrigin + 2 + currentFrame / 4)) * 255;
             const blue = (Math.sin(wallDistanceFromOrigin + 4 + currentFrame / 3)) * 255;
-            return (`rgb(${red}, ${green}, ${blue})`)
+            return `rgb(${red}, ${green}, ${blue})`;
         case "blackwhitestripes":
-            if (Math.floor(wallDistanceFromOrigin) % 2 < 1) {
-                return "black"
-            } else {
-                return "white"
-            }
+            return Math.floor(wallDistanceFromOrigin) % 2 < 1 ? "black" : "white";
         case "verticalblackwhitesinewave":
             /** @type {string} */
-            const decimalPart = getDecimalPart(Math.sin(wallDistanceFromOrigin * 2) / 2 + 0.5)
-            if (parseFloat(decimalPart) <= 0.01) { return "black" }
-            const waveHeight = decimalPart.slice(0, 4)
-            return { 0: "white", [waveHeight]: "black" }
+            const decimalPart = getDecimalPart(Math.sin(wallDistanceFromOrigin * 2) / 2 + 0.5);
+            if (parseFloat(decimalPart) <= 0.01) {
+                return "black";
+            }
+            const waveHeight = decimalPart.slice(0, 4);
+            return { 0: "white", [waveHeight]: "black" };
         case "verticalbricks":
-            const wallBlockPos = getDecimalPart(wallDistanceFromOrigin)
-            const wallBlockDecisionNum = wallBlockPos.toString().slice(2, 4)
+            const wallBlockPos = getDecimalPart(wallDistanceFromOrigin);
+            const wallBlockDecisionNum = wallBlockPos.toString().slice(2, 4);
             const wallBlockDecisionNumber = parseFloat(wallBlockDecisionNum);
-            if (wallBlockDecisionNumber % 25 <= 2) { return "black" }
+            if (wallBlockDecisionNumber % 25 <= 2) {
+                return "black";
+            }
             if (wallBlockDecisionNumber < 25) {
-                return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" }
+                return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" };
             }
             if (wallBlockDecisionNumber > 50 && wallBlockDecisionNumber < 75) {
-                return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" }
+                return { 0: "orange", 0.09: "black", 0.10: "orange", 0.19: "black", 0.20: "orange", 0.29: "black", 0.30: "orange", 0.39: "black", 0.40: "orange", 0.49: "black", 0.50: "orange", 0.59: "black", 0.60: "orange", 0.69: "black", 0.70: "orange", 0.79: "black", 0.80: "orange", 0.89: "black", 0.90: "orange", 0.99: "black" };
             }
-            return { 0: "orange", 0.04: "black", 0.05: "orange", 0.14: "black", 0.15: "orange", 0.24: "black", 0.25: "orange", 0.34: "black", 0.35: "orange", 0.44: "black", 0.45: "orange", 0.54: "black", 0.55: "orange", 0.64: "black", 0.65: "orange", 0.74: "black", 0.75: "orange", 0.84: "black", 0.85: "orange", 0.94: "black", 0.95: "orange" }
-
+            return { 0: "orange", 0.04: "black", 0.05: "orange", 0.14: "black", 0.15: "orange", 0.24: "black", 0.25: "orange", 0.34: "black", 0.35: "orange", 0.44: "black", 0.45: "orange", 0.54: "black", 0.55: "orange", 0.64: "black", 0.65: "orange", 0.74: "black", 0.75: "orange", 0.84: "black", 0.85: "orange", 0.94: "black", 0.95: "orange" };
         case "glass":
-            if (parseFloat(getDecimalPart(wallDistanceFromOrigin)) > 0.94) {
-                return "black"
-            }
-            return "rgba(0,0,255,0.1)"
-
+            return parseFloat(getDecimalPart(wallDistanceFromOrigin)) > 0.94 ? "black" : "rgba(0,0,255,0.1)";
         case "verticalblacklineonwhite":
-            return { 0: "white", 0.33: "gray", 0.66: "black" }
+            return { 0: "white", 0.33: "gray", 0.66: "black" };
         case "verticalseawave":
-            const calc = (Math.sin(wallDistanceFromOrigin * 2 + currentFrame / 10) / 2 + 0.5 / (wallDistanceFromOrigin * 0.1))
+            const calc = (Math.sin(wallDistanceFromOrigin * 2 + currentFrame / 10) / 2 + 0.5 / (wallDistanceFromOrigin * 0.1));
 
-            if (calc > 1) { return "rgba(0,0,0,0)" }
-            /** @type {string} */
-            const waveSize = getDecimalPart(calc).slice(0, 4)
-            return { 0: "rgba(0,0,0,0)", [parseFloat(waveSize) - 0.1]: "rgba(0,0,150,0.1)", [waveSize]: "rgba(0,0,200,0.4)" }
+            if (calc > 1) {
+                return "rgba(0,0,0,0)";
+            }
+            const waveSize = getDecimalPart(calc).slice(0, 4);
+            return { 0: "rgba(0,0,0,0)", [parseFloat(waveSize) - 0.1]: "rgba(0,0,150,0.1)", [waveSize]: "rgba(0,0,200,0.4)" };
         case "verticalbluby": //WIP
-            const singleBlock = (parseFloat(getDecimalPart(wallDistanceFromOrigin))) * 4
+            const singleBlock = (parseFloat(getDecimalPart(wallDistanceFromOrigin))) * 4;
             // if(singleBlock>0.95){return "black"}
-            const fish = getDecimalPart((singleBlock - 0.1) * 2 * singleBlock + 0.1)
-            return { 0: "rgba(0,0,0,0)", [fish]: "lightblue", [1 - parseFloat(fish)]: "rgba(0,0,0,0)" }
+            const fish = getDecimalPart((singleBlock - 0.1) * 2 * singleBlock + 0.1);
+            return { 0: "rgba(0,0,0,0)", [fish]: "lightblue", [1 - parseFloat(fish)]: "rgba(0,0,0,0)" };
         default:
             break;
     }
 }
-/**
- * @param {MapVector} wallVector
- * @param {Vector} intersectionPoint
- * @returns {number}
- */
-function returnIntersectionDistanceFromOrigin(wallVector, intersectionPoint) {
-    return (Math.sqrt((wallVector.start.x - intersectionPoint.x) * (wallVector.start.x - intersectionPoint.x) + (wallVector.start.y - intersectionPoint.y) * (wallVector.start.y - intersectionPoint.y)))
-}
+
 function drawPlayerOnMap() {
-    drawSquare(playerpos.x, playerpos.y, "magenta", 5, ctm)
+    drawSquare(playerpos.x, playerpos.y, "magenta", 5, ctm);
 }
 function drawMap() {
-    ctm.clearRect(0, 0, myMap.height, myMap.width)
+    ctm.clearRect(0, 0, myMap.height, myMap.width);
     /* for (let i = 0; i <= (mapData.length) - 1; i++) {
          for (let j = 0; j <= (mapData[i].length) - 1; j++) {
              const element = mapData[i][j];
@@ -540,256 +530,178 @@ function drawMap() {
      }
      */
     vectorMapData.forEach(element => {
-        drawLine(element.start, element.end, "brown", ctm)
+        drawLine(element.start, element.end, "brown", ctm);
     });
 }
 /**
- * @param {Vector} vector 
+ * @param {Vector} vector
  * @returns {PlayerVector}
  */
 function returnAngleAndMagnitudeFromZero(vector) {
     //cartesian->polar m = √(x² + y²) and θ = arccos(x / m), painfull 
-    const m = Math.sqrt(vector.x * vector.x + vector.y * vector.y)
-    return { magnitude: m, angle: toDegrees(Math.atan2(vector.y, vector.x)) + 180 }
+    const m = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+    return { magnitude: m, angle: toDegrees(Math.atan2(vector.y, vector.x)) + 180 };
 }
-let animcount = 0
+let animcount = 0;
 function testAnim() {
-    if (animcount != 0) {
-        const animationAdress = vectorMapData.findIndex(i => i.wallFunction == "animation1")
-        if (animationAdress >= 0) { vectorMapData.splice(animationAdress, 1), mapData.splice(animationAdress, 1) }
-        if (consolelogprint < 20) { console.log(animationAdress); consolelogprint++ }
+    if (animcount !== 0) {
+        const animationAdress = vectorMapData.findIndex(i => i.wallFunction == "animation1");
+        if (animationAdress >= 0) {
+            vectorMapData.splice(animationAdress, 1), mapData.splice(animationAdress, 1);
+        }
+        if (consolelogprint < 20) {
+            console.log(animationAdress);
+            consolelogprint++;
+        }
     }
 
-    makeLine(0, animcount, 500, animcount, "red", false, "animation1")
-    animcount++
-    if (animcount == 300) { console.log(vectorMapData) }
+    makeLine(0, animcount, 500, animcount, "red", false, "animation1");
+    animcount++;
+    if (animcount === 300) {
+        console.log(vectorMapData);
+    }
 }
 /**
- * @param {Vector} startingPoint 
- * @param {number} angle 
- * @param {number} length 
+ * @param {Vector} startingPoint
+ * @param {number} angle
+ * @param {number} length
  * @returns {undefined | MapVector | MapVector[]}
  */
 function rayCastingReturnWall(startingPoint, angle, length) {
     /** @type {MapVector[]} */
-    const relevantVectorMapData = []
+    const relevantVectorMapData = [];
     /** @type {Vector | undefined} */
     let a = undefined;
     vectorMapData.forEach(element => {
-        const calculatedDisplacement = calculateVectorDisplacement(angle, length)
+        const calculatedDisplacement = calculateVectorDisplacement(angle, length);
         if (!returnTrueIfPointsOnSameVectorSide(element, startingPoint, { x: startingPoint.x + calculatedDisplacement.x, y: startingPoint.y + calculatedDisplacement.y })) {
-            a = findIntersection(element, new MapVector(startingPoint.x, startingPoint.y, startingPoint.x + calculatedDisplacement.x, startingPoint.y + calculatedDisplacement.y, "", false, ""))
+            a = findIntersection(element, new MapVector(startingPoint.x, startingPoint.y, startingPoint.x + calculatedDisplacement.x, startingPoint.y + calculatedDisplacement.y, "", false, ""));
             if (a !== undefined) {
-                const distanceFromPoint = Math.sqrt((a.x - startingPoint.x) * (a.x - startingPoint.x) + (a.y - startingPoint.y) * (a.y - startingPoint.y))
-                element.proximity = distanceFromPoint
-                relevantVectorMapData.push(element)
-                element.intersection = a
+                const distanceFromPoint = Math.sqrt((a.x - startingPoint.x) * (a.x - startingPoint.x) + (a.y - startingPoint.y) * (a.y - startingPoint.y));
+                element.proximity = distanceFromPoint;
+                relevantVectorMapData.push(element);
+                element.intersection = a;
 
-                relevantVectorMapData.push(element)
-                if (controller[9].pressed) { drawSquare(a.x, a.y, "white", 2, ctm) }
+                relevantVectorMapData.push(element);
+                if (controller[9].pressed) {
+                    drawSquare(a.x, a.y, "white", 2, ctm);
+                }
             }
         }
     });
-    if (relevantVectorMapData == [] || relevantVectorMapData[0] == undefined) { return undefined }
+    if (relevantVectorMapData == [] || relevantVectorMapData[0] === undefined) {
+        return undefined;
+    }
     relevantVectorMapData.sort((a, b) => a.proximity - b.proximity);
-    if (relevantVectorMapData[2] == undefined) { return relevantVectorMapData[0] }
-
+    if (relevantVectorMapData[2] === undefined || !relevantVectorMapData[0].isSeeThrough) {
+        return relevantVectorMapData[0];
+    }
     //   if(a!==0&&a!==undefined){relevantVectorMapData[0].intersection = a}
-    if (!relevantVectorMapData[0].isSeeThrough) { return relevantVectorMapData[0] }
-    relevantVectorMapData.forEach(function (element, index) {
+    relevantVectorMapData.forEach((element, index) => {
         if (relevantVectorMapData[index + 1] !== undefined/*undefined doesnt work, only [undefined], i love JS*/) {
             if (Math.abs(element.proximity - relevantVectorMapData[index + 1].proximity) < 1) {
-                relevantVectorMapData.splice(index, 1)
+                relevantVectorMapData.splice(index, 1);
             }
         }
         //if (consolelogprint < 20) {console.log(relevantVectorMapData); consolelogprint++}
     });
 
     /** @type {MapVector[]} */
-    let returnMapData = []
+    let returnMapData = [];
     for (let r = 0; r < relevantVectorMapData.length; r++) {
-        returnMapData.push(relevantVectorMapData[r])
-        if (!relevantVectorMapData[r].isSeeThrough || relevantVectorMapData[r + 1] == undefined) {
-            return (returnMapData)
+        returnMapData.push(relevantVectorMapData[r]);
+        if (!relevantVectorMapData[r].isSeeThrough || relevantVectorMapData[r + 1] === undefined) {
+            return (returnMapData);
         }
     }
 }
 /**
- * @param {Vector} startingPoint 
- * @param {Vector} endingPoint
- * @param {string} color 
- * @param {object} canvas
- */
-
-function drawLine(startingPoint, endingPoint, color, canvas) {
-    canvas.strokeStyle = color;
-    canvas.lineWidth = 1;
-    canvas.beginPath()
-    canvas.moveTo(startingPoint.x, startingPoint.y);
-    canvas.lineTo(endingPoint.x, endingPoint.y);
-    canvas.stroke();
-}
-/**
- * @param {number} x 
- * @param {number} y 
- * @param {string} color 
- * @param {number} size 
- * @param {CanvasRenderingContext2D} canvas 
- */
-function drawSquare(x, y, color, size, canvas) {
-    canvas.fillStyle = color
-    canvas.fillRect(x, y, size, size)
-}
-/**
- * @param {number} x0 
- * @param {number} y0 
- * @param {number} x1 
- * @param {number} y1 
- * @param {string} material 
- * @param {boolean} isSeeThrough 
- * @param {string} wallFunction 
+ * @param {number} x0
+ * @param {number} y0
+ * @param {number} x1
+ * @param {number} y1
+ * @param {string} material
+ * @param {boolean} isSeeThrough
+ * @param {string} wallFunction
  * @returns {MapPixel[]}
  */
 function returnLineFromVector(x0, y0, x1, y1, material, isSeeThrough, wallFunction) {
-    vectorMapData.push(new MapVector(x0, y0, x1, y1, material, isSeeThrough, wallFunction))
-    let dx = Math.abs(x1 - x0)
-    let dy = Math.abs(y1 - y0)
-    let sx = (x0 < x1) ? 1 : -1
-    let sy = (y0 < y1) ? 1 : -1
-    let dir = dx - dy
+    vectorMapData.push(new MapVector(x0, y0, x1, y1, material, isSeeThrough, wallFunction));
+    const dx = Math.abs(x1 - x0);
+    const dy = Math.abs(y1 - y0);
+    const sx = (x0 < x1) ? 1 : -1;
+    const sy = (y0 < y1) ? 1 : -1;
+    let dir = dx - dy;
     /** @type {MapPixel[]} */
-    let data = []
-    while (true) {
-        data.push(new MapPixel(x0, y0))
+    const data = [];
 
-        if (x0 === x1 && y0 === y1) { break }
-        let a = 2 * dir
+    while (true) {
+        data.push(new MapPixel(x0, y0));
+
+        if (x0 === x1 && y0 === y1) {
+            break;
+        }
+        const a = 2 * dir;
         if (a > -dy) {
-            dir -= dy
-            x0 += sx
+            dir -= dy;
+            x0 += sx;
         }
         if (a < dx) {
-            dir += dx
-            y0 += sy
+            dir += dx;
+            y0 += sy;
         }
     }
 
-    return (data)
+    return data;
 }
 /**
- * @param {number} startX 
- * @param {number} startY 
- * @param {number} endX 
- * @param {number} endY 
- * @param {string} material 
- * @param {boolean} isSeeThrough 
- * @param {string} wallFunction 
+ * @param {number} startX
+ * @param {number} startY
+ * @param {number} endX
+ * @param {number} endY
+ * @param {string} material
+ * @param {boolean} isSeeThrough
+ * @param {string} wallFunction
  */
 function makeLine(startX, startY, endX, endY, material, isSeeThrough, wallFunction) {
-    const drawData = returnLineFromVector(startX, startY, endX, endY, material, isSeeThrough, wallFunction)
-
-    mapData.push(drawData)
+    const drawData = returnLineFromVector(startX, startY, endX, endY, material, isSeeThrough, wallFunction);
+    mapData.push(drawData);
     for (let i = 0; i < drawData.length; i++) {
         drawSquare(drawData[i].x, drawData[i].y, material, 1, ctm);
-
     }
 }
 
-/**
- * @param {number} angle 
- * @param {number} magnitude 
- * @returns {Vector}
- */
-function calculateVectorDisplacement(angle, magnitude) {
-    return { x: -magnitude * Math.cos(toRadians(angle)), y: -magnitude * Math.sin(toRadians(angle)) }
-}
-/**
- * @param {Vector} a 
- * @param {Vector} b 
- * @returns {number}
- */
-function calculateDotProduct(a, b) {
-    return (a.x * b.x + a.y * b.y)
-}
-/**
- * @param {MapVector} vector 
- * @param {Vector} pointA 
- * @param {Vector} pointB 
- * @returns {boolean}
- */
-function returnTrueIfPointsOnSameVectorSide(vector, pointA, pointB) {
-    const absoluteVector = { x: vector.end.x - vector.start.x, y: vector.end.y - vector.start.y }
-    const absolutePointA = { x: pointA.x - vector.start.x, y: pointA.y - vector.start.y }
-    const absolutePointB = { x: pointB.x - vector.start.x, y: pointB.y - vector.start.y }
-    const perpendicularVector = { x: -absoluteVector.y, y: absoluteVector.x }
-    if (Math.sign(calculateDotProduct(perpendicularVector, absolutePointA)) == Math.sign(calculateDotProduct(perpendicularVector, absolutePointB))) {
-        return true
-    }
-    return false
-}
-/**
- * @param {MapVector} vector1 
- * @param {MapVector} vector2 
- * @returns {Vector | undefined}
- */
-function findIntersection(vector1, vector2) {
-    let denominator = ((vector2.end.y - vector2.start.y) * (vector1.end.x - vector1.start.x)) - ((vector2.end.x - vector2.start.x) * (vector1.end.y - vector1.start.y))
-    let numerator1 = ((vector2.end.x - vector2.start.x) * (vector1.start.y - vector2.start.y)) - ((vector2.end.y - vector2.start.y) * (vector1.start.x - vector2.start.x))
-    let numerator2 = ((vector1.end.x - vector1.start.x) * (vector1.start.y - vector2.start.y)) - ((vector1.end.y - vector1.start.y) * (vector1.start.x - vector2.start.x))
-
-    if (denominator == 0 && numerator1 == 0 && numerator2 == 0) {
-        return undefined
-    }
-
-    if (denominator == 0) {
-        return undefined
-    }
-
-    let r = numerator1 / denominator
-    let s = numerator2 / denominator
-
-    if (r >= 0 && r <= 1 && s >= 0 && s <= 1) {
-        let intersectionX = vector1.start.x + (r * (vector1.end.x - vector1.start.x))
-        let intersectionY = vector1.start.y + (r * (vector1.end.y - vector1.start.y))
-        return { x: intersectionX, y: intersectionY }
-    }
-
-    return undefined
-}
 function printData() {
-    consolelogprint = 0
+    consolelogprint = 0;
 }
-let count = 0
+let count = 0;
 function gameClock() {
     //   if(animcount<500){testAnim()}
-    moveMaker()
-    movementExecuter()
+    moveMaker();
+    movementExecuter();
     if (controller[9].pressed) {
-        drawMap()
-        drawPlayerOnMap()
+        drawMap();
+        drawPlayerOnMap();
     }
     else {
-        ctm.clearRect(0, 0, myMap.height, myMap.width)
+        ctm.clearRect(0, 0, myMap.height, myMap.width);
     }
-    drawFrame()
+    drawFrame();
 
-    if (!gametickPause) { currentFrame++ }
-    setTimeout(() => {
-        gameClock()
-    }, gameSpeed / fps);
-
+    if (!gametickPause) {
+        currentFrame++;
+    }
+    setTimeout(gameClock, gameSpeed / fps);
 }
 
 
-gameClock()
+gameClock();
 /**
- * @param {string | Record<number, string> | undefined} value 
+ * @param {unknown} value
  * @returns {boolean}
  */
 function isObject(value) {
     //I ripped this function from https://bobbyhadz.com/blog/javascript-check-if-value-is-object, its why it doesnt look like my code
-    return (
-        typeof value === 'object'
-    );
+    return typeof(value) === "object" && value !== null;
 }
 //console.log(returnTrueIfPointsOnSameVectorSide(vectorMapData[0],{x:160,y:150},{x:370,y:380}))

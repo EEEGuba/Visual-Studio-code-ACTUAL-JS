@@ -41,3 +41,9 @@
  * @property {string | Record<number, string> | undefined} material
  * @property {number} proximity
  */
+
+/**
+ * @typedef {Object} MaterialTexture
+ * @property {HTMLImageElement} image,
+ * @property {number} position
+ */
