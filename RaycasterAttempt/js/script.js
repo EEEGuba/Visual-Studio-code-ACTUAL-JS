@@ -101,7 +101,7 @@ function drawSkybox(skybox, rotation) {
 UIHandler();
 function UIHandler() {
     ctu.fillStyle = "rgba(0,255,0,0.8)";
-    ctu.drawImage(crosshair, myUI.width / 2 - 10, myUI.height / 2  /*-110*/, 20, 20);
+    ctu.drawImage(crosshair, myUI.width / 2 - 10, myUI.height / 2  -110, 20, 20);
     drawGunAnimation(1, Gun1);
     ctu.fillStyle = "grey";
     ctu.fillRect(0, 500, 1200, 200);
@@ -159,7 +159,7 @@ function moveMaker() {
  */
 function keySwitchboard(event, isDown, isShiftDown) {
     const key = event.key.toLowerCase();
-    if (key.search(/^[wasd jlik]$/g) === 0) {
+    if (key.search(/^[wasd jlikm]$/g) === 0) {
         const index = keyMap[key];
         controller[index].pressed = isDown;
     }
