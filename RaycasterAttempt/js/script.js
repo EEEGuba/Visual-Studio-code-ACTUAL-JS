@@ -11,12 +11,12 @@ let stepLength = 0.1; //how far you go every frame
 let renderDistance = 250; //impacts how far away a wall has to be to not appear, much longer distances might slow down the game
 let gameSpeed = 1000;//lower the number to make it faster 1000 is default
 let sprintRate = 10;// sprint is this number * regular speed
-let speedDampening = 0.05; //how fast you slow down, 0 makes you go on ice, 1 is instant
-let maxSpeed = 20;
-let recoilSeverity = 0.5;
-let bounceDampening = 0.5; //0 no bounce, 1 same speed
+let speedDampening = 0.1; //how fast you slow down, 0 makes you go on ice, 1 is instant
+let maxSpeed = 0.5;
+let recoilSeverity = 1;
+let bounceDampening = 0.9; //0 no bounce, 1 same speed
 let gametickPause = false;
-let noclip = true;
+let noclip = false;
 //end of settings
 let isFiring = false;
 let currentFrame = 1;
@@ -68,6 +68,8 @@ const crosshair = new Image();
 crosshair.src = "assets/crosshair1.png";
 const chainlinkFence = new Image();
 chainlinkFence.src = "assets/chainlink_fence.png";
+const bluby = new Image();
+bluby.src = "assets/BlubWallFinal1.png";
 
 /**
  * @param {number} frame
@@ -101,7 +103,7 @@ function drawSkybox(skybox, rotation) {
 UIHandler();
 function UIHandler() {
     ctu.fillStyle = "rgba(0,255,0,0.8)";
-    ctu.drawImage(crosshair, myUI.width / 2 - 10, myUI.height / 2  -110, 20, 20);
+    ctu.drawImage(crosshair, myUI.width / 2 - 10, myUI.height / 2 - 110, 20, 20);
     drawGunAnimation(1, Gun1);
     ctu.fillStyle = "grey";
     ctu.fillRect(0, 500, 1200, 200);
@@ -134,7 +136,7 @@ makeLine(450, 200, 500, 300, "materialverticalseawave", true, "passThroughMateri
 makeLine(100, 200, 300, 400, "pink", false, "wall");
 makeLine(300, 200, 300, 300, "materialimagetestTexture1", false, "wall");
 makeLine(200, 200, 300, 200, "materialimagechainlinkFence", true, "wall");
-makeLine(248, 250, 301, 200, "material-glass", true, "wall");
+makeLine(248, 250, 301, 200, "materialimagebluby", true, "wall");
 document.addEventListener("keydown", (event) => {
     keySwitchboard(event, true, event.shiftKey);
 
@@ -334,14 +336,21 @@ function bounceCalculator(wallDetection, shift, ignoreCollision, isFirstBounce) 
     shift.y -= 2 * (wallNormal.y * dotOfWallNormal);
     const bounceVector = returnAngleAndMagnitudeFromZero(shift);
     const nextCollision = rayCastingReturnWall(Array.isArray(wallDetection) ? wallDetection[0].intersection : wallDetection.intersection, bounceVector.angle, bounceVector.magnitude);
-    if (nextCollision !== undefined) {
-        console.log(nextCollision);
-        if (Array.isArray(nextCollision)) {
-            const nextBounce = bounceCalculator(nextCollision, calculateVectorDisplacement(bounceVector.angle, bounceVector.magnitude), ignoreCollision, false);
-            console.log(nextBounce, wallDetection);
-            return { x: nextBounce.x, y: nextBounce.y, angle: nextBounce.angle };
-        }
+    const nextCollisionCheckMath = returnAngleAndMagnitudeFromZero({ x: shift.x, y: shift.y })
+    const nextCollisionCheck = rayCastingReturnWall(playerpos, nextCollisionCheckMath.angle, nextCollisionCheckMath.magnitude);
+
+//this is definetelly unfinished
+    if (Array.isArray(nextCollision)||Array.isArray(nextCollisionCheck)) {
+        const nextBounce = bounceCalculator(nextCollision, calculateVectorDisplacement(bounceVector.angle, bounceVector.magnitude), ignoreCollision, false);
+        console.log(nextBounce, wallDetection);
+        return { x: shift.x * 0, y: shift.y * 0, angle: nextBounce.angle };
     }
+    if (Array.isArray(nextCollisionCheck)) {
+        const nextBounce = bounceCalculator(nextCollisionCheck, calculateVectorDisplacement(bounceVector.angle, bounceVector.magnitude), ignoreCollision, false);
+        console.log(nextBounce, wallDetection);
+        return { x: shift.x * nextBounce.x, y: shift.y * nextBounce.y, angle: nextBounce.angle };
+    }
+    console.log({ x: shift.x, y: shift.y, angle: bounceVector.angle })
     return { x: shift.x, y: shift.y, angle: bounceVector.angle };
 }
 
@@ -427,6 +436,9 @@ function materialEncyclopedia(materialName, wallDistanceFromOrigin) {
         case "imagetestTexture1":
             const position = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * testTexture1.width;
             return new TextureMaterial(testTexture1, position);
+            case "imagebluby":
+                const pos = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * bluby.width;
+                return new TextureMaterial(bluby, pos);
         case "imagechainlinkFence":
             const position2 = parseFloat(getDecimalPart(wallDistanceFromOrigin)) * chainlinkFence.width;
             return new TextureMaterial(chainlinkFence, position2);
@@ -671,6 +683,6 @@ gameClock();
  */
 function isObject(value) {
     //I ripped this function from https://bobbyhadz.com/blog/javascript-check-if-value-is-object, its why it doesnt look like my code
-    return typeof(value) === "object" && value !== null;
+    return typeof (value) === "object" && value !== null;
 }
 //console.log(returnTrueIfPointsOnSameVectorSide(vectorMapData[0],{x:160,y:150},{x:370,y:380}))
