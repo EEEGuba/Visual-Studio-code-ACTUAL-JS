@@ -16,7 +16,7 @@
   <button onClick="drawMap()">
     CLICK
   </button>
-  <button onClick="printData()">
+
     CHECK DATA
   </button><br>-->
   <div class="settings">
@@ -30,28 +30,28 @@
     <input value="3" id="turnSensitivity" type="number"> turn sensitivity | how many degrees you turn per frame
     </input><br>
     <input value="0.1" id="stepLength" type="number"> player speed | how quickly you gain speed </input><br>
-    <input value="250" id="renderDistance" type="number"> render distance | how many blocks you can see forward
+    <input value="50" id="renderDistance" type="number"> render distance | how many blocks you can see forward
     </input><br>
     <input value="1000" id="gameSpeed" type="number"> game speed | how fast the game is, default 1000 lower is faster
     </input><br>
-    <input value="10" id="sprintRate" type="number"> sprint rate | how many times faster is sprinting to walking
+    <input value="1.5" id="sprintRate" type="number"> sprint rate | how many times faster is sprinting to walking
     </input><br>
-    <input value="true" id="noclip" type="checkbox" checked>noclip | walking through walls <b
+    <input value="false" id="noclip" type="checkbox" checked>noclip | walking through walls <b
       style='color:red;'>(Collision in beta! Avoid corners!)</b></input><br>
     <input value="false" id="gametickPause" type="checkbox">pause framecount | pause animations ect.</input><br>
-    <input value="0.5" id="recoilSeverity" type="number"> recoil severity | how far you fly back after shooting and how
+    <input value="3" id="recoilSeverity" type="number"> recoil severity | how far you fly back after shooting and how
     much the screen shakes
     </input><br>
-    <input value="20" id="maxSpeed" type="number"> max speed | how much you can speed up
+    <input value="2" id="maxSpeed" type="number"> max speed | how much you can speed up
     </input><br>
-    <input value="0.05" id="speedDampening" type="number"> speed dampening | how fast you slow down, 0 makes you go on
+    <input value="0.15" id="speedDampening" type="number"> speed dampening | how fast you slow down, 0 makes you go on
     ice, 1 is instant
     </input><br><br>
     <button onClick="apply()">APPLY SETTINGS</button>
 
 
   </div>
-  <div id="programDisclaimer">  <p >This program was done with stock Javascript and no libraries, for use in 1920x1080 resolution (fullscreen) </p>
+  <div id="programDisclaimer">  <p >Grzegorz Ptaszyński MZ102L BSiST</p>
   </div>
 
   <div class="wallAdder">
@@ -62,14 +62,25 @@
     <input value="500" id="yEnd" type="number"> y coordinate of end</input><br>
     <p id="selectMaterialText">select material</p>
 
-    <input list="materialName" id="material">
+    <input list="materialName" id="material"    onmouseover="focus();old = value;" 
+    onmousedown = "value = '';" 
+    onmouseup="value = old;">
+    
     <datalist id="materialName">
-      <option value="materialrainbow">animated</option>
-      <option value="material-glass">mainly for seethrough testing</option>
-      <option value="materialblackwhitestripes"></option>
-      <option value="verticalblackwhitesinewave"></option>
-      <option value="verticalseawave">animated</option>
-      <option value="verticalbricks">this one lags pretty easilly</option>
+      <option value="materialrainbow">animated rainbow</option>
+      <option value="material-glass">glass mainly for seethrough testing (seethrough!)</option>
+      <option value="materialblackwhitestripes">black and white scripes</option>
+      <option value="materialverticalblackwhitesinewave">black and white sine wave</option>
+      <option value="materialverticalseawave">animated sea wave from function(seethrough!)</option>
+      <option value="materialverticalbricks">very laggy bricks</option>
+      <option value="materialimagesignature">my signature and group name(seethrough!)</option>
+      <option value="materialimagebrick">more optimised wolfenstein bricks</option>
+      <option value="materialimagebluestone">wolfenstein bluestone texture</option>
+      <option value="materialimageanimatedFire">animated fire with a bonus memory leak :D(seethrough!)</option>
+      <option value="materialimagetestTexture1">cat in a bucket, test texture</option>
+      <option value="materialimagebluby">fish, nemo lookin types(seethrough!)</option>
+      <option value="materialimagechainlinkFence">chainlink fence(seethrough!)</option>
+      <option value="materialshiftingrainbow">animated rainbow but more trippy</option>
     </datalist><label for="materialName">
       <p><small>you can also enter any color into here you want by entering rgba(red,green,blue,opacity), remember to
           mark ones with less that 1 opacity as see through!</small></p>
