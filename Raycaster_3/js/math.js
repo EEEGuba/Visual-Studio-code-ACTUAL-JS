@@ -4,24 +4,30 @@
 "use strict";
 
 class MapVector {
-    /** @type {Vector} */
-    start;
-    /** @type {Vector} */
-    end;
+    /** @type {number} */
+    x1;
+    /** @type {number} */
+    y1;
+    /** @type {number} */
+    x2;
+    /** @type {number} */
+    y2;
     /** @type {string} */
     material;
 
     /**
-     * @param {number} x0
-     * @param {number} y0
      * @param {number} x1
      * @param {number} y1
+     * @param {number} x2
+     * @param {number} y2
      * @param {string} material
      * @param {boolean} isSeeThrough
      */
-    constructor(x0, y0, x1, y1, material, isSeeThrough) {
-        this.start = { x: x0, y: y0 };
-        this.end = { x: x1, y: y1 };
+    constructor(x1, y1, x2, y2, material, isSeeThrough) {
+        this.x1 = x1, 
+        this.y1 = y1,
+        this.x2 = x2, 
+        this.y2 = y2,
         this.material = material;
     }
 }
@@ -41,6 +47,7 @@ class MapPixel {
     constructor(x, y) {
         this.x = x;
         this.y = y;
+        
     }
 }
 

@@ -5,4 +5,4 @@
 
 
 
-function reloadMapFromFile(){console.log(document.getElementById("mapinfo").value)}
+function reloadMapFromFile(){document.getElementById("mapinfo").value}
