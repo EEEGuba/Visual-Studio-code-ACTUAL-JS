@@ -3,8 +3,12 @@
     
     
 </head>
-<body><canvas id="content"></canvas>
+<body>
+    <div is="gamescreendiv">
+    <canvas id="floorceilingcanvas"></canvas>
+    <canvas id="content"></canvas>
     
+    </div>
     <form enctype="multipart/form-data">
         <textarea class="mapinfo" rows=5 cols=120 id="mapinfo"></textarea>
         <button type="button" onclick="reloadMapFromFile()">RELOAD MAP FROM THIS TEXT</button>
@@ -14,5 +18,6 @@
         <script src="js/drawing.js"></script>
         <script src="js/materials.js"></script>
         <script src="js/mapconverter.js"></script>
+        <script src="js/floorceilingcanvaslogic.js"></script>
     <link rel="stylesheet" href="style.css" />
 </body>
