@@ -25,8 +25,11 @@ const myCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById("cont
 const ctx = /** @type {CanvasRenderingContext2D} */ (myCanvas.getContext("2d"));
 const myFloorCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById("floorceilingcanvas"));
 const ctf = /** @type {CanvasRenderingContext2D} */ (myFloorCanvas.getContext("2d"));
-let mapData = { wallData: undefined, entityData: undefined, playerData: { location: { x: 500, y: 500 }, velocity: { magnitude: 0, azimuth: 0 }, azimuth: 90/*degrees not radians*/ } }
-mapData.wallData = [{ x1: 50, y1: 50, x2: 200, y2: 200, material: "blue" }, { x1: 0, y1: 0, x2: 50, y2: 50, material: "red" }]
+let mapData = { 
+    wallData: [{ x1: 50, y1: 50, x2: 200, y2: 200, material: "blue" }, { x1: 0, y1: 0, x2: 50, y2: 50, material: "red" },{ x1: 0, y1: 0, x2: 200, y2: 200, material: "green" }],
+    entityData: undefined, 
+    playerData: { location: { x: 500, y: 500 }, velocity: { magnitude: 0, azimuth: 0 }, azimuth: 90/*degrees not radians*/ } 
+}
 
 const testTexture1 = new Image();
 testTexture1.src = "assets/bukit2.png";
