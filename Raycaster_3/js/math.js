@@ -133,13 +133,20 @@ function returnTrueIfPointsOnSameVectorSide(vector, pointA, pointB) {
     const perpendicularVector = { x: -absoluteVector.y, y: absoluteVector.x };
     return Math.sign(calculateDotProduct(perpendicularVector, absolutePointA)) === Math.sign(calculateDotProduct(perpendicularVector, absolutePointB));
 }
-
+/**
+ * @param {Vector} vector1
+ * @param {Vector} vector2
+ * @returns {Vector}
+ */
+function addtwo2DVectors(vector1,vector2){
+    return {x:vector1.x+vector2.x,y:vector1.y+vector2.y}
+}
 /**
  * @param {Vector} vector
  * @returns {Vector}
  */
 function normaliseVector(vector) {
-    const magVector = returnAngleAndMagnitudeFromZero(vector);
+    const magVector = returnAzimuthAndMagnitudeFromZero(vector);
     return { x: vector.x / magVector.magnitude, y: vector.y / magVector.magnitude };
 }
 
@@ -147,7 +154,7 @@ function normaliseVector(vector) {
  * @param {Vector} vector
  * @returns {PlayerVector}
  */
-function returnAngleAndMagnitudeFromZero(vector) {
+function returnAzimuthAndMagnitudeFromZero(vector) {
     //cartesian->polar m = √(x² + y²) and θ = arccos(x / m), painfull 
     const m = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
     return { magnitude: m, angle: toDegrees(Math.atan2(vector.y, vector.x)) + 180 };
