@@ -83,7 +83,7 @@ function keyInterpreter(key) {
             canvasHeight -= turnSensitivity * 5;
             break;
         case " ":
-            console.log("augh")
+            DEBUGLOGGERKEY = !DEBUGLOGGERKEY
         default:
             break;
     }

@@ -19,6 +19,7 @@ let gametickPause = false;
 let noclip = false;
 //end of settings
 //all globals here
+
 let isShiftPressed = false;
 let currentFrame = 1;
 const myCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById("content"));
@@ -33,6 +34,8 @@ let mapData = {
 
 const testTexture1 = new Image();
 testTexture1.src = "assets/bukit2.png";
+const cobblestone = new Image();
+cobblestone.src = "assets/minecraft_cobblestone.png";
 const missingTexture = new Image();
 missingTexture.src = "assets/missing_textures.png";
 //end of globals
@@ -48,9 +51,12 @@ mainUpdateClock()
 function mainUpdateClock() {
     //   if(animcount<500){testAnim()}
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
+    ctf.clearRect(0, 0, myFloorCanvas.width, myFloorCanvas.height)
     ctx.fillStyle = "red"
     moveMaker();
     playerMovementExecuter();
+    drawEntireFrameOfFloors()
+    drawEntireFrameOfWalls()
     ctx.fillRect(1+mapData.playerData.location.x, 1+mapData.playerData.location.y, 2, 2)
     ctx.fillStyle = "green"
     const prediction = addtwo2DVectors(calculateVectorDisplacement(mapData.playerData.azimuth,10), mapData.playerData.location)
