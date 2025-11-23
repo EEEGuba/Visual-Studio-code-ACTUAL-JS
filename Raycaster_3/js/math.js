@@ -182,3 +182,14 @@ function angleCorrector(angle) {
 function returnIntersectionDistanceFromOrigin(wallVector, intersectionPoint) {
     return Math.sqrt((wallVector.start.x - intersectionPoint.x) * (wallVector.start.x - intersectionPoint.x) + (wallVector.start.y - intersectionPoint.y) * (wallVector.start.y - intersectionPoint.y));
 }
+/**
+ * @param {Vector} vector
+ * @param {number} degrees
+ * @returns {Vector} 
+ */
+function calculateClockwiseRotatedCoordinatesByXYandAngle(vector,degrees){
+    const radians = toRadians(degrees)
+    const x = vector.x * Math.cos(radians) - vector.y * Math.sin(radians);
+    const y = vector.x * Math.sin(radians) + vector.y * Math.cos(radians);
+    return {x:x,y:y}
+}

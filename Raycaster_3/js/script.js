@@ -51,7 +51,6 @@ mainUpdateClock()
 function mainUpdateClock() {
     //   if(animcount<500){testAnim()}
     ctx.clearRect(0, 0, myCanvas.width, myCanvas.height)
-    ctf.clearRect(0, 0, myFloorCanvas.width, myFloorCanvas.height)
     ctx.fillStyle = "red"
     moveMaker();
     playerMovementExecuter();
