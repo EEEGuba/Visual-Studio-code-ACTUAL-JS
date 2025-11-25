@@ -42,8 +42,10 @@ function drawEntireFrameOfFloors() {
    const osc = offScreenCanvas.getContext('2d')
    const imageData = ctf.getImageData(myFloorCanvas.width/2+leftFarPoint.x,myFloorCanvas.height/2+leftFarPoint.y, imageWidthFar, floorEndDistance - floorStartDistance);    
    osc.putImageData(imageData,0,0)
-   ctx.drawImage(offScreenCanvas, 0,300,1200,300)
-
+   
+   for (let i = 0; i<100; i++) {
+      ctx.drawImage(offScreenCanvas,i*0.9,i,imageWidthFar-i*1.8,1,0,i*3+300,1200,3)
+   }
    
 }
 
