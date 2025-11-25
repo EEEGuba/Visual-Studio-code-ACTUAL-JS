@@ -1,7 +1,9 @@
+/*komentarz*/
+
 #content{
 float: left;
 border: 2px solid black;
-background-image:
+background-image:linear-gradient(white)
 }
 #floorceilingcanvas,#content{
   position:absolute; top:0px; left:0px;
