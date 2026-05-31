@@ -33,7 +33,8 @@ let mapData = {
 }
 
 const testTexture1 = new Image();
-testTexture1.src = "assets/bukit2.png";
+testTexture1.crossOrigin = "anonymous";
+testTexture1.src = "https://eeeguba.github.io/bukit2.png";
 const cobblestone = new Image();
 cobblestone.src = "assets/minecraft_cobblestone.png";
 const missingTexture = new Image();

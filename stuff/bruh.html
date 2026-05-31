@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<head>
+ 
+</head>
+<body>
+<canvas id="bruh"></canvas>
+<script >
+const canvas = document.getElementById("bruh");
+canvas.width = 1080
+canvas.height = 500
+const ctx = canvas.getContext("2d");
+let time = 1
+clock()
+function painter (){
+//ctx.reset()
+//ctx.translate(200,200)
+//ctx.rotate(time/10)
+ctx.fillStyle = `rgb(${getRandomArbitrary(100, 255)},${getRandomArbitrary(100, 255)},${getRandomArbitrary(100, 255)}`;
+ 
+// Add a rectangle at (10, 10) with size 500x500 pixels
+ctx.fillRect(time-20, 0, 1, 500);
+ctx.fillStyle = `rgb(${corrector(time*2,255)},${corrector(time,255)},${corrector(time*23,255)}`;
+ctx.fillRect(time-40, 0, 1, 500-corrector(time*2,500));
+ctx.fillStyle = `rgb(${getRandomArbitrary(100, 255)},${getRandomArbitrary(100, 255)},${getRandomArbitrary(100, 255)}`;
+ctx.fillRect(time-60, 0, 1, corrector(time*3,500));
+ctx.fillStyle = `rgb(${corrector(time*26,255)},${corrector(time*18,255)},${corrector(time*501,255)}`;
+ctx.fillRect(time-80, 0, 1, 500-corrector(time*4,500));
+ctx.fillStyle = `rgb(${corrector(time*26,255)},${corrector(time*16,255)},${corrector(time*801,255)}`;
+ctx.fillRect(time-100, 0, 1, corrector(time*5,500));
+ 
+ctx.fillStyle = `rgb(${getRandomArbitrary(100, 255)},${getRandomArbitrary(100, 255)},${getRandomArbitrary(100, 255)}`;
+ctx.fillRect(getRandomArbitrary(0, 1080),getRandomArbitrary(0, 500), 2, 2);
+}
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
+function clock(){
+time++
+painter()
+setTimeout(()=>{clock()},2)
+}
+function corrector(x,max){
+let xmem = x-max
+if (xmem>max){return corrector(xmem,max)}
+else{return xmem}
+}
+ 
+</script>
+ 
+</body>
